@@ -1,0 +1,76 @@
+{
+  "env": {
+    "TD-VS": "1.59.0",
+    "TD-CC": "11.3.1",
+    "ROOT": "${workspaceFolder}",
+    "ROOT0": "C:/Users/zimme/AppData/Local/Arduino15/packages/teensy",
+    "ROOT1": "${ROOT0}/hardware/avr/${TD-VS}",
+    "ROOT2": "${ROOT0}/tools/teensy-compile/${TD-CC}/arm",
+    "LOCAL_LIBRARIES": "${ROOT}/../libraries",
+    "COMMON_LIBRARIES": [
+      "${ROOT1}/libraries/Audio/**",
+	    "${ROOT1}/libraries/SerialFlash/**",
+      "${ROOT1}/libraries/Wire/**",
+      "${ROOT1}/libraries/SPI/**",
+      "${ROOT1}/libraries/Time/**",
+      "${ROOT1}/libraries/SdFat/**"
+	  
+    ],
+    "COMMON_DEFINES": [ "TEENSYDUINO=159",
+                        "USB_MTPDISK_SERIAL",
+                        "LAYOUT_US_ENGLISH",
+                        "ARDUINO"
+                      ]
+  },
+  "configurations": [
+    { "name": "Teensy 36",
+      "includePath": [
+        "${COMMON_LIBRARIES}",
+        "${ROOT1}/cores/teensy3"
+      ],
+      "forcedInclude": [],
+      "defines": [
+        "__MK66FX1M0__",
+        "ARDUINO_TEENSY36",
+        "F_CPU=96000000",
+        "${COMMON_DEFINES}"
+      ],
+      "compilerPath": "${ROOT2}/bin/arm-none-eabi-gcc.exe",
+      "intelliSenseMode": "gcc-arm",
+      "cppStandard": "gnu++17"    
+    },
+    { "name": "Teensy 40",
+      "includePath": [
+        "${COMMON_LIBRARIES}",
+        "${ROOT1}/cores/teensy4"
+      ],
+      "forcedInclude": [],
+      "defines": [
+        "__IMXRT1062__",
+        "ARDUINO_TEENSY40",
+        "F_CPU=396000000",
+        "${COMMON_DEFINES}"
+      ],
+      "compilerPath": "${ROOT2}/bin/arm-none-eabi-gcc.exe",
+      "intelliSenseMode": "gcc-arm",
+      "cppStandard": "gnu++17"    
+    },
+    { "name": "Teensy 41",
+      "includePath": [
+        "${COMMON_LIBRARIES}",
+        "${ROOT1}/cores/teensy4"
+      ],
+      "forcedInclude": [],
+      "defines": [
+        "__IMXRT1062__",
+        "ARDUINO_TEENSY41",
+        "F_CPU=24000000",
+        "${COMMON_DEFINES}"
+      ],
+      "compilerPath": "${ROOT2}/bin/arm-none-eabi-gcc.exe",
+      "intelliSenseMode": "gcc-arm",
+      "cppStandard": "gnu++17"    
+    }
+  ],
+  "version": 4
+}
