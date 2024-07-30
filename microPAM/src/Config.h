@@ -107,12 +107,14 @@
 /******************** Acquisition scheduling *************************/
   #define T_ACQ  20   // duration in sec of each acquisition file
   #define T_ON   60   // duration in sec  of acquisition
-  #define T_OFF   0   // offset in sec to start in acquisition window
   #define T_REP   0   // repetition in sec of acquisition window (0 is continuous)
-  #define T_1     0   // start hour of first acquisition block
-  #define T_2    12   // stop hour of first acquisition block
-  #define T_3    12   // start hour of second acquisition block
-  #define T_4    24   // stop hour of second acquisition block
+  #define H_1     0   // start hour of first acquisition block
+  #define H_2    12   // stop hour of first acquisition block
+  #define H_3    12   // start hour of second acquisition block
+  #define H_4    24   // stop hour of second acquisition block
+  #define D_ON    1   // duration in days  of acquisition
+  #define D_REP   0   // repetition in days of acquisition (0 is continuous)
+  #define D_0     0   // start day of acquisition (counted from 1-1-1970 )
 
   // extern (global) parameters
   extern volatile int32_t fsamp;  // Acq.cpp 
@@ -121,15 +123,18 @@
   extern volatile int16_t again;  // Acq.cpp
   extern volatile int16_t dgain;  // Acq.cpp
 
-  extern volatile uint32_t t_acq; // Filing.cpp 
-  extern volatile uint32_t  t_on; // Filing.cpp 
-  extern volatile uint32_t t_off; // Filing.cpp 
-  extern volatile uint32_t t_rep; // Filing.cpp 
+  extern volatile uint16_t t_acq; // Filing.cpp 
+  extern volatile uint16_t t_on; // Filing.cpp 
+  extern volatile uint16_t t_rep; // Filing.cpp 
 
-  extern volatile uint32_t t_1; // Filing.cpp 
-  extern volatile uint32_t t_2; // Filing.cpp
-  extern volatile uint32_t t_3; // Filing.cpp
-  extern volatile uint32_t t_4; // Filing.cpp
+  extern volatile uint16_t h_1; // Filing.cpp 
+  extern volatile uint16_t h_2; // Filing.cpp
+  extern volatile uint16_t h_3; // Filing.cpp
+  extern volatile uint16_t h_4; // Filing.cpp
+
+  extern volatile uint16_t d_on; // Filing.cpp 
+  extern volatile uint16_t d_rep; // Filing.cpp 
+  extern volatile  int16_t d_0; // Filing.cpp 
 
   extern volatile uint16_t *params0; //menu.cpp
 

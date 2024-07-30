@@ -32,14 +32,16 @@
 
 #define MAGIC "WMXZ"
 
-volatile uint32_t t_acq= T_ACQ;
-volatile uint32_t t_on = T_ON;
-volatile uint32_t t_off= T_OFF;
-volatile uint32_t t_rep= T_REP;
-volatile uint32_t t_1  = T_1;
-volatile uint32_t t_2  = T_2;
-volatile uint32_t t_3  = T_3;
-volatile uint32_t t_4  = T_4;
+volatile uint16_t t_acq= T_ACQ;
+volatile uint16_t t_on = T_ON;
+volatile uint16_t t_rep= T_REP;
+volatile uint16_t h_1  = H_1;
+volatile uint16_t h_2  = H_2;
+volatile uint16_t h_3  = H_3;
+volatile uint16_t h_4  = H_4;
+volatile uint16_t d_on = D_ON;
+volatile uint16_t d_rep= D_REP;
+volatile  int16_t d_0  = D_0;
 
 #if SDFAT_FILE_TYPE != 3
  #error "SDFAT_FILE_TYPE != 3: edit SdFatConfig.h"
@@ -160,7 +162,7 @@ char * timeStamp(void)
   return date_time;
 }
 
-char * headerInit(int32_t fsamp, int32_t nchan, int32_t nbits, int serNum)
+char * wavHeaderInit(int32_t fsamp, int32_t nchan, int32_t nbits, int serNum)
 {
   int nbytes=nbits/8;
 
@@ -193,14 +195,14 @@ char * headerInit(int32_t fsamp, int32_t nchan, int32_t nbits, int serNum)
   return (char *)&wav_hdr;
 }
 
-char * headerUpdate(int32_t nbytes)
+char * wavHeaderUpdate(int32_t nbytes)
 {
   wav_hdr.dLen = nbytes;
   wav_hdr.rLen += wav_hdr.dLen;
   return (char *)&wav_hdr;
 }
 
-void writeHeader(char * wav_hdr) 
+void wavHeaderWrite(char * wav_hdr) 
 { 
   uint64_t fpos;
   fpos = file.curPosition();
@@ -268,6 +270,7 @@ int16_t makeHeader(int32_t *header)
     header[14] = again;
     header[15] = dgain;
     header[16] = millis();
+    memcpy(&header[20], getStore(),16*2);
 
     header[127]=0x55555555;
     return 1;
@@ -285,11 +288,39 @@ int16_t checkEndOfFile(int16_t state)
     if(dt1<dta) state = DOCLOSE;  	  	// should close file and continue
     dta = dt1;
     //
+    // if file should be closed
+    // check also if it should then hibernate 
     if(state == DOCLOSE)                // in case of DOCLOSE
-    if(t_rep>t_on)                      // and if foreseen  check for hibernation
     {
-      uint32_t dt2 = (tt % t_rep);
-      if(dt2>=t_on) state=DOHIBERNATE;  // should close file and hibernate
+      if(t_rep>t_on)                      // and if foreseen  check for hibernation
+      {
+        uint32_t dt2 = (tt % t_rep);
+        if(dt2>=t_on) state=DOHIBERNATE;  // should close file and hibernate
+      }
+    }
+    if(state == DOCLOSE)                // in case of DOCLOSE
+    {
+      if(d_rep>d_on)                      // and if foreseen  check for hibernation
+      { int32_t dd=tt/(24*3600);
+        uint32_t dd2 = (dd % d_rep);
+        if(dd2>=d_on) state=DOHIBERNATE;  // should close file and hibernate
+      }
+    }
+    if(state == DOCLOSE)                // in case of DOCLOSE
+    {
+      uint32_t hh=(tt%(24*3600)/3600);
+      if(((hh>=h_1) && (hh<h_2)) || ((hh>=h_3) && (hh<h_4)))
+      { state=DOCLOSE;
+      }
+      else
+      {
+        state=DOHIBERNATE;
+      }
+    }
+    if(state == DOCLOSE)                // in case of DOCLOSE
+    {
+      uint32_t dd=tt/(24*3600);
+      if(dd<(d_0+20000)) state=DOHIBERNATE;     // we are too early
     }
   }
   return state;
@@ -358,7 +389,7 @@ static char dirName[80];
 static char fileName[80];
 static int32_t fileHeader[128];
 uint32_t nbuf;
-void do_hibernate(uint32_t dt);
+void do_hibernate(void);
 
 /**************** main data filing routine ************************/
 int16_t storeData(int16_t status)
@@ -392,7 +423,7 @@ int16_t storeData(int16_t status)
         char *hdr=0;
         if(proc==0)
         { 
-          hdr = headerInit(fsamp, NCHAN_ACQ, NBITS, SerNum);
+          hdr = wavHeaderInit(fsamp, NCHAN_ACQ, NBITS, SerNum);
         }  
         else
         {
@@ -424,27 +455,21 @@ int16_t storeData(int16_t status)
 
     // following is done independent of data availability
     if((status==DOCLOSE) || (status==DOHIBERNATE) || (status==MUSTSTOP)) // should close file or stop acquisition
-    {   if(file)
+    {   // first close file
+        if(file)
         {   if(proc==0)
             {
-              char *hdr = headerUpdate(nbuf*MAX_DISK_BUFFER*4);
-              writeHeader(hdr);
+              char *hdr = wavHeaderUpdate(nbuf*MAX_DISK_BUFFER*4);
+              wavHeaderWrite(hdr);
             }
             file.close();
         }
 
         if(status==DOHIBERNATE)
-        { if( t_rep > t_on) 
-          {
-            // shutdown acq board
+        {   // shutdown acq board
             adcReset();
             acqPower(LOW);
-            do_hibernate(t_rep);
-          }
-          else
-          {
-            status = CLOSED;   // do not hibernate
-          }
+            do_hibernate();
         }
         else if(status==DOCLOSE)
         {
@@ -555,29 +580,52 @@ void reboot(void);
 */
 uint32_t getAlarmTime(uint32_t secs)
 {   // estimate the wakup-time in seconds 
-    // input: actual time
-    // output: next wakup time
+    // input: actual time in s
+    // output: next wakup time in s
+    // wakeup is in absolute seconds
+    // 
+    // secs is actual time in s
+    uint32_t dd = secs/(24*3600);       // full days so far
+    uint32_t hh =(secs%(24*3600))/3600; // full hours into day
+
+    if(dd<(d_0+20000)) 
+    { // we are too early
+      secs=(d_0+20000)*(24*3600);
+      return secs;
+    }
     //
-    uint32_t dd = secs/(24*3600); // days
-    uint32_t hh =(secs%(24*3600))/3600; // hour into day
-
-    if(((hh>=t_1) && (hh<t_2)) || ((hh>=t_3) && (hh<t_4)) )
-    {
-      secs = ((secs/t_rep)+1)*t_rep;
+    if(d_rep> d_on)
+    {  // check if day is good for acqisition
+      if(dd % d_rep >=d_on)
+      {
+        secs = ((dd/d_rep)+1)*d_rep*(24*3600);  
+        return secs;
+      }
     }
-    else if (hh<t_1)  // from mid-night to t_1
-    {
-      secs = dd*(24*3600) + t_1*3600;
+    //
+    if(((hh>=h_1) && (hh<h_2)) || ((hh>=h_3) && (hh<h_4)) )
+    { // are we between recording periods during acquisition day
+      if(t_rep>t_on)
+      { // normal hibernation for duty cycling 
+        secs = ((secs/t_rep)+1)*t_rep;
+        return secs;
+      }
     }
-    else if (hh>=t_2) // between the two recording periods
+    //
+    if (hh<h_1)                // from mid-night to h_1 
     {
-      secs = dd*(24*3600) + t_3*3600;
+      secs = (dd*24+ h_1)*3600;     // next time is h1
     }
-    else if (hh>=t_4) // after the second recording period (goes into next day)
+    else if ((hh>=h_2) && (hh<h_3)) // between the two recording periods
     {
-      secs = dd*(24*3600) + (t_1+24-t_4)*3600;
-
+      secs = (dd*24+h_3)*3600;      // next time is h3
     }
+    else if (hh>=h_4) // after the second recording period (goes into next day)
+    {
+      dd++;
+      secs = (dd*24+h_1)*3600;  // next time is next day at h_1
+    }
+    //
     return secs;
 }
 
@@ -589,7 +637,7 @@ void powerDown(void)
 
 #define SNVS_LPCR_LPTA_EN_MASK          (0x2U)
 
-void do_hibernate(uint32_t t_rep)
+void do_hibernate(void)
 {
     uint32_t tmp = SNVS_LPCR;   // save control register
 
@@ -615,7 +663,7 @@ void do_hibernate(uint32_t t_rep)
     uint32_t secs = (msb << 17) | (lsb >> 15);
 
     //set alarm
-    Serial.print(secs); Serial.print(" ");
+    Serial.print(secs); Serial.print(" -> ");
     secs = getAlarmTime(secs);
     Serial.println(secs);
 

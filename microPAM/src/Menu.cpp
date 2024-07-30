@@ -98,19 +98,25 @@ int16_t menu1(int16_t status)
     while(!Serial.available()) ;
     char ch;
     ch=Serial.read();
+    Serial.println(ch);
     if(ch=='w') 
-    { Serial.println("Save parameters");
-      saveParameters();
+    { saveParameters();
+      Serial.println("Save parameters");
     }
     else if(ch=='m') // control monitor (needed for gui)
     {
       menuGetInt16((int16_t *)&monitor);
     }
-  #if defined(__IMXRT1062__)
-    else if(ch=='c') // transfer internal rtc to external rtc
-    { rtcXferTime();
+    #if defined(__IMXRT1062__)
+      else if(ch=='c') // transfer internal rtc to external rtc
+      { rtcXferTime();
+      }
+    #endif
+    else
+    {
+      Serial.print(ch); Serial.println(" not recognized");
     }
-  #endif
+    while(Serial.available()) ch=Serial.read();
     return status;
 }
 
@@ -133,17 +139,20 @@ void menu2(void)
   #if defined(__IMXRT1062__)
       Serial.println(rtcGetTimestamp());
       #endif
-      Serial.print("t_acq (a) = "); Serial.println(t_acq);
-      Serial.print("t_on  (o) = "); Serial.println(t_on);
-      Serial.print("t_rep (r) = "); Serial.println(t_rep);
       Serial.print("fsamp (f) = "); Serial.println(fsamp);
       Serial.print("shift (s) = "); Serial.println(shift);
       Serial.print("proc  (c) = "); Serial.println(proc);
       Serial.print("again (g) = "); Serial.println(again);
-      Serial.print("t_1   (1) = "); Serial.println(t_1);
-      Serial.print("t_2   (2) = "); Serial.println(t_2);
-      Serial.print("t_3   (3) = "); Serial.println(t_3);
-      Serial.print("t_4   (4) = "); Serial.println(t_4);
+      Serial.print("t_acq (a) = "); Serial.println(t_acq);
+      Serial.print("t_on  (o) = "); Serial.println(t_on);
+      Serial.print("t_rep (r) = "); Serial.println(t_rep);
+      Serial.print("h_1   (1) = "); Serial.println(h_1);
+      Serial.print("h_2   (2) = "); Serial.println(h_2);
+      Serial.print("h_3   (3) = "); Serial.println(h_3);
+      Serial.print("h_4   (4) = "); Serial.println(h_4);
+      Serial.print("d_on  (5) = "); Serial.println(d_on);
+      Serial.print("d_rep (6) = "); Serial.println(d_rep);
+      Serial.print("d_0   (0) = "); Serial.println(d_0);
     }
     else if(ch=='d') // get date
     {
@@ -185,19 +194,31 @@ void menu2(void)
     }
     else if(ch=='1')
     {
-      Serial.print("t_1  (1) = "); Serial.println(t_1);
+      Serial.print("h_1  (1) = "); Serial.println(h_1);
     }
     else if(ch=='2')
     {
-      Serial.print("t_2  (2) = "); Serial.println(t_2);
+      Serial.print("h_2  (2) = "); Serial.println(h_2);
     }
     else if(ch=='3')
     {
-      Serial.print("t_3  (3) = "); Serial.println(t_3);
+      Serial.print("h_3  (3) = "); Serial.println(h_3);
     }
     else if(ch=='4')
     {
-      Serial.print("t_4  (4) = "); Serial.println(t_4);
+      Serial.print("h_4  (4) = "); Serial.println(h_4);
+    }
+    else if(ch=='5')
+    {
+      Serial.print("d_on  (5) = "); Serial.println(d_on);
+    }
+    else if(ch=='6')
+    {
+      Serial.print("d_rep (6) = "); Serial.println(d_rep);
+    }
+    else if(ch=='0')
+    {
+      Serial.print("d_0   (0) = "); Serial.println(d_0);
     }
     else if(ch=='w')
     { uint16_t *params=loadParameters();
@@ -261,19 +282,31 @@ void menu3(void)
     }
     else if(ch=='1')
     { 
-      menuGetInt16((int16_t *)&t_1);
+      menuGetInt16((int16_t *)&h_1);
     }
     else if(ch=='2')
     { 
-      menuGetInt16((int16_t *)&t_2);
+      menuGetInt16((int16_t *)&h_2);
     }
     else if(ch=='3')
     { 
-      menuGetInt16((int16_t *)&t_3);
+      menuGetInt16((int16_t *)&h_3);
     }
     else if(ch=='4')
     { 
-      menuGetInt16((int16_t *)&t_4);
+      menuGetInt16((int16_t *)&h_4);
+    }
+    else if(ch=='5')
+    { 
+      menuGetInt16((int16_t *)&d_on);
+    }
+    else if(ch=='6')
+    { 
+      menuGetInt16((int16_t *)&d_rep);
+    }
+    else if(ch=='0')
+    { 
+      menuGetInt16((int16_t *)&d_0);
     }
 }
 
@@ -296,20 +329,20 @@ void saveParameters(void)
 {
   store[1]  = t_acq;
   store[2]  = t_on;
-  store[3]  = t_off;
-  store[4]  = t_rep;
-  store[5]  = proc;
-  store[6]  = shift;
-  store[7]  = t_1;
-  store[8]  = t_2;
-  store[9]  = t_3;
-  store[10] = t_4;
-  store[11] = fsamp/1000;
-  store[12] = again;
-  store[13] = dgain;
-  store[14] = 0;
-  store[15] = 0;
-
+  store[3]  = t_rep;
+  store[4]  = proc;
+  store[5]  = shift;
+  store[6]  = h_1;
+  store[7]  = h_2;
+  store[8]  = h_3;
+  store[9]  = h_4;
+  store[10] = d_on;
+  store[11] = d_rep;
+  store[12] = fsamp/1000;
+  store[13] = again;
+  store[14] = dgain;
+  store[15] = d_0;
+  
   storeConfig(store, 16);
 }
 
@@ -320,36 +353,38 @@ uint16_t *loadParameters(void)
   {
     t_acq   = store[1];
     t_on    = store[2];
-    t_off   = store[3];
-    t_rep   = store[4];
-    proc    = store[5];
-    shift   = store[6];
-    t_1     = store[7];
-    t_2     = store[8];
-    t_3     = store[9];
-    t_4     = store[10];
-    fsamp   = store[11]*1000;
-    again   = store[12];
-    dgain   = store[13];
+    t_rep   = store[3];
+    proc    = store[4];
+    shift   = store[5];
+    h_1     = store[6];
+    h_2     = store[7];
+    h_3     = store[8];
+    h_4     = store[9];
+    d_on    = store[10];
+    d_rep   = store[11];
+    fsamp   = store[12]*1000;
+    again   = store[13];
+    dgain   = store[14];
+    d_0     = store[15];
   }
   else
   {
     store[0]  = 0;
     store[1]  = t_acq    = T_ACQ;
     store[2]  = t_on     = T_ON;
-    store[3]  = t_off    = T_OFF;
-    store[4]  = t_rep    = T_REP;
-    store[5]  = proc     = PROC_MODE;
-    store[6]  = shift    = SHIFT;
-    store[7]  = t_1      = T_1;
-    store[8]  = t_2      = T_2;
-    store[9]  = t_3      = T_3;
-    store[10] = t_4      = T_4;
-    store[11] = (fsamp   = FSAMP)/1000; 
-    store[12] = again    = AGAIN;
-    store[13] = dgain    = DGAIN;
-    store[14] = 0;
-    store[15] = 0; 
+    store[3]  = t_rep    = T_REP;
+    store[4]  = proc     = PROC_MODE;
+    store[5]  = shift    = SHIFT;
+    store[6]  = h_1      = H_1;
+    store[7]  = h_2      = H_2;
+    store[8]  = h_3      = H_3;
+    store[9]  = h_4      = H_4;
+    store[10] = d_on     = D_ON;
+    store[11] = d_rep    = D_REP;
+    store[12] = (fsamp   = FSAMP)/1000; 
+    store[13] = again    = AGAIN;
+    store[14] = dgain    = DGAIN;
+    store[15] = d_0      = 0; 
   }
   return store;
 }

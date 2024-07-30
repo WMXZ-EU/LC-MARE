@@ -302,9 +302,9 @@ uint8_t *msetRTC(uint8_t *buffer, uint16_t nbuf)
     uint8_t month, monthLength;
     unsigned long days;
 
-    tm->sec  = time % 60; time /= 60; // now it is minutes
-    tm->min  = time % 60; time /= 60; // now it is hours
-    tm->hour = time % 24; time /= 24; // now it is days
+    tm->sec  = time % 60; time /= 60; // now time is minutes
+    tm->min  = time % 60; time /= 60; // now time is hours
+    tm->hour = time % 24; time /= 24; // now time is days
 
     tm->dotw = ((time + 4) % 7) ;  // Sunday is day 0 // 1-1-1970 was Thursday
     
@@ -316,7 +316,7 @@ uint8_t *msetRTC(uint8_t *buffer, uint16_t nbuf)
     tm->year = year+YEAR0;
     
     days -= LEAP_YEAR(year) ? 366 : 365;
-    time  -= days; // now it is days in this year, starting at 0
+    time -= days; // now time is days in this year, starting at 0
     
     days=0;
     month=0;
@@ -348,15 +348,19 @@ uint8_t *msetRTC(uint8_t *buffer, uint16_t nbuf)
     uint32_t seconds;
 
     uint8_t year;
-    year=tm->year-YEAR0;
-    // seconds from 1970 till 1 jan 00:00:00 of the given year
+    year=tm->year-YEAR0; // year after 1-jan-1970 (YEAR0)
+    #if 0
     seconds= year*(SECS_PER_DAY * 365);
     for (ii = 0; ii < year; ii++) {
       if (LEAP_YEAR(ii)) {
         seconds += SECS_PER_DAY;   // add extra days for leap years
       }
     }
-    
+    #endif
+    uint32_t days= year*365;
+    for (ii = 0; ii < year; ii++) if (LEAP_YEAR(ii)) days++;  // add extra days for leap years
+    seconds = days*SECS_PER_DAY;
+
     // add days for this year, months start from 1
     for (ii = 1; ii < tm->month; ii++) {
       if ( (ii == 2) && LEAP_YEAR(year)) { 
@@ -375,6 +379,13 @@ uint8_t *msetRTC(uint8_t *buffer, uint16_t nbuf)
   #if USE_EXT_RTC==1
   #include "RV-3028-C7.h"
   RV3028 rtc;
+  // needed functions
+  // rtc.begin()
+  // rtc.setUNIX(...)
+  // rtc.setTime(...)
+  // rtc.getUNIX()
+  // rtc.updateTime()
+  // rtc.stringTimeStamp()
   #endif
 
   int16_t rtcSetup(uint8_t sda, uint8_t scl)
