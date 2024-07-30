@@ -1,5 +1,5 @@
 { 
-  "command": "${workspaceFolder}/../make.exe",
+  "command": "${workspaceFolder}/make.exe",
   "config": "${command:cpptools.activeConfigName}",
     "tasks": [
     {
