@@ -2,3 +2,5 @@
 *.a
 *.d
 *.o
+/Python/build
+/Python/dist
