@@ -27,7 +27,7 @@
 #if  (ADC_MODEL == TLV320ADC6140)
     #if defined(__IMXRT1062__)
         #define NPORT_I2S    1
-        #if 1
+        #if 0
             #define ADC_SHDNZ   32
             #define ADC_EN      33      // as of micoPAM-mare-2b
             #define mWire       Wire1    // SDA1/SCL1

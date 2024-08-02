@@ -875,7 +875,7 @@ aaaaaabf g       *ABS*	00000000 _flexram_bank_config
 20000604  w    O .data	00000010 SPIClass::beginTransaction(SPISettings)::clk_sel
 0000c668 g     F .text.itcm	00000042 Stream::readBytesUntil(char, char*, unsigned int)
 00004f80 g     F .text.itcm	00000056 SPIClass::transfer(void const*, void*, unsigned int)
-66a91b53 g       *ABS*	00000000 __rtc_localtime
+66ad29f7 g       *ABS*	00000000 __rtc_localtime
 0000b750 g     F .text.itcm	0000004c micros
 00003e7c g     F .text.itcm	00000044 MTPD::GetDevicePropDesc(unsigned long)
 00006774 g     F .text.itcm	000000dc ExFatFile::syncDir()
@@ -11411,7 +11411,7 @@ int __not_in_flash_func(compress)(void *inp)
         #if defined(ADC_EN)
             digitalWrite(ADC_EN,flag);
     3764:	uxtb	r1, r0
-    3766:	movs	r0, #33	; 0x21
+    3766:	movs	r0, #2
     {   
     3768:	push	{r3, lr}
             digitalWrite(ADC_EN,flag);
@@ -11431,7 +11431,7 @@ int __not_in_flash_func(compress)(void *inp)
     void adcReset(void) 
     { digitalWrite(ADC_SHDNZ,LOW); 
     3778:	movs	r1, #0
-    377a:	movs	r0, #32
+    377a:	movs	r0, #3
     377c:	b.w	beec <digitalWrite>
 
 00003780 <adcStart()>:
@@ -11439,7 +11439,7 @@ int __not_in_flash_func(compress)(void *inp)
     void adcStart(void) 
     { digitalWrite(ADC_SHDNZ,HIGH); 
     3780:	movs	r1, #1
-    3782:	movs	r0, #32
+    3782:	movs	r0, #3
     3784:	b.w	beec <digitalWrite>
 
 00003788 <adc_init()>:
@@ -11452,7 +11452,7 @@ int __not_in_flash_func(compress)(void *inp)
         #if defined(ADC_EN)
             pinMode(ADC_EN,OUTPUT);
     378c:	movs	r1, #1
-    378e:	movs	r0, #33	; 0x21
+    378e:	movs	r0, #2
     3790:	bl	bf2c <pinMode>
         #endif
         acqPower(HIGH);
@@ -11462,7 +11462,7 @@ int __not_in_flash_func(compress)(void *inp)
         // reset ADC's 
         pinMode(ADC_SHDNZ,OUTPUT);
     379a:	movs	r1, #1
-    379c:	movs	r0, #32
+    379c:	movs	r0, #3
     379e:	bl	bf2c <pinMode>
         adcReset();
     37a2:	bl	3778 <adcReset()>
@@ -11680,7 +11680,7 @@ int __not_in_flash_func(compress)(void *inp)
     38fc:	b.n	37cc <adc_init()+0x44>
     38fe:	nop
     3900:	.word	0x000186a0
-    3904:	.word	0x20001e80
+    3904:	.word	0x20001d40
     3908:	.word	0x20001032
     390c:	.word	0x20001d30
     3910:	.word	0x20001092
@@ -11731,7 +11731,7 @@ int __not_in_flash_func(compress)(void *inp)
     395a:	pop	{r4, r5, r6, pc}
     395c:	.word	0x2000108e
     3960:	.word	0x000186a0
-    3964:	.word	0x20001e80
+    3964:	.word	0x20001d40
 
 00003968 <adcStatus()>:
     void adcStatus(void)
@@ -11782,7 +11782,7 @@ int __not_in_flash_func(compress)(void *inp)
     39ba:	pop	{r4, pc}
     39bc:	.word	0x20001d30
     39c0:	.word	0x000186a0
-    39c4:	.word	0x20001e80
+    39c4:	.word	0x20001d40
     39c8:	.word	0x20001052
     39cc:	.word	0x2000105a
 
