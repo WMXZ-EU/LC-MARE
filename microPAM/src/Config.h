@@ -114,7 +114,8 @@
   #define H_4    24   // stop hour of second acquisition block
   #define D_ON    1   // duration in days  of acquisition
   #define D_REP   0   // repetition in days of acquisition (0 is continuous)
-  #define D_0     0   // start day of acquisition (counted from 1-1-1970 )
+  #define D_0     0   // start day of acquisition (counted from 4-10-2024 (D_REF = 20000))
+  #define D_REF 15000
 
   // extern (global) parameters
   extern volatile int32_t fsamp;  // Acq.cpp 

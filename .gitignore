@@ -4,3 +4,6 @@
 *.o
 /Python/build
 /Python/dist
+*.zip
+KICAD/LC_PAMV1/_autosave-LC_PAM.kicad_sch
+KICAD/LC_PAMV1/\#auto_saved_files\#
