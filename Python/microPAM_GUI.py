@@ -12,6 +12,7 @@ import serial
 import serial.tools.list_ports
 
 class Window(tk.Frame):
+    d_ref=15000
 
     def mEntry(self,txt,x,y,w,dx):
         label = tk.Label(text=txt,font=("Helvetica", 18))
@@ -37,7 +38,7 @@ class Window(tk.Frame):
         edit.delete(0,tk.END)
         edit.insert(0,txt[ip+2:])
 
-    def mgetEntry(self,ser,str,edit):
+    def msendEntry(self,ser,str,edit):
         data=str+edit.get()+"\r"
         ser.write(data.encode())
 
@@ -207,7 +208,7 @@ class Window(tk.Frame):
 
             days=int(self.mgetParam(ser,"?0"))
             print('get',days)
-            year,month,day=self.nidays(days+20000)
+            year,month,day=self.nidays(days+self.d_ref)
             self.mputEntry(self.d_start_edit,str(day))
             self.mputEntry(self.m_start_edit,str(month))
             self.mputEntry(self.y_start_edit,str(year))
@@ -222,22 +223,22 @@ class Window(tk.Frame):
         s=serial.tools.list_ports.comports(True)
         with serial.Serial(s[0].device) as ser:
             ser.read_all()
-            self.mgetEntry(ser,'!a',self.t_acq_edit)
-            self.mgetEntry(ser,'!o',self.t_on_edit)
-            self.mgetEntry(ser,'!r',self.t_rep_edit)
-            self.mgetEntry(ser,'!1',self.h_1_edit)
-            self.mgetEntry(ser,'!2',self.h_2_edit)
-            self.mgetEntry(ser,'!3',self.h_3_edit)
-            self.mgetEntry(ser,'!4',self.h_4_edit)
-            self.mgetEntry(ser,'!5',self.d_on_edit)
-            self.mgetEntry(ser,'!6',self.d_rep_edit)
+            self.msendEntry(ser,'!a',self.t_acq_edit)
+            self.msendEntry(ser,'!o',self.t_on_edit)
+            self.msendEntry(ser,'!r',self.t_rep_edit)
+            self.msendEntry(ser,'!1',self.h_1_edit)
+            self.msendEntry(ser,'!2',self.h_2_edit)
+            self.msendEntry(ser,'!3',self.h_3_edit)
+            self.msendEntry(ser,'!4',self.h_4_edit)
+            self.msendEntry(ser,'!5',self.d_on_edit)
+            self.msendEntry(ser,'!6',self.d_rep_edit)
             #
-            self.mgetEntry(ser,'!f',self.fsamp_edit)
-            self.mgetEntry(ser,'!c',self.proc_edit)
-            self.mgetEntry(ser,'!s',self.shift_edit)
-            self.mgetEntry(ser,'!g',self.again_edit)
+            self.msendEntry(ser,'!f',self.fsamp_edit)
+            self.msendEntry(ser,'!c',self.proc_edit)
+            self.msendEntry(ser,'!s',self.shift_edit)
+            self.msendEntry(ser,'!g',self.again_edit)
             #
-            data="!0"+str(days-20000)+"\r"
+            data="!0"+str(days-self.d_ref)+"\r"
             print('put', data)
             ser.write(data.encode())
             ser.read_all()
