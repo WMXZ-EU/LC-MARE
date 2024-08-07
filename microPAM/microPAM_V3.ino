@@ -134,7 +134,7 @@ void setup()
 {
   // put your setup code here, to run once:
   #if defined(__IMXRT1062__)
-    set_arm_clock(48'000'000);
+    set_arm_clock(24'000'000);
   #elif defined(TARGET_RP2040)
     set_sys_clock_khz(48'000, true);
   #endif

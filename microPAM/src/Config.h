@@ -65,10 +65,10 @@
   #define ADC_MODEL TLV320ADC6140
 
   // for mFiling
-  #define MIN_SPACE   2000  // number of disk clusters to keep free
+  #define MIN_SPACE   2000  // number of disk clusters to keep free  (e.g. 256 MB if cluster=128 kB)
   #define DirPrefix    "T"  // prefix for directory
   #define FilePrefix   "F"  // prefix fir fileName
-  #define NBITS         32  // 32,24,16 number of bits in wav file (will be used in saveData)
+  #define NBITS         16  // 32,24,16 number of bits in wav file (will be used in saveData)
   #define HourDir        1  // use date/hour/file structure (0 for date/file stucture)
 
   // for mQueue

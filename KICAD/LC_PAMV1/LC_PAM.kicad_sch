@@ -5615,7 +5615,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Battery:BatteryHolder_Keystone_103_1x20mm"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 			(at 83.82 117.856 90)
 			(effects
 				(font
@@ -6066,7 +6066,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Library:preAmp2"
+		(property "Footprint" "myLibrary:preAmp2"
 			(at 74.93 90.17 0)
 			(effects
 				(font
@@ -6358,7 +6358,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Library:ADC_V2"
+		(property "Footprint" "myLibrary:ADC_V2"
 			(at 121.92 87.63 0)
 			(effects
 				(font
@@ -6490,7 +6490,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Library:preAmp2"
+		(property "Footprint" "myLibrary:preAmp2"
 			(at 73.66 72.39 0)
 			(effects
 				(font
@@ -6832,7 +6832,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Library:Teensy41"
+		(property "Footprint" "myLibrary:Teensy41"
 			(at 209.55 96.52 0)
 			(effects
 				(font

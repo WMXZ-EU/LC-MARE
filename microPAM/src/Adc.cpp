@@ -142,12 +142,17 @@
             {
                 i2c.write(i2c_addr[ii],0x0B+jj,chmap[ii][jj]); 
             }
-
-            //i2c.write(i2c_addr[ii],0x73,chanMask[ii]); 	//Enable Input Ch-1 to Ch-8 by I2C write into P0_R115 
-            i2c.write(i2c_addr[ii],0x73,0x30);	//Enable ASI Output Ch-1 to Ch-8 slots by I2C write into P0_R116
-            //i2c.write(i2c_addr[ii],0x74,chanMask[ii]);	//Enable ASI Output Ch-1 to Ch-8 slots by I2C write into P0_R116
-            i2c.write(i2c_addr[ii],0x74,0x20);	//Enable ASI Output Ch-1 to Ch-8 slots by I2C write into P0_R116
-            i2c.write(i2c_addr[ii],0x75,0xE0);			//Power-up ADC and PLL by I2C write into P0_R117 
+            //
+            //Enable Input Ch-1 to Ch-8 by I2C write into P0_R115
+            //i2c.write(i2c_addr[ii],0x73,chanMask[ii]); 	 
+            i2c.write(i2c_addr[ii],0x73,0x30);
+            //
+            //Enable ASI Output Ch-1 to Ch-8 slots by I2C write into P0_R116
+            //i2c.write(i2c_addr[ii],0x74,chanMask[ii]);	
+            i2c.write(i2c_addr[ii],0x74,0x20);	
+            //
+   			//Power-up ADC and PLL by I2C write into P0_R117 
+            i2c.write(i2c_addr[ii],0x75,0xE0);
 
             i2c.write(i2c_addr[ii],0x6B,(2<<4) | (1<<2) | (1<<0)); 	//LL-Filter and sum (1+2)/2; (3+4)/2
 

@@ -2147,7 +2147,7 @@
 		(descr "Through hole straight pin header, 1x02, 2.54mm pitch, single row")
 		(tags "Through hole pin header THT 1x02 2.54mm single row")
 		(property "Reference" "BT1"
-			(at 0 -2.33 360)
+			(at 0 -2.33 0)
 			(layer "F.SilkS")
 			(uuid "2f7f14f8-3dd4-4aff-b143-ecd24fd99a72")
 			(effects
@@ -2158,7 +2158,7 @@
 			)
 		)
 		(property "Value" "Battery_Cell"
-			(at 0 4.87 360)
+			(at 0 4.87 0)
 			(layer "F.Fab")
 			(uuid "c6fb0c18-14b1-4860-b4ff-d13967fca7ee")
 			(effects
