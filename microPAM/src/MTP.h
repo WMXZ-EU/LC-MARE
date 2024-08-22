@@ -108,7 +108,7 @@ private:
 
   bool write_get_length_ = false;
   uint32_t write_length_ = 0;
-  void write(const char *data, int len) ;
+  void mwrite(const uint8_t *data, int len) ;
 
   void write8 (uint8_t  x) ;
   void write16(uint16_t x) ;

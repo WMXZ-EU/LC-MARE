@@ -320,7 +320,7 @@ int16_t checkEndOfFile(int16_t state)
     if(state == DOCLOSE)                // in case of DOCLOSE
     {
       uint32_t dd=tt/(24*3600);
-      if(dd<(d_0+D_REF)) state=DOHIBERNATE;     // we are too early
+      if(dd<(uint32_t)(d_0+D_REF)) state=DOHIBERNATE;     // we are too early
     }
   }
   return state;

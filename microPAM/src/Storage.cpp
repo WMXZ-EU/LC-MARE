@@ -413,7 +413,7 @@ void MTPStorage_SD::removeFile(uint32_t store, char *file)
     return ret;
   }
 
-  size_t MTPStorage_SD::write(const char* data, uint32_t bytes)
+  size_t MTPStorage_SD::mwrite(const uint8_t* data, uint32_t bytes)
   {
       mtp_lock_storage(true);
       size_t ret = file_.write(data,bytes);

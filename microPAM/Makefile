@@ -60,7 +60,7 @@ ifeq ($(BOARD_ID),T41)
 	Family		:= teensy4
 	LDFILE		:= imxrt1062_t41.ld
 	FLAGS_CPU   += -mcpu=cortex-m7 -mfpu=fpv5-d16
-	LIBS        := -larm_cortexM7lfsp_math
+	LIBS        := # -larm_cortexM7lfsp_math
 	DEFINES     := -D__IMXRT1062__  -DARDUINO_TEENSY41
 	DEFINES     += -DF_CPU=24000000
 endif
@@ -81,7 +81,8 @@ LIBS_LOCAL_BASE 	:= $(HOMEPATH)\Documents\Arduino\libraries
 ROOT1 := $(HOMEPATH)\AppData\Local\Arduino15\packages\$(BOARD_CLASS)
 
 PJRC_BASE       	:= $(ROOT1)\tools\teensy-tools\$(TDVERSION)
-GCC_BASE        	:= $(ROOT1)/tools/teensy-compile/11.3.1/arm/bin
+#GCC_BASE        	:= $(ROOT1)/tools/teensy-compile/11.3.1/arm/bin
+GCC_BASE        	:= C:\SysGCC\arm-eabi\bin
 
 $(info $(PJRC_BASE))
 
@@ -179,7 +180,7 @@ generateDirs := $(foreach d, $(DIRECTORIES), $(shell if(-not(test-path "$d")) {m
 
 
 # force compilation of config to update version date
-$(shell (ls $(USR_SRC)/Config.h).LastWriteTime = get-Date)
+$(shell (ls $(USR_SRC)/Version.h).LastWriteTime = get-Date)
 
 #******************************************************************************
 # Flags and Defines

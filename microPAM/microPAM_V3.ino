@@ -154,7 +154,6 @@ void setup()
     while(millis()<10'000) if(Serial) { termon=1; break;}
   }
 
-  Serial.println(version);
   Serial.print("params[0] = "); Serial.println(params[0]);
   
   // Teensy has a crash report

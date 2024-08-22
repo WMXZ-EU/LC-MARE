@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
  #include "Arduino.h"
+#include "Version.h"
 #include "Config.h"
 #include "Menu.h"
 #include "RTC.h"

@@ -23,8 +23,6 @@
 #define CONFIG_H
   #include <stdint.h>
   
-  const char version[] = "\nmicroPAM-V3 build "  __DATE__ " " __TIME__;
-
   #define START_MODE 0      // -1 is stopped; 0 is closed (ready to open file)
 
   // for mAcq

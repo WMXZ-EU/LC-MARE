@@ -242,10 +242,10 @@ const uint16_t supported_events[] =
   };
 */
 
-  void MTPD::write8 (uint8_t  x) { write((char*)&x, sizeof(x)); }
-  void MTPD::write16(uint16_t x) { write((char*)&x, sizeof(x)); }
-  void MTPD::write32(uint32_t x) { write((char*)&x, sizeof(x)); }
-  void MTPD::write64(uint64_t x) { write((char*)&x, sizeof(x)); }
+  void MTPD::write8 (uint8_t  x) { mwrite((const uint8_t*)&x, sizeof(x)); }
+  void MTPD::write16(uint16_t x) { mwrite((const uint8_t*)&x, sizeof(x)); }
+  void MTPD::write32(uint32_t x) { mwrite((const uint8_t*)&x, sizeof(x)); }
+  void MTPD::write64(uint64_t x) { mwrite((const uint8_t*)&x, sizeof(x)); }
 
 #define Store2Storage(x) (x+1)
 #define Storage2Store(x) (x-1)
@@ -942,7 +942,7 @@ const uint16_t supported_events[] =
       return usb_mtp_recv(data_buffer,60);
     }
 
-    void MTPD::write(const char *data, int len) 
+    void MTPD::mwrite(const uint8_t *data, int len) 
     { if (write_get_length_) 
       {
         write_length_ += len;
@@ -953,7 +953,7 @@ const uint16_t supported_events[] =
         if(!write_length_) dst=tx_data_buffer;   
         write_length_ += len;
         
-        const char * src=data;
+        const uint8_t * src=data;
         //
         int pos = 0; // into data
         while(pos<len)
@@ -1067,7 +1067,7 @@ const uint16_t supported_events[] =
       header.transaction_id = CONTAINER->transaction_id;  \
       write_length_ = 0;                                  \
       write_get_length_ = false;                          \
-      write((char *)&header, sizeof(header));             \
+      mwrite((const uint8_t *)&header, sizeof(header));             \
       FUN;                                                \
       \
       uint32_t rest;                                      \
@@ -1091,7 +1091,7 @@ const uint16_t supported_events[] =
       header.params[0]=dlen;                              \
       write_length_ = 0;                                  \
       write_get_length_ = false;                          \
-      write((char *)&header, sizeof(header));             \
+      mwrite((const uint8_t *)&header, sizeof(header));             \
       FUN;                                                \
       \
       uint32_t rest;                                      \
@@ -1191,7 +1191,7 @@ const uint16_t supported_events[] =
         //
         if(disk_pos==DISK_BUFFER_SIZE)
         {
-          if(storage_->write((const char *)disk_buffer, DISK_BUFFER_SIZE)<DISK_BUFFER_SIZE) return false;
+          if(storage_->mwrite((const uint8_t *)disk_buffer, DISK_BUFFER_SIZE)<DISK_BUFFER_SIZE) return false;
           disk_pos =0;
 
           if(bytes) // we have still data in transfer buffer, copy to initial disk_buffer
@@ -1210,7 +1210,7 @@ const uint16_t supported_events[] =
       //printf("len %d\n",disk_pos);
       if(disk_pos)
       {
-        if(storage_->write((const char *)disk_buffer, disk_pos)<disk_pos) return false;
+        if(storage_->mwrite((const uint8_t *)disk_buffer, disk_pos)<disk_pos) return false;
       }
       storage_->close();
       return true;
