@@ -501,7 +501,7 @@
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "PreampFET-mare.step",
       "svg": "",
       "vrml": ""
     },

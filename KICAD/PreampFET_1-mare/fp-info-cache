@@ -1,4 +1,4 @@
-23741605830739961
+23746787383584739
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -96670,6 +96670,13 @@ ABMM2-12.000MHZ-E2-T
 4
 4
 myLibrary
+HPAB
+
+
+0
+7
+7
+myLibrary
 IC_RV-3028-C7_32.768KHZ_1PPM-TA-QC
 
 
@@ -96704,6 +96711,13 @@ MOLEX_530480410
 0
 4
 4
+myLibrary
+Preamp-FET
+
+
+0
+6
+6
 myLibrary
 RESC3216X125N
 
@@ -96830,6 +96844,13 @@ uSD_RTC
 0
 14
 14
+myPretty
+HPAB
+
+
+0
+7
+7
 myPretty
 RaspberryPi_Pico_Common
 Raspberry Pi Pico (wireless & original) versatile footprint for surface-mount or through-hole hand soldering, default socket model has height of 8.51mm, https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf
