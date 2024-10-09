@@ -313,15 +313,15 @@ void mtp_lock_storage(bool lock) {}
 
 void MTPStorage_SD::removeFile(uint32_t store, char *file)
 { 
-  char tname[MAX_FILENAME_LEN];
+  char tname[2*MAX_FILENAME_LEN];
   char fname[MAX_FILENAME_LEN];
   FsFile f1=sd_open(store,file,O_READ);
   if(f1.isDirectory())
   {
     FsFile f2;
-    while(f2=f1.openNextFile())
+    while((f2=f1.openNextFile()))
     { f2.getName(fname,MAX_FILENAME_LEN);
-      snprintf(tname,MAX_FILENAME_LEN,"%s/%s",file,fname);
+      snprintf(tname,strlen(tname),"%s/%s",file,fname);
       if(f2.isDirectory()) removeFile(store,tname); else sd_remove(store,tname);
     }
     sd_rmdir(store,file);

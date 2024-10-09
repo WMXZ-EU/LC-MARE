@@ -163,68 +163,24 @@ void menu2(void)
     else if(ch=='t') // get time
     {
       rtc_get_datetime(&t);
-      Serial.printf("time (t) = %02d:%02d:%02d\n", t.hour,t.min,t.sec);
+      Serial.printf("time (t) = %02d:%02d:%02d\n", t.hour,t.min,t.sec); 
     }
-    else if(ch=='a')
-    {
-      Serial.print("t_acq (a) = "); Serial.println(t_acq);
-    }
-    else if(ch=='o')
-    {
-      Serial.print("t_on (o)  = "); Serial.println(t_on);
-    }
-    else if(ch=='r')
-    {
-      Serial.print("t_rep (r) = "); Serial.println(t_rep);
-    }
-    else if(ch=='f')
-    {
-      Serial.print("fsamp (f) = "); Serial.println(fsamp);
-    }
-    else if(ch=='s')
-    {
-      Serial.print("shift (s) = "); Serial.println(shift);
-    }
-    else if(ch=='c')
-    {
-      Serial.print("proc  (c) = "); Serial.println(proc);
-    }
-    else if(ch=='g')
-    {
-      Serial.print("again (g) = "); Serial.println(again);
-    }
-    else if(ch=='1')
-    {
-      Serial.print("h_1  (1) = "); Serial.println(h_1);
-    }
-    else if(ch=='2')
-    {
-      Serial.print("h_2  (2) = "); Serial.println(h_2);
-    }
-    else if(ch=='3')
-    {
-      Serial.print("h_3  (3) = "); Serial.println(h_3);
-    }
-    else if(ch=='4')
-    {
-      Serial.print("h_4  (4) = "); Serial.println(h_4);
-    }
-    else if(ch=='5')
-    {
-      Serial.print("d_on  (5) = "); Serial.println(d_on);
-    }
-    else if(ch=='6')
-    {
-      Serial.print("d_rep (6) = "); Serial.println(d_rep);
-    }
-    else if(ch=='0')
-    {
-      Serial.print("d_0   (0) = "); Serial.println(d_0);
-    }
-    else if(ch=='w')
-    { uint16_t *params=loadParameters();
-      Serial.print("params[0]  = "); Serial.println(params[0]);
-    }
+    else if(ch=='a') { Serial.print("t_acq (a) = "); Serial.println(t_acq); }
+    else if(ch=='o') { Serial.print("t_on  (o)  ="); Serial.println(t_on); }
+    else if(ch=='r') { Serial.print("t_rep (r) = "); Serial.println(t_rep); }
+    else if(ch=='f') { Serial.print("fsamp (f) = "); Serial.println(fsamp); }
+    else if(ch=='s') { Serial.print("shift (s) = "); Serial.println(shift); }
+    else if(ch=='c') { Serial.print("proc  (c) = "); Serial.println(proc); }
+    else if(ch=='g') { Serial.print("again (g) = "); Serial.println(again); }
+    else if(ch=='1') { Serial.print("h_1   (1) = "); Serial.println(h_1); }
+    else if(ch=='2') { Serial.print("h_2   (2) = "); Serial.println(h_2); }
+    else if(ch=='3') { Serial.print("h_3   (3) = "); Serial.println(h_3); }
+    else if(ch=='4') { Serial.print("h_4   (4) = "); Serial.println(h_4); }
+    else if(ch=='5') { Serial.print("d_on  (5) = "); Serial.println(d_on); }
+    else if(ch=='6') { Serial.print("d_rep (6) = "); Serial.println(d_rep); }
+    else if(ch=='0') { Serial.print("d_0   (0) = "); Serial.println(d_0); }
+    else if(ch=='w') { uint16_t *params=loadParameters(); Serial.print("params[0]  = "); Serial.println(params[0]); }
+    //
     while(Serial.available()) ch=Serial.read();
 
 }
@@ -238,77 +194,28 @@ void menu3(void)
     if(ch=='d') // set date
     { int year,month,day;
       menuGet3Int(&year,&month,&day);
-
       rtcSetDate(year,month,day);
     } 
     else if(ch=='t') // set time
     { int hour,minutes,seconds;
       menuGet3Int(&hour,&minutes,&seconds);
-      //
       rtcSetTime(hour,minutes,seconds);
     } 
-    else if(ch=='a')
-    {
-      menuGetInt32((int32_t *)&t_acq);
-    }
-    else if(ch=='o')
-    {
-      menuGetInt32((int32_t *)&t_on);
-    }
-    else if(ch=='r')
-    {
-      menuGetInt32((int32_t *)&t_rep);
-    }
-    else if(ch=='f')
-    {
-      menuGetInt32((int32_t *)&fsamp);
-      acqModifyFrequency(fsamp);
-    }
-    else if(ch=='s')
-    {
-      menuGetInt16((int16_t *)&shift); if(shift<0) shift=0;
-    }
-    else if(ch=='c')
-    {
-      menuGetInt16((int16_t *)&proc);
-    }
-    else if(ch=='g')
-    {
-      menuGetInt16((int16_t *)&again);
-      setAGain(again);
-    }
-    else if(ch=='w')
-    { 
-      menuGetInt16((int16_t *)&store[0]);
-    }
-    else if(ch=='1')
-    { 
-      menuGetInt16((int16_t *)&h_1);
-    }
-    else if(ch=='2')
-    { 
-      menuGetInt16((int16_t *)&h_2);
-    }
-    else if(ch=='3')
-    { 
-      menuGetInt16((int16_t *)&h_3);
-    }
-    else if(ch=='4')
-    { 
-      menuGetInt16((int16_t *)&h_4);
-    }
-    else if(ch=='5')
-    { 
-      menuGetInt16((int16_t *)&d_on);
-    }
-    else if(ch=='6')
-    { 
-      menuGetInt16((int16_t *)&d_rep);
-    }
-    else if(ch=='0')
-    { 
-      menuGetInt16((int16_t *)&d_0);
-    }
+    else if(ch=='a') { menuGetInt16((int16_t *)&t_acq); }
+    else if(ch=='o') { menuGetInt16((int16_t *)&t_on); }
+    else if(ch=='r') { menuGetInt16((int16_t *)&t_rep); }
+    else if(ch=='f') { menuGetInt32((int32_t *)&fsamp); acqModifyFrequency(fsamp); }
+    else if(ch=='s') { menuGetInt16((int16_t *)&shift); if(shift<0) shift=0; }
+    else if(ch=='c') { menuGetInt16((int16_t *)&proc); }
+    else if(ch=='g') { menuGetInt16((int16_t *)&again); setAGain(again); }
+    else if(ch=='w') { menuGetInt16((int16_t *)&store[0]); }
+    else if(ch=='1') { menuGetInt16((int16_t *)&h_1); }
+    else if(ch=='2') { menuGetInt16((int16_t *)&h_2); }
+    else if(ch=='3') { menuGetInt16((int16_t *)&h_3); }
+    else if(ch=='4') { menuGetInt16((int16_t *)&h_4); }
+    else if(ch=='5') { menuGetInt16((int16_t *)&d_on); }
+    else if(ch=='6') { menuGetInt16((int16_t *)&d_rep); }
+    else if(ch=='0') { menuGetInt16((int16_t *)&d_0); }
 }
 
 /******************** Parameter ******************************/
@@ -391,3 +298,50 @@ uint16_t *loadParameters(void)
 }
 
 uint16_t *getStore(void) {return store;}
+
+/***********************config from file*********************************************/
+int16_t configGetInt16(char *txt)
+{ while(*txt++ !='=') continue;
+  int16_t val;
+  sscanf(txt,"%hd",&val);
+  return val;
+}
+
+int32_t configGetInt32(char *txt)
+{ while(*txt++ !='=') continue;
+  int32_t val;
+  sscanf(txt,"%ld",&val);
+  return val;
+}
+
+char *skipEOL(char *ptr){ while(*ptr++>=' ') continue; return ptr; }
+
+void decodeConfigfromFile(void)
+{
+  if(haveConfigText)
+  {
+    char *cptr=configText;
+    char *eptr=cptr+strlen(configText);
+    while(cptr<eptr)
+    {
+      char ch=*cptr++;
+      if(ch<=' ') continue;
+      else if(ch==';') cptr=skipEOL(cptr);
+      else if(ch=='w') { store[0]=configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='a') { store[1]=t_acq=configGetInt16(cptr); cptr=skipEOL(cptr);}
+      else if(ch=='o') { store[2]=t_on= configGetInt16(cptr); cptr=skipEOL(cptr);}
+      else if(ch=='r') { store[3]=t_rep=configGetInt16(cptr); cptr=skipEOL(cptr);}
+      else if(ch=='c') { store[4]=proc= configGetInt16(cptr); cptr=skipEOL(cptr);}
+      else if(ch=='s') { store[5]=shift=configGetInt16(cptr); cptr=skipEOL(cptr);if(shift<0) shift=0; }
+      else if(ch=='1') { store[6]=h_1=  configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='2') { store[7]=h_2=  configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='3') { store[8]=h_3=  configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='4') { store[9]=h_4=  configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='5') { store[10]=d_on= configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='6') { store[11]=d_rep=configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='f') { fsamp=configGetInt32(cptr); cptr=skipEOL(cptr); acqModifyFrequency(fsamp); store[12]= fsamp/1000; }
+      else if(ch=='g') { store[13]=again= configGetInt16(cptr); cptr=skipEOL(cptr); setAGain(again);      }
+      else if(ch=='0') { store[15]=d_0=  configGetInt16(cptr); cptr=skipEOL(cptr); }
+    }
+  }
+}

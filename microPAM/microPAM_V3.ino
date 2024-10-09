@@ -143,14 +143,14 @@ void setup()
   Serial.begin(115200);
 
   // check start or restart
-  uint16_t *params=loadParameters();
-  if(params[0]==1)
+  uint16_t *params=loadParameters();  // get parameters from EEPROM
+  if(params[0]==1)  // do not wait for terminal start acquisition  if t_rep<t_on
   {
-    termon = (t_rep>t_on)? 0: 1;
+    termon = (t_rep<t_on)? 0: 1;      // start acquisition  if t_rep<t_on
   }
   else  // first time wait for terminal
   {
-    // wait for 10 s to allow USB-Serial connection
+    // wait for 10 s to allow USB-Serial connection, otherwise start immediately
     while(millis()<10'000) if(Serial) { termon=1; break;}
   }
 
@@ -169,14 +169,6 @@ void setup()
     #if USE_EVENTS==1
       usb_init_events();
     #endif
-  #endif
-
-  #if defined(__IMXRT1062__)
-    usbPowerSetup();
-    lowPowerInit();
-
-    // configure disk storage
-    storage_configure();
   #endif
 
   // setup RT Clock
@@ -200,7 +192,16 @@ void setup()
     Serial.print("RV3028: ");
     Serial.println(rtcGetTimestamp());
   #endif
+
   //
+  #if defined(__IMXRT1062__)
+    usbPowerSetup();  // provide power to ADC
+    lowPowerInit();   // keep systick during "wfi"
+
+    // configure disk storage
+    storage_configure(); // for MTP
+  #endif
+
   Serial.println("filing_init");
   filing_init();
 
@@ -340,9 +341,9 @@ void loop1(){}  // nothing to be done here
           uint64_t freeSize  = sdx[ii].freeClusterCount();
           uint32_t clusterSize = sdx[ii].bytesPerCluster();
           Serial.printf("SDIO Storage %d %d %s ",ii,cs[ii],sd_str[ii]); 
-            Serial.print("; total clusters: "); Serial.print(totalSize); 
-            Serial.print(" free clusters: "); Serial.print(freeSize);
-            Serial.print(" clustersize: "); Serial.print(clusterSize/1024); Serial.println(" kByte");
+          Serial.print("; total clusters: "); Serial.print(totalSize); 
+          Serial.print(" free clusters: "); Serial.print(freeSize);
+          Serial.print(" clustersize: "); Serial.print(clusterSize/1024); Serial.println(" kByte");
         }
       }
   }

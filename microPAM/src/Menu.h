@@ -33,6 +33,8 @@
   uint16_t *loadParameters(void) ;
   uint16_t *getStore(void) ;
 
+  void decodeConfigfromFile(void);
+
 /*
   commands
   s : start aquisition

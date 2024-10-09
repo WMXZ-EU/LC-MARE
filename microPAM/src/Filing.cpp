@@ -117,6 +117,22 @@ void dateTime(uint16_t* date, uint16_t* time, uint8_t* ms10)
     *ms10 = 0;
 }
 
+char configText[1024];
+int haveConfigText=0;
+
+void loadConfigfromFile(void)
+{
+    file = sd->open("config.txt"); 
+    if(file) 
+    { int ii=0;
+      while (file.available()) {
+      configText[ii++]=file.read();
+      }
+      file.close(); 
+      haveConfigText=ii;
+    }
+
+}
 int16_t filing_init(void)
 {
   #if defined(TARGET_RP2040)
@@ -138,6 +154,8 @@ int16_t filing_init(void)
     if (sd->begin(SD_CONFIG)) 
     { Serial.println("card initialized.");
       haveStore=1;
+      loadConfigfromFile();   // is in Filing
+      decodeConfigfromFile(); // in in Menu
       return 1;
     }
     else

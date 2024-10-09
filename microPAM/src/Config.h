@@ -23,7 +23,7 @@
 #define CONFIG_H
   #include <stdint.h>
   
-  #define START_MODE 0      // -1 is stopped; 0 is closed (ready to open file)
+  //#define START_MODE 0      // -1 is stopped; 0 is closed (ready to open file)
 
   // for mAcq
   #if defined(AUDIO_INTERFACE)
@@ -113,7 +113,7 @@
   #define D_ON    1   // duration in days  of acquisition
   #define D_REP   0   // repetition in days of acquisition (0 is continuous)
   #define D_0     0   // start day of acquisition (counted from 4-10-2024 (D_REF = 20000))
-  #define D_REF 15000
+  #define D_REF 20000
 
   // extern (global) parameters
   extern volatile int32_t fsamp;  // Acq.cpp 
@@ -123,7 +123,7 @@
   extern volatile int16_t dgain;  // Acq.cpp
 
   extern volatile uint16_t t_acq; // Filing.cpp 
-  extern volatile uint16_t t_on; // Filing.cpp 
+  extern volatile uint16_t t_on;  // Filing.cpp 
   extern volatile uint16_t t_rep; // Filing.cpp 
 
   extern volatile uint16_t h_1; // Filing.cpp 
@@ -131,11 +131,15 @@
   extern volatile uint16_t h_3; // Filing.cpp
   extern volatile uint16_t h_4; // Filing.cpp
 
-  extern volatile uint16_t d_on; // Filing.cpp 
+  extern volatile uint16_t d_on;  // Filing.cpp 
   extern volatile uint16_t d_rep; // Filing.cpp 
-  extern volatile  int16_t d_0; // Filing.cpp 
+  extern volatile  int16_t d_0;   // Filing.cpp 
 
   extern volatile uint16_t *params0; //menu.cpp
+
+  extern char configText[];   // Filing.cpp
+  extern int haveConfigText;  // Filing.cpp
+
 
   extern class AudioIF acqIF;
 

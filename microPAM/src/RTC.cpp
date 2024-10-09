@@ -76,12 +76,12 @@ static void i2c_read_data(uint8_t address, uint8_t reg, uint8_t *buffer, uint16_
 }
 
 /**************************************************************************************/
-#define DS3231_ADDRESS  0x68   ///< I2C address for DS3231
-#define DS3231_TIME     0x00      ///< Time register
-#define DS3231_ALARM1   0x07    ///< Alarm 1 register
-#define DS3231_ALARM2   0x0B    ///< Alarm 2 register
-#define DS3231_CONTROL  0x0E   ///< Control register
-#define DS3231_STATUSREG 0x0F ///< Status register
+#define DS3231_ADDRESS   0x68   ///< I2C address for DS3231
+#define DS3231_TIME      0x00   ///< Time register
+#define DS3231_ALARM1    0x07   ///< Alarm 1 register
+#define DS3231_ALARM2    0x0B   ///< Alarm 2 register
+#define DS3231_CONTROL   0x0E   ///< Control register
+#define DS3231_STATUSREG 0x0F   ///< Status register
 #define DS3231_TEMPERATUREREG 0x11 
 
 static uint8_t address = DS3231_ADDRESS;
@@ -101,7 +101,7 @@ int16_t lostPowerRTC(void)
 }
 
 uint8_t *mgetRTC(uint8_t *buffer,uint16_t nbuf)
-{
+{ // read time from RTC
   i2c_read_data(address,DS3231_TIME,buffer,nbuf);
   for(int ii=0;ii<nbuf;ii++) buffer[ii]=bcd2bin(buffer[ii]);
   
@@ -109,7 +109,7 @@ uint8_t *mgetRTC(uint8_t *buffer,uint16_t nbuf)
 }
 
 uint8_t *msetRTC(uint8_t *buffer, uint16_t nbuf)
-{
+{ // write time to RTC
   for(int ii=0;ii<nbuf;ii++) buffer[ii]=bin2bcd(buffer[ii]);
   i2c_write_data(address,DS3231_TIME,buffer,nbuf);
 

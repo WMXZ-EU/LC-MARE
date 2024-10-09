@@ -63,4 +63,6 @@ extern volatile int32_t logBuffer[];
 
 void powerDown(void);
 
+void loadConfigfromFile(void);
+
 #endif

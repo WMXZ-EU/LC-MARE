@@ -131,7 +131,7 @@
             if(i2c.exist(i2c_addr[ii]))
                 Serial.printf("found %x\n",i2c_addr[ii]);
             else
-                {  Serial.printf("ADC I2C %x not found\n",i2c_addr[ii]);/* while(1) ; */}
+                {  Serial.printf("ADC I2C %x not found\n",i2c_addr[ii]); continue;}
 
             i2c.write(i2c_addr[ii],0x02,0x81); // 1.8V AREG, not sleep
 
