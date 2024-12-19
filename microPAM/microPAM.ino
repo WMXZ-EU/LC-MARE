@@ -33,7 +33,7 @@
   #include <CrashReport.h>
 #endif
 
-#if defined(TARGET_RP2040)
+#if defined(ARDUINO_ARCH_RP2040)
   #include "pico/stdlib.h"
 #endif
 
@@ -135,7 +135,7 @@ void setup()
   // put your setup code here, to run once:
   #if defined(__IMXRT1062__)
     set_arm_clock(24'000'000);
-  #elif defined(TARGET_RP2040)
+  #elif defined(ARDUINO_ARCH_RP2040)
     set_sys_clock_khz(48'000, true);
   #endif
 
@@ -144,6 +144,13 @@ void setup()
 
   // check start or restart
   uint16_t *params=loadParameters();  // get parameters from EEPROM
+  // check if we need to wait for start date
+  /* 
+    datetime_t t;
+    rtc_get_datetime(&t);
+    int del=params[15]+D_REF-t.day;
+    if( del>=0 ) do_hibernate()
+  */ 
   if(params[0]==1)  // do not wait for terminal start acquisition  if t_rep<t_on
   {
     termon = (t_rep<t_on)? 0: 1;      // start acquisition  if t_rep<t_on
@@ -188,7 +195,7 @@ void setup()
   Serial.println();
   //
 
-  #if USE_EXT_RTC==1
+  #if USE_EXT_RTC==2
     Serial.print("RV3028: ");
     Serial.println(rtcGetTimestamp());
   #endif
@@ -211,7 +218,7 @@ void setup()
   // in case of single core teensy 4.1 start acquisition, which for rp2040 is in 2nd core
   #if defined(__IMXRT1062__)
     setup1();
-    pinMode(13,OUTPUT);
+    //pinMode(13,OUTPUT);
   #endif
 }
 
@@ -238,10 +245,10 @@ void loop()
 
     // 
     {
-      if(status>0) digitalWriteFast(13,HIGH);    
+      //if(status>0) digitalWriteFast(13,HIGH);    
       // save data (filing will be handled inside saveData)
       status=saveData(status);  
-      if(status>0) digitalWriteFast(13,LOW);
+      //if(status>0) digitalWriteFast(13,LOW);
     }
   #else
     status=saveData(status);  

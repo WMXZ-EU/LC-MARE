@@ -1,4 +1,4 @@
-23746787384512742
+23774324539177061
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -96627,6 +96627,69 @@ Varistor VF
 0
 2
 2
+lc-mare
+ADC_V2
+
+
+0
+23
+23
+lc-mare
+MountingHole_3.2mm_M3
+Mounting Hole 3.2mm, no annular, M3
+mounting hole 3.2mm no annular m3
+0
+0
+0
+lc-mare
+PinHeader_1x02_P2.54mm_Vertical
+Through hole straight pin header, 1x02, 2.54mm pitch, single row
+Through hole pin header THT 1x02 2.54mm single row
+0
+2
+2
+lc-mare
+PinHeader_1x04_P2.54mm_Vertical
+Through hole straight pin header, 1x04, 2.54mm pitch, single row
+Through hole pin header THT 1x04 2.54mm single row
+0
+4
+4
+lc-mare
+PinHeader_1x24_P2.54mm_Vertical
+Through hole straight pin header, 1x24, 2.54mm pitch, single row
+Through hole pin header THT 1x24 2.54mm single row
+0
+24
+24
+lc-mare
+Teensy41
+
+
+0
+67
+67
+lc-mare
+fet_preamp
+Group StepUp generated footprint
+
+0
+0
+0
+lc-mare
+preAmp2
+
+
+0
+6
+6
+myLibrary
+ADC_V2
+
+
+0
+23
+23
 myLibrary
 ADC_board
 
@@ -96712,6 +96775,34 @@ MOLEX_530480410
 4
 4
 myLibrary
+MountingHole_3.2mm_M3
+Mounting Hole 3.2mm, no annular, M3
+mounting hole 3.2mm no annular m3
+0
+0
+0
+myLibrary
+PinHeader_1x02_P2.54mm_Vertical
+Through hole straight pin header, 1x02, 2.54mm pitch, single row
+Through hole pin header THT 1x02 2.54mm single row
+0
+2
+2
+myLibrary
+PinHeader_1x04_P2.54mm_Vertical
+Through hole straight pin header, 1x04, 2.54mm pitch, single row
+Through hole pin header THT 1x04 2.54mm single row
+0
+4
+4
+myLibrary
+PinHeader_1x24_P2.54mm_Vertical
+Through hole straight pin header, 1x24, 2.54mm pitch, single row
+Through hole pin header THT 1x24 2.54mm single row
+0
+24
+24
+myLibrary
 Preamp-FET
 
 
@@ -96782,6 +96873,13 @@ PMP4201V_115
 6
 6
 myLibrary
+Teensy41
+
+
+0
+67
+67
+myLibrary
 WL-SICW_0603_15406085BA300
 <B>WL-SICW</B><BR>SMT Chip LED Infrared Waterclear,Size:0603,1.6x0.8x0.6mm(LXWXH)
 
@@ -96817,6 +96915,13 @@ ABLS-12.000MHZ-B4-T
 2
 2
 myLibrary
+fet_preamp
+Group StepUp generated footprint
+
+0
+0
+0
+myLibrary
 microSD_HC_Hirose_DM3AT-SF-PEJM5
 Micro SD, SMD, right-angle, push-pull (https://www.hirose.com/product/en/download_file/key_name/DM3AT-SF-PEJM5/category/Drawing%20(2D)/doc_file_id/44099/?file_category_id=6&item_id=06090031000&is_series=)
 Micro SD
@@ -96825,6 +96930,13 @@ Micro SD
 11
 myLibrary
 preAmp2
+
+
+0
+6
+6
+myLibrary
+preAmp2 (2)
 
 
 0

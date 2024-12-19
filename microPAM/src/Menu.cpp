@@ -60,6 +60,11 @@ static int menuGet3Int(int *val1, int *val2, int *val3)
   return sscanf(buffer,"%d%c%d%c%d",val1,&c1,val2,&c2,val3);
 }
 
+static int menuGetString(char *txt)
+{ char *buffer=menuGetLine();
+  return sscanf(buffer,"%s",txt);
+}
+
 #include "Filing.h"
 void resetMTP();
 void resetUSB(void);
@@ -180,6 +185,9 @@ void menu2(void)
     else if(ch=='6') { Serial.print("d_rep (6) = "); Serial.println(d_rep); }
     else if(ch=='0') { Serial.print("d_0   (0) = "); Serial.println(d_0); }
     else if(ch=='w') { uint16_t *params=loadParameters(); Serial.print("params[0]  = "); Serial.println(params[0]); }
+    else if(ch=='b') { Serial.print("b   (b) = "); Serial.println((char *)b_string); }
+    else if(ch=='k') { Serial.print("k   (b) = "); Serial.println((char *)k_string); }
+    else if(ch=='n') { Serial.print("n   (b) = "); Serial.println((char *)n_string); }
     //
     while(Serial.available()) ch=Serial.read();
 
@@ -216,6 +224,9 @@ void menu3(void)
     else if(ch=='5') { menuGetInt16((int16_t *)&d_on); }
     else if(ch=='6') { menuGetInt16((int16_t *)&d_rep); }
     else if(ch=='0') { menuGetInt16((int16_t *)&d_0); }
+    else if(ch=='b') { menuGetString((char *)&b_string[0]);}
+    else if(ch=='k') { menuGetString((char *)&k_string[0]);}
+    else if(ch=='n') { menuGetString((char *)&n_string[0]);}
 }
 
 /******************** Parameter ******************************/
@@ -314,6 +325,11 @@ int32_t configGetInt32(char *txt)
   return val;
 }
 
+void configGetString(char *txt, char *str)
+{ while(*txt++ !='=') continue;
+  sscanf(txt,"%s",str);
+}
+
 char *skipEOL(char *ptr){ while(*ptr++>=' ') continue; return ptr; }
 
 void decodeConfigfromFile(void)
@@ -342,6 +358,9 @@ void decodeConfigfromFile(void)
       else if(ch=='f') { fsamp=configGetInt32(cptr); cptr=skipEOL(cptr); acqModifyFrequency(fsamp); store[12]= fsamp/1000; }
       else if(ch=='g') { store[13]=again= configGetInt16(cptr); cptr=skipEOL(cptr); setAGain(again);      }
       else if(ch=='0') { store[15]=d_0=  configGetInt16(cptr); cptr=skipEOL(cptr); }
+      else if(ch=='b') { configGetString(cptr,(char *)&b_string[0]); cptr=skipEOL(cptr); }
+      else if(ch=='k') { configGetString(cptr,(char *)&k_string[0]); cptr=skipEOL(cptr); }
+      else if(ch=='n') { configGetString(cptr,(char *)&n_string[0]); cptr=skipEOL(cptr); }
     }
   }
 }

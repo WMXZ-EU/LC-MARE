@@ -1,5 +1,6 @@
 # uncomment prev line to save cell to file
-# micoPAM GUI
+#============================================================================
+# # micoPAM GUI
 # use this cell to test and develop GUI
 # to compile "pyinstaller microPAM_GUI.py --noconfirm"
 # will generate "dist/micoPAM_GUI/microPAM_GUI.exe"
@@ -107,12 +108,20 @@ class Window(tk.Frame):
         self.update_clock()
 
         label2 = tk.Label(text="MCU:",font=("Helvetica", 18))
-        label2.place(x=80,y=60)
+        label2.place(x=80,y=50)
         self.mcuClocklabel = tk.Label(text="", fg="Black", font=("Helvetica", 18))
         self.mcuClocklabel.place(x=160,y=60)
 
+        xo=100
+        yo=90
+        dxo=230
+        ii=0
+        self.b_edit = self.mEntry("Author:",xo+ii*dxo,yo,10,80); ii+=1
+        self.k_edit  = self.mEntry("Project:",xo+ii*dxo,yo,10,85); ii+=1
+        self.n_edit = self.mEntry("Site:",xo+ii*dxo-25,yo,10,55); ii+=1
+
         xo=120
-        yo=110
+        yo=160
         ii=0
         self.fsamp_edit = self.mEntry("fsamp:",xo,yo+ii*40,10,80); ii+=1
         self.proc_edit  = self.mEntry("proc:",xo,yo+ii*40,5,80); ii+=1
@@ -120,18 +129,18 @@ class Window(tk.Frame):
         self.again_edit = self.mEntry("again:",xo,yo+ii*40,5,80); ii+=1
 
         xo=350
-        yo=110
+        yo=160
         ii=0
         self.t_acq_edit = self.mEntry("t_acq:",xo,yo+ii*40,5,80); ii+=1
         self.t_on_edit  = self.mEntry("t_on:",xo,yo+ii*40,5,80); ii+=1
         self.t_rep_edit = self.mEntry("t_rep:",xo,yo+ii*40,5,80); ii+=1
         ii=0
         xo += 160
-        self.h_1_edit = self.mEntry("h_1:",xo,yo+ii*40,5,80); ii+=1
-        self.h_2_edit = self.mEntry("h_2:",xo,yo+ii*40,5,80); ii+=1
-        self.h_3_edit = self.mEntry("h_3:",xo,yo+ii*40,5,80); ii+=1
-        self.h_4_edit = self.mEntry("h_4:",xo,yo+ii*40,5,80); ii+=1
-        yo += 40
+        self.h_1_edit = self.mEntry("h_1:",xo,yo+ii*40,5,60); ii+=1
+        self.h_2_edit = self.mEntry("h_2:",xo,yo+ii*40,5,60); ii+=1
+        self.h_3_edit = self.mEntry("h_3:",xo,yo+ii*40,5,60); ii+=1
+        self.h_4_edit = self.mEntry("h_4:",xo,yo+ii*40,5,60); ii+=1
+        yo += 30
         self.d_start_edit = self.mEntry("d_start:",xo-320,yo+ii*40,3,90); 
         self.m_start_edit = self.mEntry("m_start:",xo-160,yo+ii*40,3,90); 
         self.y_start_edit = self.mEntry("y_start:",xo,yo+ii*40,5,90); ii+=1
@@ -140,16 +149,14 @@ class Window(tk.Frame):
 
         # create buttons
         xm=600
-        exitButton = tk.Button(self, text="Exit ", command=self.clickExitButton, font=("Helvetica", 18))
-        exitButton.place(x=xm, y=10)
-        loadButton = tk.Button(self, text="Load", command=self.clickLoadButton, font=("Helvetica", 18))
-        loadButton.place(x=xm, y=80)
-        saveButton = tk.Button(self, text="Save", command=self.clickSaveButton, font=("Helvetica", 18))
-        saveButton.place(x=xm, y=150)
-        storeButton = tk.Button(self, text="Store", command=self.clickStoreButton, font=("Helvetica", 18))
-        storeButton.place(x=xm, y=220)
-        syncButton = tk.Button(self, text="Sync", command=self.clickSyncButton, font=("Helvetica", 18))
-        syncButton.place(x=xm, y=310)
+        ym=160
+        dym=60
+        ii=0
+        exitButton = tk.Button(self, text="Exit ", command=self.clickExitButton, font=("Helvetica", 18)).place(x=xm, y=10)
+        loadButton = tk.Button(self, text="Load", command=self.clickLoadButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
+        syncButton = tk.Button(self, text="Sync", command=self.clickSyncButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
+        saveButton = tk.Button(self, text="Save", command=self.clickSaveButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
+        storeButton = tk.Button(self, text="Store", command=self.clickStoreButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym)
         self.storeButton=storeButton
         #
         date_time=datetime.now()
@@ -158,9 +165,10 @@ class Window(tk.Frame):
         self.mputEntry(self.y_start_edit,str(date_time.year))
 
         s=serial.tools.list_ports.comports(True)
-        with serial.Serial(s[0].device) as ser:
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
+        if len(s)>0:
+            with serial.Serial(s[0].device) as ser:
+                ser.reset_input_buffer()
+                ser.reset_output_buffer()
 
 
     def clickExitButton(self):
@@ -188,6 +196,10 @@ class Window(tk.Frame):
             ip1=txt1.find("=")
             ip2=txt2.find("=")
             self.mcuClocklabel.configure(text=txt1[ip1+2:]+txt2[ip2+1:])
+            #
+            self.mUpdate(ser,self.b_edit,"?b")
+            self.mUpdate(ser,self.k_edit,"?k")
+            self.mUpdate(ser,self.n_edit,"?n")
             #
             self.mUpdate(ser,self.t_acq_edit,"?a")
             self.mUpdate(ser,self.t_on_edit, "?o")
@@ -221,31 +233,62 @@ class Window(tk.Frame):
         days,dow=self.ndays(int(dx),int(mx),int(yx))
         #
         s=serial.tools.list_ports.comports(True)
-        with serial.Serial(s[0].device) as ser:
-            ser.read_all()
-            self.msendEntry(ser,'!a',self.t_acq_edit)
-            self.msendEntry(ser,'!o',self.t_on_edit)
-            self.msendEntry(ser,'!r',self.t_rep_edit)
-            self.msendEntry(ser,'!1',self.h_1_edit)
-            self.msendEntry(ser,'!2',self.h_2_edit)
-            self.msendEntry(ser,'!3',self.h_3_edit)
-            self.msendEntry(ser,'!4',self.h_4_edit)
-            self.msendEntry(ser,'!5',self.d_on_edit)
-            self.msendEntry(ser,'!6',self.d_rep_edit)
-            #
-            self.msendEntry(ser,'!f',self.fsamp_edit)
-            self.msendEntry(ser,'!c',self.proc_edit)
-            self.msendEntry(ser,'!s',self.shift_edit)
-            self.msendEntry(ser,'!g',self.again_edit)
-            #
-            data="!0"+str(days-self.d_ref)+"\r"
-            print('put', data)
-            ser.write(data.encode())
-            ser.read_all()
+        if len(s)>0:
+            with serial.Serial(s[0].device) as ser:
+                ser.read_all()
+                self.msendEntry(ser,'!b',self.b_edit)
+                self.msendEntry(ser,'!k',self.k_edit)
+                self.msendEntry(ser,'!n',self.n_edit)
+                #
+                self.msendEntry(ser,'!a',self.t_acq_edit)
+                self.msendEntry(ser,'!o',self.t_on_edit)
+                self.msendEntry(ser,'!r',self.t_rep_edit)
+                #
+                self.msendEntry(ser,'!1',self.h_1_edit)
+                self.msendEntry(ser,'!2',self.h_2_edit)
+                self.msendEntry(ser,'!3',self.h_3_edit)
+                self.msendEntry(ser,'!4',self.h_4_edit)
+                self.msendEntry(ser,'!5',self.d_on_edit)
+                self.msendEntry(ser,'!6',self.d_rep_edit)
+                #
+                self.msendEntry(ser,'!f',self.fsamp_edit)
+                self.msendEntry(ser,'!c',self.proc_edit)
+                self.msendEntry(ser,'!s',self.shift_edit)
+                self.msendEntry(ser,'!g',self.again_edit)
+                #
+                data="!0"+str(days-self.d_ref)+"\r"
+                print('put', data)
+                ser.write(data.encode())
+                ser.read_all()
+
+        with open("config.txt","w") as f:
+            f.write("b="+self.b_edit.get()+"; author\n")
+            f.write("k="+self.k_edit.get()+"; project\n")
+            f.write("n="+self.n_edit.get()+"; site\n")
+
+            f.write("a="+self.t_acq_edit.get()+"; t_acq\n")
+            f.write("o="+self.t_on_edit.get()+"; t_on\n")
+            f.write("r="+self.t_rep_edit.get()+"; t_rep\n")
+
+            f.write("1="+self.h_1_edit.get()+"; h_1\n")
+            f.write("2="+self.h_2_edit.get()+"; h_2\n")
+            f.write("3="+self.h_3_edit.get()+"; h_3\n")
+            f.write("4="+self.h_4_edit.get()+"; h_4\n")
+            f.write("5="+self.d_on_edit.get()+"; d_on\n")
+            f.write("6="+self.d_rep_edit.get()+"; d_rep\n")
+
+            f.write("f="+self.fsamp_edit.get()+"; fsamp\n")
+            f.write("c="+self.proc_edit.get()+"; proc\n")
+            f.write("s="+self.shift_edit.get()+"; shift\n")
+            f.write("g="+self.again_edit.get()+"; again\n")
+
+            f.write("0="+str(days-20000)+"; d_0\n")
         self.storeButton["state"]=tk.NORMAL
 
     def clickStoreButton(self):
         s=serial.tools.list_ports.comports(True)
+        if len(s)==0:
+            return
         with serial.Serial(s[0].device) as ser:
             ser.read_all()
             ser.write("!w1\r".encode())
@@ -260,6 +303,8 @@ class Window(tk.Frame):
 
     def clickSyncButton(self):
         s=serial.tools.list_ports.comports(True)
+        if len(s)==0:
+            return
         date_time=datetime.now()
         dd=date_time.strftime("!d%Y-%m-%d\r")
         tt=date_time.strftime("!t%H:%M:%S\r")

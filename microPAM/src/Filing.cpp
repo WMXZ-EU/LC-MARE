@@ -43,6 +43,10 @@ volatile uint16_t d_on = D_ON;
 volatile uint16_t d_rep= D_REP;
 volatile  int16_t d_0  = D_0;
 
+volatile char b_string[40];
+volatile char k_string[40];
+volatile char n_string[40];
+
 #if SDFAT_FILE_TYPE != 3
  #error "SDFAT_FILE_TYPE != 3: edit SdFatConfig.h"
 #endif
@@ -167,6 +171,7 @@ int16_t filing_init(void)
   Serial.println("Card failed, or not present");
   // don't do anything more:
   return 0;
+  pinMode(LED,OUTPUT);
 }
 
 char * timeStamp(void)
@@ -178,6 +183,22 @@ char * timeStamp(void)
 
   sprintf(date_time,"%04d%02d%02d_%02d%02d%02d",t.year,t.month,t.day,t.hour,t.min,t.sec);
   return date_time;
+}
+
+void writeHeaderInfo(char *info, int serNum)
+{
+  uint32_t tt=millis();
+  int ih=0;
+  strcpy(&info[ih], MAGIC); ih+=4;              //4
+  strcpy(&info[ih], timeStamp()); ih +=16;      //20
+  sprintf(&info[ih]," %8x",serNum); ih +=12;    //32
+  memcpy(&info[ih], &tt,4); ih +=4;             //36
+  memcpy(&info[ih], (char *)b_string,strlen(b_string)); ih+=40;       //76
+  memcpy(&info[ih], (char *)k_string,strlen(k_string)); ih+=40;       //116
+  memcpy(&info[ih], (char *)n_string,strlen(n_string)); ih+=40;       //156
+  memcpy(&info[ih], getStore(),16*2); ih +=32;  //188
+  strcpy(&info[ih]," end");                     //196
+
 }
 
 char * wavHeaderInit(int32_t fsamp, int32_t nchan, int32_t nbits, int serNum)
@@ -202,13 +223,7 @@ char * wavHeaderInit(int32_t fsamp, int32_t nchan, int32_t nbits, int serNum)
   wav_hdr.nBlockAlign=nchan*nbytes;
   wav_hdr.nBitsPerSamples=nbits;
 
-  uint32_t tt=millis();
-  strcpy(&wav_hdr.info[0], MAGIC);
-  strcpy(&wav_hdr.info[4], timeStamp());
-  sprintf(&wav_hdr.info[20]," %8x",serNum);
-  memcpy(&wav_hdr.info[32], &tt,4);
-  memcpy(&wav_hdr.info[36], getStore(),16*2);
-  strcpy(&wav_hdr.info[68]," end");
+  writeHeaderInfo(&wav_hdr.info[0],serNum);
 
   return (char *)&wav_hdr;
 }
@@ -271,12 +286,13 @@ int16_t makeHeader(int32_t *header)
      * 
      */
     datetime_t t;
-    rtc_get_datetime(&t);
+    rtc_get_datetime(&t); 
 
     sprintf((char *)header,"%s%04d%02d%02d_%02d%02d%02d",
             MAGIC,t.year,t.month,t.day,t.hour,t.min,t.sec);
 
-    header[5] = 20;          // SW version
+    //header[5] = 20;          // SW version
+    header[5] = 30;          // SW version
     header[6] = SerNum;      // serial number
     header[7] = fsamp;
     header[8] = NCHAN_ACQ;
@@ -288,8 +304,8 @@ int16_t makeHeader(int32_t *header)
     header[14] = again;
     header[15] = dgain;
     header[16] = millis();
-    memcpy(&header[20], getStore(),16*2);
-
+    //memcpy(&header[20], getStore(),16*2);
+    writeHeaderInfo((char *)&header[20],SerNum);
     header[127]=0x55555555;
     return 1;
 }
@@ -565,7 +581,9 @@ int16_t saveData(int16_t status)
       }
       if(haveStore)
       {
+        digitalWrite(LED,HIGH):
         status=storeData(status);
+        digitalWrite(LED,LOW):
       }
     }
 
@@ -587,16 +605,19 @@ void reboot(void);
     only RTC continuoes to run (if there is a 3V battery or power)
     hipernation is controlled by t_rep (sec), t_1,t_2,t_3, t_4 (h)
 
-    for t_rep > t_on,  system will hibernate until next multiple of t_tep 
+    for t_rep > t_on,  system will hibernate until next multiple of t_rep 
 
     t_1 to t_4 describe 2 acquirition windows (unit hour)
     acquisition happens from t_1 to t_2 and t_3 to t_4 
     (0 <= t_1 <= t_2 <= t_3 <=t_4 <=24)
     24 hour aquisition is ensured by t_1=0, t_2=12, t_3=12, t_4=24
 
-    wakeup time is estimated by getAlarmTime
+    if actual day < d_0+D_REF, system will hibernate until d_0; D_REF= 20000 (or 4th October 2024) 
+
+    if d_rep > d_on, system will hibernate after d_on until next multiple of d_rep
+    wakeup time is estimated by estAlarmTime
 */
-uint32_t getAlarmTime(uint32_t secs)
+uint32_t estAlarmTime(uint32_t secs)
 {   // estimate the wakup-time in seconds 
     // input: actual time in s
     // output: next wakup time in s
@@ -608,7 +629,8 @@ uint32_t getAlarmTime(uint32_t secs)
 
     uint32_t d_x = (d_0+D_REF);
 
-    if(0)
+    // wake-up at midnight of start date
+    if(0) // deactivate this function (comment to activate)
     if(dd<(d_x)) 
     { // we are too early
       secs=(d_x)*(24*3600);
@@ -647,6 +669,7 @@ uint32_t getAlarmTime(uint32_t secs)
       secs = (dd*24+h_1)*3600;  // next time is next day at h_1
     }
     //
+    // return start or actual time in seconds
     return secs;
 }
 
@@ -681,12 +704,13 @@ void do_hibernate(void)
       msb = SNVS_LPSRTCMR;
       lsb = SNVS_LPSRTCLR;
     } while ( (SNVS_LPSRTCLR != lsb) | (SNVS_LPSRTCMR != msb) );
-    uint32_t secs = (msb << 17) | (lsb >> 15);
+    uint32_t secso = (msb << 17) | (lsb >> 15);
 
     //set alarm
-    Serial.print(secs); Serial.print(" -> ");
-    secs = getAlarmTime(secs);
+    Serial.print(secso); Serial.print(" -> ");
+    uint32_t secs = estAlarmTime(secso);
     Serial.println(secs);
+    if(secs<=secso) return; // don't do anything
 
     SNVS_LPTAR = secs;
     while (SNVS_LPTAR != secs);

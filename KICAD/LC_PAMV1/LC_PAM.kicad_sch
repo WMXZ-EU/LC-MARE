@@ -5252,7 +5252,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.09 113.03) (xy 85.09 116.84)
+			(xy 68.58 114.3) (xy 68.58 118.11)
 		)
 		(stroke
 			(width 0)
@@ -6240,6 +6240,16 @@
 		)
 		(uuid "f8e6845a-5a33-4463-b1db-1c1ab2d83f49")
 	)
+	(text "Vbat-measure"
+		(exclude_from_sim no)
+		(at 70.612 107.442 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "596912d4-7dde-41b2-b26a-80e62c8472cb")
+	)
 	(label "FSYNC"
 		(at 247.65 67.31 0)
 		(fields_autoplaced yes)
@@ -6274,7 +6284,7 @@
 		(uuid "0141630b-a531-48be-ae8c-4f23028b8c28")
 	)
 	(label "GND"
-		(at 85.09 119.38 180)
+		(at 68.58 120.65 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6285,7 +6295,7 @@
 		(uuid "04276ce1-fac8-4355-9002-9c3b4f9c47d0")
 	)
 	(label "H5V"
-		(at 115.57 119.38 180)
+		(at 99.06 118.11 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6351,7 +6361,7 @@
 		(uuid "0e4fc681-cfa7-4917-9df2-8130480e97d1")
 	)
 	(label "V_Battery"
-		(at 115.57 114.3 180)
+		(at 99.06 113.03 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6373,7 +6383,7 @@
 		(uuid "1444b1e5-68ef-415e-baba-2a405b541591")
 	)
 	(label "A0"
-		(at 85.09 115.57 180)
+		(at 68.58 116.84 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6406,7 +6416,7 @@
 		(uuid "184cedd7-94df-4813-ab37-e268f108f60d")
 	)
 	(label "V_Battery"
-		(at 85.09 110.49 180)
+		(at 68.58 111.76 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6461,7 +6471,7 @@
 		(uuid "23a2b020-470f-407f-97d4-1ca59c8b2beb")
 	)
 	(label "GND"
-		(at 69.85 130.81 0)
+		(at 41.91 138.43 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6637,7 +6647,7 @@
 		(uuid "5f467018-fe91-4d65-a93a-66f804b7d8f8")
 	)
 	(label "H-"
-		(at 43.18 92.71 0)
+		(at 43.18 99.06 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6835,7 +6845,7 @@
 		(uuid "a0f9554c-cd19-428a-b6de-b14047892a0b")
 	)
 	(label "V5"
-		(at 69.85 128.27 0)
+		(at 41.91 135.89 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6857,7 +6867,7 @@
 		(uuid "a797a3dc-9486-4230-9671-fafdca5dd673")
 	)
 	(label "Vext"
-		(at 69.85 133.35 0)
+		(at 41.91 140.97 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6890,7 +6900,7 @@
 		(uuid "adb40e20-67a7-4064-b16d-4c5a5f994df9")
 	)
 	(label "H+"
-		(at 43.18 90.17 0)
+		(at 43.18 96.52 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7000,7 +7010,7 @@
 		(uuid "f837cd5c-1daa-4a5e-8aab-c759388c3cbc")
 	)
 	(label "VADD"
-		(at 115.57 116.84 180)
+		(at 99.06 115.57 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7229,7 +7239,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 90.17 116.84 0)
+		(at 73.66 118.11 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7238,7 +7248,7 @@
 		(fields_autoplaced yes)
 		(uuid "088b29a6-0984-4aa5-8612-3526b3dc8604")
 		(property "Reference" "J11"
-			(at 92.202 116.8978 0)
+			(at 75.692 118.1678 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7247,7 +7257,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02"
-			(at 92.202 119.3221 0)
+			(at 75.692 120.5921 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7256,7 +7266,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical"
-			(at 90.17 116.84 0)
+			(at 73.66 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7265,7 +7275,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 90.17 116.84 0)
+			(at 73.66 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7274,7 +7284,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 90.17 116.84 0)
+			(at 73.66 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7569,7 +7579,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
-		(at 64.77 130.81 0)
+		(at 36.83 138.43 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7578,7 +7588,7 @@
 		(dnp no)
 		(uuid "6261d11e-cdb3-4fbc-82a6-b6602cc6ffc9")
 		(property "Reference" "J2"
-			(at 62.738 129.5978 0)
+			(at 34.798 137.2178 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7587,7 +7597,7 @@
 			)
 		)
 		(property "Value" "DC/DC"
-			(at 62.738 132.0221 0)
+			(at 34.798 139.6421 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7596,7 +7606,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 64.77 130.81 0)
+			(at 36.83 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7605,7 +7615,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 64.77 130.81 0)
+			(at 36.83 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7614,7 +7624,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 64.77 130.81 0)
+			(at 36.83 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8047,7 +8057,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x02_Pin")
-		(at 38.1 90.17 0)
+		(at 38.1 96.52 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8056,7 +8066,7 @@
 		(fields_autoplaced yes)
 		(uuid "8d740b82-d764-40b8-be75-abb93a36f0c4")
 		(property "Reference" "J7"
-			(at 38.735 85.9493 0)
+			(at 38.735 92.2993 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8064,7 +8074,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02_Pin"
-			(at 38.735 88.3736 0)
+			(at 38.735 94.7236 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8072,7 +8082,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Molex:Molex_PicoBlade_53047-0210_1x02_P1.25mm_Vertical"
-			(at 38.1 90.17 0)
+			(at 38.1 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8081,7 +8091,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 38.1 90.17 0)
+			(at 38.1 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8090,7 +8100,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 38.1 90.17 0)
+			(at 38.1 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8195,7 +8205,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
-		(at 120.65 116.84 0)
+		(at 104.14 115.57 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8204,7 +8214,7 @@
 		(fields_autoplaced yes)
 		(uuid "96c59215-20e9-4d90-ad65-81d402aefb98")
 		(property "Reference" "J9"
-			(at 122.682 115.6278 0)
+			(at 106.172 114.3578 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8213,7 +8223,7 @@
 			)
 		)
 		(property "Value" "Conn_01x03"
-			(at 122.682 118.0521 0)
+			(at 106.172 116.7821 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8222,7 +8232,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x03_P3.6mm_D0.4mm_OD1mm"
-			(at 120.65 116.84 0)
+			(at 104.14 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8231,7 +8241,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 120.65 116.84 0)
+			(at 104.14 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8240,7 +8250,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 120.65 116.84 0)
+			(at 104.14 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8544,7 +8554,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 90.17 110.49 0)
+		(at 73.66 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8553,7 +8563,7 @@
 		(fields_autoplaced yes)
 		(uuid "cde4475a-eda1-4927-b5e7-c944bd76634b")
 		(property "Reference" "J10"
-			(at 92.202 110.5478 0)
+			(at 75.692 111.8178 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8562,7 +8572,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02"
-			(at 92.202 112.9721 0)
+			(at 75.692 114.2421 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8571,7 +8581,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical"
-			(at 90.17 110.49 0)
+			(at 73.66 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8580,7 +8590,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 90.17 110.49 0)
+			(at 73.66 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8589,7 +8599,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 90.17 110.49 0)
+			(at 73.66 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)

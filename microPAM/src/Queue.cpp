@@ -21,7 +21,6 @@
  */
  
 #include <stdint.h>
-//#include <string.h>
 
 #include "Arduino.h"
 
@@ -49,7 +48,6 @@
 
   uint16_t __not_in_flash_func(pushData)(uint32_t *data)
   {
-//    while(queue_busy); 
     queue_busy=1;
     if ( (tail+1)%MAXBUF == head ) {queue_busy=0; return 0;} // signal full
     memcpy(data_buffer[tail],data,4*NBUF_ACQ);
@@ -60,7 +58,6 @@
   
   uint16_t __not_in_flash_func(pullData)(uint32_t *data)
   {
-//    while(queue_busy); 
     queue_busy=1;
     if ( head==tail ) {queue_busy=0; return 0;} // signal empty
     memcpy(data,data_buffer[head],4*NBUF_ACQ);

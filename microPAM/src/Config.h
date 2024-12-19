@@ -23,8 +23,6 @@
 #define CONFIG_H
   #include <stdint.h>
   
-  //#define START_MODE 0      // -1 is stopped; 0 is closed (ready to open file)
-
   // for mAcq
   #if defined(AUDIO_INTERFACE)
     #define FSAMP 44100   // for audio interface force 44100
@@ -135,6 +133,10 @@
   extern volatile uint16_t d_rep; // Filing.cpp 
   extern volatile  int16_t d_0;   // Filing.cpp 
 
+  extern volatile char b_string[];  // Filing.cpp 
+  extern volatile char k_string[];  // Filing.cpp 
+  extern volatile char n_string[];  // Filing.cpp 
+
   extern volatile uint16_t *params0; //menu.cpp
 
   extern char configText[];   // Filing.cpp
@@ -147,6 +149,11 @@
     #define __not_in_flash_func(func_name) func_name
   #endif
 
-  #define USE_EXT_RTC 0
+  #define USE_EXT_RTC 1
+  #if defined(__IMXRT1062__)
+    #define LED 13
+  #else
+    #define LED 13
+  #endif
 
 #endif
