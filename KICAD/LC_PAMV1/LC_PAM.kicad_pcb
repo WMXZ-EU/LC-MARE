@@ -5613,9 +5613,9 @@
 			(pintype "power_in")
 			(uuid "1b1aeae7-050e-457c-acd2-99a5aa5c92f2")
 		)
-		(model "F:/KICAD/ADC_V2/ADC_V2_fd.wrl"
+		(model "C:/Users/zimme/Documents/LC-MARE/KICAD/Libraries/3D/ADC_V2_fd.step"
 			(offset
-				(xyz -11 -8.5 2.5)
+				(xyz -11 -9 3)
 			)
 			(scale
 				(xyz 1 1 1)
@@ -9760,15 +9760,15 @@
 			(pintype "bidirectional")
 			(uuid "a070fd07-b733-4e22-a5d0-f967a279ffa5")
 		)
-		(model "${KICAD_USER_DIR}/teensy.pretty/Teensy_4.1_Assembly.STEP"
+		(model "C:/Users/zimme/Documents/LC-MARE/KICAD/Libraries/3D/Teensy-4.1.STEP"
 			(offset
-				(xyz 0 0 7)
+				(xyz 0 0 12)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz 90 180 -90)
 			)
 		)
 	)
