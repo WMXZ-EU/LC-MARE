@@ -1,7 +1,7 @@
 (footprint "preAmp2"
-	(version 20240108)
+	(version 20241229)
 	(generator "pcbnew")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(layer "F.Cu")
 	(property "Reference" "U2"
 		(at 0 -0.5 0)
@@ -23,18 +23,6 @@
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(property "Footprint" ""
-		(at 0 0 0)
-		(layer "F.Fab")
-		(hide yes)
-		(uuid "e149c257-3d72-4cb9-9303-91b089b188d8")
-		(effects
-			(font
-				(size 1.27 1.27)
 				(thickness 0.15)
 			)
 		)
@@ -231,20 +219,9 @@
 			(width 0.12)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "F.SilkS")
 		(uuid "0693dfe0-263e-4a5c-b2d0-6006f1ae6939")
-	)
-	(fp_rect
-		(start -7.0404 -4.6164)
-		(end 8.4536 5.3366)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(fill none)
-		(layer "Dwgs.User")
-		(uuid "6acecaa1-0feb-4990-bf10-2b4d0c5a52dc")
 	)
 	(fp_line
 		(start -7.0364 -1.7134)
@@ -325,6 +302,17 @@
 		)
 		(layer "F.CrtYd")
 		(uuid "39eecd04-d929-4dab-b680-a331014624be")
+	)
+	(fp_rect
+		(start -7.0404 -4.6164)
+		(end 8.4536 5.3366)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "6acecaa1-0feb-4990-bf10-2b4d0c5a52dc")
 	)
 	(fp_line
 		(start -6.5364 -1.1684)
@@ -496,4 +484,5 @@
 		(remove_unused_layers no)
 		(uuid "6fc1f653-92f9-461f-8f37-0cff9466f441")
 	)
+	(embedded_fonts no)
 )

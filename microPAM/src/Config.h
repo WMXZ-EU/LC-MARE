@@ -27,11 +27,11 @@
   #if defined(AUDIO_INTERFACE)
     #define FSAMP 44100   // for audio interface force 44100
   #else
-    #define FSAMP 48000   // sampling frequency
+    #define FSAMP 96000   // sampling frequency
   #endif
 
   #define NCHAN_I2S  4    // number of I2S channels 
-  #define NCHAN_ACQ  1    // number of channels
+  #define NCHAN_ACQ  2    // number of channels
 
   #if NCHAN_ACQ == 1
     #define ICH      2    // selected channel (set to -1 to disable monochannel extraction)
