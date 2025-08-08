@@ -1,0 +1,40 @@
+https://github.com/earlephilhower/arduino-pico/discussions/993
+
+Ok i think i understand how this works
+
+You first need to create the image that include the "app" + data with mklittlefs
+mklittlefs -c dataPath -p spiPage -b spiBlock -s (spiEnd - spiStart) .mklittlefs.bin
+
+And later to upload this you use this python script
+uf2conv.py --base (spiStart - 0 * 0x10000000) --serial serialPort --family RP2040 .mklittlefs.bin
+
+Regarding those vars
+spiStart = getIntPref("build.fs_start");
+spiEnd = getIntPref("build.fs_end");
+spiPage = 256;
+spiBlock = 4096;
+
+
+Those values need to be encoded in the main app binary. I suggest you build an app w/the appropriate filesystem size set and then open the *.map file generated. There will be a partition table used by the OTA updater you can use to grab the encoded/calculated position and size. For 2MB(1MB FS) :
+
+.partition      0x00000000100026e8      0x918
+                0x0000000010002ff0                . = (__flash_binary_start + 0x2ff0)
+ *fill*         0x00000000100026e8      0x908
+                0x0000000010002ff0        0x4 LONG 0x100ff000
+                0x0000000010002ff4        0x4 LONG 0x101ff000
+                0x0000000010002ff8        0x4 LONG 0x101ff000
+                0x0000000010002ffc        0x4 LONG 0xff000
+
+From linker file:
+
+    .partition : {
+        /* Align to the last 16-bytes of the OTA region */
+        /* If anyone has a better way of doing this, please submit a PR! */
+        . = __flash_binary_start + 0x2ff0;
+        LONG(__FS_START__)
+        LONG(__FS_END__)
+        LONG(__EEPROM_START__)
+        LONG(__FLASH_LENGTH__)
+    } > FLASH
+
+So look at 0x10002ff0 for FS_START, 0x10002ff4 for FS_END. In this case, FS_START = 0x100ff000 and FS_END = 0x101ff000

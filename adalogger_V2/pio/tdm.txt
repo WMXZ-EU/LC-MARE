@@ -1,0 +1,92 @@
+		count
+Now:
+x=(4-3)	11		x=1
+in	10	1	
+nop	11
+:
+in	00	2	
+jmp	01		x=1->0
+in	00	3
+jmp	01		x=0->no jump
+in	00	4
+
+x=(4-2)	01		x=2
+in	00	1
+jmp	01		x=2->1
+in	00	2
+jmp	01		x=1->0
+in	00	3
+jmp	01		x=0-> no jump
+in	10	4
+
+-----------------------------------------------------
+		count
+3CH:
+x=(4-3)	11		x=1
+in	10	1	
+nop	11
+:l1
+in	00	2	
+jmp	01		x=1->0
+in	00	3
+jmp	01		x=0->no jump
+in	00	4
+
+x=(4-2)	01		x=2
+:l2
+in	00	1
+jmp	01		x=2->1
+in	00	2
+jmp	01		x=1->0
+in	00	3
+jmp	01		x=0-> no jump
+in	00	4
+
+x=(4-2)	01		x=2
+:l3
+in	00	1
+jmp	01		x=2->1
+in	00	2
+jmp	01		x=1->0
+in	00	3
+jmp	01		x=0-> no jump
+in	10	4
+
+
+-----------------------------------------------------
+		count
+3CH:
+y=(3-2)	11
+in	10	1	
+x=(4-3)	11		x=1
+:l1
+in	00	2	
+jmpx	01		x=1->0
+in	00	3
+jmpx	01		x=0->no jump to l1
+
+:n1
+in	00	4
+x=(4-3)	01		x=1
+:l2
+in	00	1
+jmpx	01		x=1->0
+in	00	2
+jmpx	01		x=0->no jump to l2
+in	00	3
+jmpy	01		y=1->0 jump to n1
+
+:n2
+in	00	4
+x=(4-3)	01		x=1
+:l3
+in	00	1
+jmpx	01		x=1->0
+in	00	2
+jmpx	01		x=0-> no jump
+in	00	3
+jmpy	01		y=0-> no jump to n2
+
+in	10	4
+
+

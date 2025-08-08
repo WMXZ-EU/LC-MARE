@@ -1,0 +1,42 @@
+
+; pio_i2s_in for the RP2040
+
+.program pio_tdm_in ;
+.side_set 2   ; 0 = bclk, 1=wclk
+;                              v----- WCLK
+;                              |v---- BCLK
+	set x,29		side 0b11	
+	in pins,1		side 0b10
+	nop			side 0b11
+loop1:
+	in pins,1		side 0b00
+	jmp x--, loop1	side 0b01
+	in pins,1		side 0b010
+
+
+
+% c-sdk {
+
+static inline void pio_tdm_in_program_init(PIO pio, uint sm, uint offset, uint data_pin, uint clock_pin_base, uint bits) 
+{
+    pio_gpio_init(pio, data_pin);
+    pio_gpio_init(pio, clock_pin_base);
+    pio_gpio_init(pio, clock_pin_base + 1);
+    //
+    pio_sm_config sm_config = pio_tdm_in_program_get_default_config(offset);
+    //
+    sm_config_set_in_pins(&sm_config, data_pin);
+    sm_config_set_sideset_pins(&sm_config, clock_pin_base);
+    sm_config_set_in_shift(&sm_config, false, true,  bits);
+    sm_config_set_fifo_join(&sm_config, PIO_FIFO_JOIN_RX);
+    //
+    pio_sm_init(pio, sm, offset, &sm_config);
+    //
+    uint pin_mask = 3u << clock_pin_base;
+    pio_sm_set_pindirs_with_mask(pio, sm, pin_mask, pin_mask);
+    pio_sm_set_pins(pio, sm, 0); // clear pins
+    //
+    //pio_sm_exec(pio, sm, pio_encode_set(pio_y, bits - 2));
+}
+
+%}
