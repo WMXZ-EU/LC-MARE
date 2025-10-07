@@ -4313,6 +4313,16 @@
 		)
 		(uuid "ea0493e5-6c19-42af-b893-48fe98d71fe8")
 	)
+	(label "V_PreAmpIn"
+		(at 130.81 50.8 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "eadf1847-7400-47a6-acc4-5afbe5c7a20d")
+	)
 	(label "V_Battery"
 		(at 68.58 114.3 0)
 		(effects

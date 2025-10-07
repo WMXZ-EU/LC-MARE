@@ -23,7 +23,7 @@
 #define GLOBAL_H
 
 #include "../config.h"
-  #define Version "2.0.x.1" 
+  #define Version "2.0.1" // 27-09-2025
   #define PreAmp  0                   // 0: CMOS; 1: FET; 2 Mark
   #define Program "Adalogger_V2a"
 
@@ -86,4 +86,9 @@
   extern char ISBJ[]; // 'subject' (Area)
   extern char INAM[]; // 'Name' (location id)
 
+#define MCU ADA_LOGGER
+#define PREAMP CMOS
+#define ADC ADC_V2
+#define RTC RV_3028_PIMORONI
+#define BASE LC_MARE_09_2025
 #endif

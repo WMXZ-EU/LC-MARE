@@ -3835,6 +3835,7 @@
 		(fp_text user "${REFERENCE}"
 			(at 0 0 90)
 			(layer "F.Fab")
+			(hide yes)
 			(uuid "c36a1473-69dd-403b-8c96-3865f24c2082")
 			(effects
 				(font
@@ -4839,7 +4840,7 @@
 		(pts
 			(xy 107.65 70.7) (xy 107.65 80.7)
 		)
-		(height 13.311)
+		(height 2.225)
 		(format
 			(prefix "")
 			(suffix "")
@@ -4857,7 +4858,7 @@
 			(keep_text_aligned yes)
 		)
 		(gr_text "10.0000 mm"
-			(at 92.539 75.7 90)
+			(at 103.625 75.7 90)
 			(layer "F.Fab")
 			(uuid "2aab1d50-7fc3-4678-8984-3f5369926b2d")
 			(effects
@@ -4875,7 +4876,7 @@
 		(pts
 			(xy 107.65 80.7) (xy 123.2 80.7)
 		)
-		(height 7.384)
+		(height 3.9)
 		(format
 			(prefix "")
 			(suffix "")
@@ -4893,7 +4894,7 @@
 			(keep_text_aligned yes)
 		)
 		(gr_text "15.5500 mm"
-			(at 115.425 86.284 0)
+			(at 115.425 82.8 0)
 			(layer "F.Fab")
 			(uuid "cf3fd299-c089-4f58-964d-e46d703f4843")
 			(effects

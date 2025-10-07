@@ -29,6 +29,8 @@
 #include "src/Filing.h"
 #include "src/Adc.h"
 
+#include "Wire.h"
+#include "src/I2C.h"
 //-----------------------------------
 // implementation
 //-----------------------------------
@@ -45,21 +47,45 @@ void setup() {
   // reduce MCU clock
   set_sys_clock_khz(4*12000, true);
 
+  neo_pixel_init();
+  neo_pixel_show(10, 0, 0);
+
+  if(0)
+  {
+    //while(!Serial);
+    #define ADC_EN      5
+    #define ADC_SHDNZ   6
+
+    if(1)
+    { Serial.println("Power on ADC");
+      pinMode(ADC_EN,OUTPUT);
+      acqPower(HIGH);
+      adcReset();
+      delay(100);
+      adcStart();
+    }
+
+    Serial.println("wire");
+    test_wire(&Wire);
+    Serial.println("wire1");
+    test_wire(&Wire1);
+    neo_pixel_show(0, 0, 10);
+    while(1);
+  }  
+
   if(eepromLoad()==0)
   { // should load parameters from LFS or uSD (TBD)
     ;
   }
 
-  neo_pixel_init();
-  neo_pixel_show(10, 0, 0);
-
   while(millis()<(WAIT*1000)) if(Serial) { Serial.print(millis());break;}
-  if(Serial) Serial.println("\n*********\nAdalogger");
-  
-  neo_pixel_show(0, 0, 0);
+  if(Serial) Serial.println("\n***********\nAdalogger\n***********\n");
+
+  neo_pixel_show(0, 10, 0);
 
   for(int p=0;p<30;p++) // disable GIPOs
-  { pinMode(p, INPUT); 
+  { if(p==17) continue; // neopixel
+    pinMode(p, INPUT); 
     gpio_set_input_enabled(p, false); 
   }
   
@@ -77,6 +103,7 @@ void setup() {
     }
   }
 
+  Serial.println("Parameter Print");
   parameterPrint();
 
   #if MC==0
@@ -86,16 +113,22 @@ void setup() {
     setup_ready=1;
     while(!setup1_ready) delay(10);
   #endif
-
   have_disk=SD_init();
+  Serial.print("have disk: "); Serial.println(have_disk);
   if(have_disk) configShow();
   if(have_disk) status=DO_START;
-  if(!have_disk)  neo_pixel_show(0, 0, 10);
+  if(!have_disk)  neo_pixel_show(0, 0, 10); else neo_pixel_show(0, 0, 0);
 
+  if(0)
+  {
+    int p=17;
+    pinMode(p, INPUT); 
+    gpio_set_input_enabled(p, false); 
+  }
   if(!Serial)
   { usb_stop();
   }
-
+  Serial.print("status: ");Serial.println(status);
 }
 
 void loop() {
@@ -105,10 +138,12 @@ void loop() {
   if(status==DO_START)
   { adc_init();
     status=CLOSED;
+    neo_pixel_show(0, 0, 0);
   }
   if(status==JUST_STOPPED)
   { adc_exit();
     status=STOPPED;
+    neo_pixel_show(0, 10, 0);
   }
   // filing
   int32_t *buffer = is2_last_read();

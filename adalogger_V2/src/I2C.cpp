@@ -107,5 +107,5 @@ void test_wire(TwoWire *wire)
         else 
             Serial.printf("I2C found %x\n",ii);      
     }
-    while(1);  
+    //while(1);  
 }

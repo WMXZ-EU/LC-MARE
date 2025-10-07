@@ -53,10 +53,10 @@
     #endif
 
 	#if (NCHAN_I2S ==1)
-        #if PreAmp==2
+        #if PreAmp==2   // Marks Preamp on ch1
             const  uint8_t chanMask[2] = {0b1000<<4, 0b1000<<4};
             const  uint8_t chmap[2][4] = {{0,1,2,3}, {0,1,2,3}};
-        #else
+        #else           // else Preamp on ch2
             const  uint8_t chanMask[2] = {0b0100<<4, 0b0100<<4};
             const  uint8_t chmap[2][4] = {{3,0,1,2}, {3,0,1,2}};
         #endif
@@ -82,21 +82,28 @@
     static const uint8_t i2c_addr[2]= {I2C_ADDRESS1, I2C_ADDRESS2};
     static const uint8_t regs[4]={0x3C, 0x41, 0x46, 0x4B};
 
+#if defined(__IMXRT1062__)
     // use usb host 5V power (has 100uF capacitor)
     void usbPowerInit()
     {
-//      IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_40 = 5;
-//      IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_40 = 0x0008; // slow speed, weak 150 ohm drive
-//      GPIO8_GDIR |= 1<<26;
+      IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_40 = 5;
+      IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_40 = 0x0008; // slow speed, weak 150 ohm drive
+      GPIO8_GDIR |= 1<<26;
     }
     void usbPowerExit()
     {
-//      IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_40 = 0; // disable
-//      GPIO8_GDIR &= ~(1<<26);
+      IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_40 = 0; // disable
+      GPIO8_GDIR &= ~(1<<26);
     }
 
-    void usbPowerOn()  { /*GPIO8_DR_SET = 1<<26;*/ }
-    void usbPowerOff() { /*GPIO8_DR_CLEAR = 1<<26;*/ }
+    void usbPowerOn()  { GPIO8_DR_SET = 1<<26; }
+    void usbPowerOff() { GPIO8_DR_CLEAR = 1<<26; }
+#else
+    void usbPowerInit() {}
+    void usbPowerExit() {}
+    void usbPowerOn()  {}
+    void usbPowerOff() {}
+#endif
 
     void usbPowerSetup(void)
     {
@@ -123,6 +130,8 @@
     { return;
       #if HP_ON>0
         digitalWrite(HP_ON,flag);
+      #else
+            (void) flag;
       #endif
     }
 

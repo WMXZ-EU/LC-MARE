@@ -445,7 +445,7 @@ uint32_t RV3028_getUNIX()
   int16_t initXRTC(uint8_t sda, uint8_t scl)
   { address=RV3028_ADDR;
     i2c_setup(sda,scl);
-    Serial.print("XRTC: 0x"); Serial.println(address,HEX);
+    Serial.print("check XRTC: 0x"); Serial.println(address,HEX);
     delay(100);
     if(i2c_exists(address))
     {
@@ -460,7 +460,10 @@ uint32_t RV3028_getUNIX()
 
       Serial.print("Config EEPROM 0x37 after: ");
       Serial.println(readConfigEEPROM_RAMmirror(0x37));
-
+    }
+    else
+    {
+      Serial.print("Does not exist");
     }
     return true;
   }
