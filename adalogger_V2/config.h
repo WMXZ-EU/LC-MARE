@@ -29,6 +29,6 @@
   #define T_REP     0   // minutes (for continuous recording set t_rep < t_acq)
 
   // definitions for acquisition and filing
-  #define FSAMP     48000
+  #define FSAMP     96000
   //
 #endif
