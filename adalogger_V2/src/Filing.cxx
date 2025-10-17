@@ -419,7 +419,7 @@ status_t logger(int32_t * buffer,status_t status)
         if(missed_acq>0) 
         { uint32_t * ptr=get_missed_list(); 
           Serial.print("Missed "); Serial.print(missed_acq); Serial.print(": ");
-          for(int ii=0; ii<missed_acq; ii++) {Serial.print(ptr[ii % 32]); Serial.print(' ');} Serial.println();
+          for(int ii=0; (ii<32) && (ii<missed_acq) ; ii++) {Serial.print(ptr[ii]); Serial.print(' ');} Serial.println();
         }
       }
       data_count = 0;

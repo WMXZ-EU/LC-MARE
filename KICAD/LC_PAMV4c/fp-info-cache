@@ -1,4 +1,4 @@
-24837413487048440
+24840949699806847
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -99631,6 +99631,13 @@ MOLEX_530480410
 4
 4
 myLibrary
+Molex_PicoBlade_53048-0210_1x02_P1.25mm_Horizontal
+Molex PicoBlade Connector System, 53048-0210, 2 Pins per row (http://www.molex.com/pdm_docs/sd/530480210_sd.pdf), generated with kicad-footprint-generator
+connector Molex PicoBlade top entry
+0
+2
+2
+myLibrary
 MountingHole_3.2mm_M3
 Mounting Hole 3.2mm, no annular, M3
 mounting hole 3.2mm no annular m3
@@ -99882,6 +99889,13 @@ Micro SD
 0
 14
 11
+myLibrary
+pimoroni_pga2350
+
+
+0
+64
+64
 myLibrary
 preAmp2
 
