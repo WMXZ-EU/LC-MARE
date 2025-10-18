@@ -63,30 +63,31 @@
 #define JMPX(SIDE,VAL)  ((0<<13)| (SIDE<<11)| (2<<5)| (VAL))
 #define JMPY(SIDE,VAL)  ((0<<13)| (SIDE<<11)| (4<<5)| (VAL))
 #define NOP(SIDE)       ((5<<13)| (SIDE<<11)| (2<<5)| (2))
-#define INP(SIDE,VAL)   ((2<<13)| (SIDE<<11)| (0<<5)| (VAL))
-#define INN(SIDE,VAL)   ((2<<13)| (SIDE<<11)| (3<<5)| (VAL))
+#define INP(SIDE,VAL)   ((2<<13)| (SIDE<<11)| (0<<5)| (VAL))  // input pin
+#define INN(SIDE,VAL)   ((2<<13)| (SIDE<<11)| (3<<5)| (VAL))  // input zero
 
 #if NCHAN_I2S==1
   #define pio_tdm_in_wrap_target 0
   #define pio_tdm_in_wrap 5
 
   static const uint16_t pio_tdm_in_program_instructions[] = {
+  #if 1
     SETX(0b11,MBIT-3),
      INP(0b10,1),
      NOP(0b11),
      INP(0b00,1),
     JMPX(0b01,3),
      INN(0b10,1)
-    /*
-              //     .wrap_target
+  #else
+      //     .wrap_target
       0xf83d, //  0: set    x, 29           side 3     
       0x5001, //  1: in     pins, 1         side 2     
       0xb842, //  2: nop                    side 3     
       0x4001, //  3: in     pins, 1         side 0     
       0x0843, //  4: jmp    x--, 3          side 1     
-      0x5001, //  5: in     pins, 1         side 2     
-              //     .wrap
-    */
+      0x5001, //  5: in     pins, 1         side 2     // is above in null,1
+      //     .wrap
+  #endif
   };
 
   static const struct pio_program pio_tdm_in_program = {
