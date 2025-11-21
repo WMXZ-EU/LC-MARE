@@ -81,7 +81,7 @@ void setup() {
   while(millis()<(WAIT*1000)) if(Serial) { Serial.print(millis());break;}
   if(Serial) Serial.println("\n***********\nAdalogger\n***********\n");
 
-  neo_pixel_show(0, 10, 0);
+  neo_pixel_show(10, 10, 0);
 
   for(int p=0;p<30;p++) // disable GIPOs
   { if(p==17) continue; // neopixel
@@ -121,12 +121,13 @@ void setup() {
 
   if(0)
   {
-    int p=17;
+    int p=17; // NeoPixel
     pinMode(p, INPUT); 
     gpio_set_input_enabled(p, false); 
   }
+
   if(!Serial)
-  { usb_stop();
+  { //usb_stop();
   }
   Serial.print("status: ");Serial.println(status);
 }

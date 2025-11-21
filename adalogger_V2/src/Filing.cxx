@@ -34,10 +34,10 @@ uint32_t t_rep = T_REP;   // minutes (for continuous recording set t_rep < t_acq
 
 char ISRC[40]={' '}; //  Source
 char ICMS[40]={' '}; //  Organization
-char IART[40]={' '}; // 'Artist' (creator)
-char IPRD[40]={' '}; // 'Product' (Activity)
+char IART[40]={"WMXZ"}; // 'Artist' (creator)
+char IPRD[40]={"LC-Mare"}; // 'Product' (Activity)
 char ISBJ[40]={' '}; // 'subject' (Area)
-char INAM[40]={' '}; // 'Name' (location id)
+char INAM[40]={"test"}; // 'Name' (location id)
 
 // microSD card
 #if SDFAT_FILE_TYPE != 3

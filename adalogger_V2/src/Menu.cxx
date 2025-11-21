@@ -97,6 +97,12 @@ static uint16_t menuGetTime(datetime_t *t)
   t->sec  =v6;
   return 1;
 }
+
+static int menuGetString(char *val)
+{ strcpy(val,menuGetLine());
+  return 1;
+}
+
 status_t menu(status_t status)
 {
   if(Serial)
@@ -153,8 +159,28 @@ status_t menu(status_t status)
         if(ch=='g') 
         { Serial.print("g = "); Serial.println(again);
         }
+        if(ch=='u') 
+        { Serial.print("u = "); Serial.println(uid_str);
+        }
+        if(ch=='p') 
+        { Serial.print("p = "); Serial.println(PROC);
+        }
         if(ch=='w') 
         { Serial.print("w = "); Serial.println(eeprom);
+        }
+        if(ch=='d')
+        { datetime_t t;
+          XRTCgetDatetime(&t);    
+          printDatetime("d =",&t);
+        }
+        if(ch=='n') 
+        { Serial.print("n = "); Serial.println(&IART[0]);
+        }
+        if(ch=='k') 
+        { Serial.print("k = "); Serial.println(&IPRD[0]);
+        }
+        if(ch=='l') 
+        { Serial.print("l = "); Serial.println(&INAM[0]);
         }
       }
       else if(ch=='!')  // modify parameters
@@ -163,7 +189,7 @@ status_t menu(status_t status)
         ch=Serial.read();
         if(ch=='a') 
         { menuGetInt16((uint16_t*)&t_acq); 
-          }
+        }
         if(ch=='o') 
         { menuGetInt16((uint16_t*)&t_on);
         }
@@ -181,6 +207,26 @@ status_t menu(status_t status)
         if(ch=='w') 
         { menuGetInt16((uint16_t*)&eeprom);
           eepromUpdate();
+        }
+        if(ch=='u') 
+        { menuGetLine();
+        }
+        if(ch=='p') 
+        { menuGetLine();
+        }
+        if(ch=='n') 
+        { menuGetString(&IART[0]);
+        }
+        if(ch=='k') 
+        { menuGetString(&IPRD[0]);
+        }
+        if(ch=='l') 
+        { menuGetString(&INAM[0]);
+        }
+        if(ch=='d')
+        { datetime_t t;
+          menuGetTime(&t);
+          XRTCsetDatetime(&t);
         }
       }
       else if(ch=='c')  // check and correct RTC time

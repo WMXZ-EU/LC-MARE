@@ -3422,20 +3422,20 @@
 		(uuid "bbd7ca71-fea3-4fab-8d5f-ec3873e693c5")
 	)
 	(junction
-		(at 137.16 110.49)
+		(at 130.81 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "4bbca6e0-1c9f-45de-adc6-ea2e9c0cb243")
 	)
 	(junction
-		(at 137.16 120.65)
+		(at 130.81 127)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e51d5a2a-b0fc-47da-9f5e-a2d6ce896d03")
 	)
 	(wire
 		(pts
-			(xy 137.16 110.49) (xy 137.16 111.76)
+			(xy 130.81 116.84) (xy 130.81 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3495,7 +3495,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 118.11) (xy 156.21 120.65)
+			(xy 149.86 124.46) (xy 149.86 127)
 		)
 		(stroke
 			(width 0)
@@ -3505,7 +3505,7 @@
 	)
 	(wire
 		(pts
-			(xy 127 110.49) (xy 137.16 110.49)
+			(xy 120.65 116.84) (xy 130.81 116.84)
 		)
 		(stroke
 			(width 0)
@@ -3525,7 +3525,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 130.81) (xy 137.16 133.35)
+			(xy 130.81 137.16) (xy 130.81 139.7)
 		)
 		(stroke
 			(width 0)
@@ -3535,7 +3535,7 @@
 	)
 	(wire
 		(pts
-			(xy 161.29 110.49) (xy 172.72 110.49)
+			(xy 154.94 116.84) (xy 166.37 116.84)
 		)
 		(stroke
 			(width 0)
@@ -3545,7 +3545,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 120.65) (xy 137.16 120.65)
+			(xy 149.86 127) (xy 130.81 127)
 		)
 		(stroke
 			(width 0)
@@ -3575,7 +3575,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 119.38) (xy 137.16 120.65)
+			(xy 130.81 125.73) (xy 130.81 127)
 		)
 		(stroke
 			(width 0)
@@ -3585,7 +3585,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 120.65) (xy 137.16 123.19)
+			(xy 130.81 127) (xy 130.81 129.54)
 		)
 		(stroke
 			(width 0)
@@ -3605,7 +3605,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 110.49) (xy 151.13 110.49)
+			(xy 130.81 116.84) (xy 144.78 116.84)
 		)
 		(stroke
 			(width 0)
@@ -3634,7 +3634,7 @@
 		(uuid "054b21d5-5f21-4ad7-a6b2-56d2e7de091e")
 	)
 	(label "GND"
-		(at 137.16 133.35 0)
+		(at 130.81 139.7 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3704,7 +3704,7 @@
 		(uuid "1bc1c2c1-35d5-460f-9b53-b8fe2b33f33f")
 	)
 	(label "V_PreAmp"
-		(at 172.72 110.49 0)
+		(at 166.37 116.84 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3814,7 +3814,7 @@
 		(uuid "387b437a-47c2-46cf-9a10-086ab523d326")
 	)
 	(label "nINT"
-		(at 247.65 125.73 0)
+		(at 200.66 125.73 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4124,7 +4124,7 @@
 		(uuid "ae635ce3-61d8-45e4-9d6f-c379a0bf1c72")
 	)
 	(label "SCL0"
-		(at 247.65 123.19 0)
+		(at 200.66 123.19 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4294,7 +4294,7 @@
 		(uuid "dfa8169f-0fe9-41df-a3a1-3bd4eadcfda7")
 	)
 	(label "V_PreAmpIn"
-		(at 127 110.49 0)
+		(at 120.65 116.84 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4304,7 +4304,7 @@
 		(uuid "e6b752a0-c4e9-451d-b15f-43f9de8b359a")
 	)
 	(label "SDA0"
-		(at 247.65 120.65 0)
+		(at 200.66 120.65 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4334,7 +4334,7 @@
 		(uuid "eb89323e-6ad0-44ac-b3b1-be14594bf017")
 	)
 	(label "IOVD"
-		(at 247.65 118.11 0)
+		(at 200.66 118.11 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4414,7 +4414,7 @@
 		(uuid "fbb8d1d8-20f3-4245-b9a3-7f5d9ebc27d4")
 	)
 	(label "GND"
-		(at 247.65 128.27 0)
+		(at 200.66 128.27 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4877,7 +4877,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 203.2 148.59 0)
+		(at 255.27 151.13 0)
 		(unit 1)
 		(exclude_from_sim yes)
 		(in_bom no)
@@ -4886,7 +4886,7 @@
 		(fields_autoplaced yes)
 		(uuid "5edf8e92-bdc7-4df9-a0a8-f05e176b90df")
 		(property "Reference" "H4"
-			(at 205.74 147.3778 0)
+			(at 257.81 149.9178 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4895,7 +4895,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 205.74 149.8021 0)
+			(at 257.81 152.3421 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4904,7 +4904,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3_DIN965"
-			(at 203.2 148.59 0)
+			(at 255.27 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4913,7 +4913,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 203.2 148.59 0)
+			(at 255.27 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4922,7 +4922,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 203.2 148.59 0)
+			(at 255.27 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5079,7 +5079,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x05_Pin")
-		(at 242.57 123.19 0)
+		(at 195.58 123.19 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5088,7 +5088,7 @@
 		(fields_autoplaced yes)
 		(uuid "7bce1d68-1bba-415d-aa32-d7e86203b85a")
 		(property "Reference" "J6"
-			(at 243.205 113.8893 0)
+			(at 196.215 113.8893 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5096,7 +5096,7 @@
 			)
 		)
 		(property "Value" "Conn_01x05_Pin"
-			(at 243.205 116.3136 0)
+			(at 196.215 116.3136 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5104,7 +5104,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical"
-			(at 242.57 123.19 0)
+			(at 195.58 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5113,7 +5113,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 242.57 123.19 0)
+			(at 195.58 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5122,7 +5122,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x05, script generated"
-			(at 242.57 123.19 0)
+			(at 195.58 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5156,7 +5156,7 @@
 	)
 	(symbol
 		(lib_id "Transistor_BJT:BC548")
-		(at 156.21 113.03 90)
+		(at 149.86 119.38 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5165,7 +5165,7 @@
 		(fields_autoplaced yes)
 		(uuid "7e4dfe8f-2414-42d6-8adb-9c376a3201f6")
 		(property "Reference" "Q1"
-			(at 156.21 104.7961 90)
+			(at 149.86 111.1461 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5173,7 +5173,7 @@
 			)
 		)
 		(property "Value" "BC547C"
-			(at 156.21 107.2204 90)
+			(at 149.86 113.5704 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5181,7 +5181,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
-			(at 158.115 107.95 0)
+			(at 151.765 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5192,7 +5192,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/BC550-D.pdf"
-			(at 156.21 113.03 0)
+			(at 149.86 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5202,7 +5202,7 @@
 			)
 		)
 		(property "Description" "0.1A Ic, 30V Vce, Small Signal NPN Transistor, TO-92"
-			(at 156.21 113.03 0)
+			(at 149.86 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5503,7 +5503,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 203.2 133.35 0)
+		(at 255.27 135.89 0)
 		(unit 1)
 		(exclude_from_sim yes)
 		(in_bom no)
@@ -5512,7 +5512,7 @@
 		(fields_autoplaced yes)
 		(uuid "97d00466-8df6-4d70-a715-91926c54bfb2")
 		(property "Reference" "H1"
-			(at 205.74 132.1378 0)
+			(at 257.81 134.6778 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5521,7 +5521,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 205.74 134.5621 0)
+			(at 257.81 137.1021 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5530,7 +5530,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3_DIN965"
-			(at 203.2 133.35 0)
+			(at 255.27 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5539,7 +5539,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 203.2 133.35 0)
+			(at 255.27 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5548,7 +5548,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 203.2 133.35 0)
+			(at 255.27 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5653,7 +5653,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 203.2 138.43 0)
+		(at 255.27 140.97 0)
 		(unit 1)
 		(exclude_from_sim yes)
 		(in_bom no)
@@ -5662,7 +5662,7 @@
 		(fields_autoplaced yes)
 		(uuid "b7d5d355-c59d-4422-b9f4-876c57a15bf2")
 		(property "Reference" "H2"
-			(at 205.74 137.2178 0)
+			(at 257.81 139.7578 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5671,7 +5671,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 205.74 139.6421 0)
+			(at 257.81 142.1821 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5680,7 +5680,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3_DIN965"
-			(at 203.2 138.43 0)
+			(at 255.27 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5689,7 +5689,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 203.2 138.43 0)
+			(at 255.27 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5698,7 +5698,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 203.2 138.43 0)
+			(at 255.27 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5934,7 +5934,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 137.16 127 0)
+		(at 130.81 133.35 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5943,7 +5943,7 @@
 		(fields_autoplaced yes)
 		(uuid "ed5b0910-ae22-4a41-b362-5f6ca7fd93da")
 		(property "Reference" "C2"
-			(at 140.081 125.7878 0)
+			(at 133.731 132.1378 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5952,7 +5952,7 @@
 			)
 		)
 		(property "Value" "100uF"
-			(at 140.081 128.2121 0)
+			(at 133.731 134.5621 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5961,7 +5961,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_THT:CP_Radial_D4.0mm_P2.00mm"
-			(at 138.1252 130.81 0)
+			(at 131.7752 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5970,7 +5970,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 137.16 127 0)
+			(at 130.81 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5979,7 +5979,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 137.16 127 0)
+			(at 130.81 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6074,7 +6074,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 137.16 115.57 0)
+		(at 130.81 121.92 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6083,7 +6083,7 @@
 		(fields_autoplaced yes)
 		(uuid "fe41b4d8-e898-42f9-8a32-5e9e2b7037b4")
 		(property "Reference" "R3"
-			(at 138.938 114.3578 0)
+			(at 132.588 120.7078 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6092,7 +6092,7 @@
 			)
 		)
 		(property "Value" "1k"
-			(at 138.938 116.7821 0)
+			(at 132.588 123.1321 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6101,7 +6101,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical"
-			(at 135.382 115.57 90)
+			(at 129.032 121.92 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6110,7 +6110,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 137.16 115.57 0)
+			(at 130.81 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6119,7 +6119,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 137.16 115.57 0)
+			(at 130.81 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6144,7 +6144,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 203.2 143.51 0)
+		(at 255.27 146.05 0)
 		(unit 1)
 		(exclude_from_sim yes)
 		(in_bom no)
@@ -6153,7 +6153,7 @@
 		(fields_autoplaced yes)
 		(uuid "fe5773d1-7614-42ae-80e0-85d29a29756e")
 		(property "Reference" "H3"
-			(at 205.74 142.2978 0)
+			(at 257.81 144.8378 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6162,7 +6162,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 205.74 144.7221 0)
+			(at 257.81 147.2621 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6171,7 +6171,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3_DIN965"
-			(at 203.2 143.51 0)
+			(at 255.27 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6180,7 +6180,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 203.2 143.51 0)
+			(at 255.27 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6189,7 +6189,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 203.2 143.51 0)
+			(at 255.27 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)

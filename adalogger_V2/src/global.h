@@ -33,7 +33,7 @@
   #define NCHAN_I2S   1   // controls the I2S interface
   #define NCH         1   // for wav header (Mono or stereo)
 
-  #define PROC      0     // 0 Wav file; 1 compress (not aproved yet, so should be 0)
+  #define PROC      0     // 0 Wav file; 1 compress (not approved yet, so should be 0)
 
   #define MBIT      32
   #define MBUF      (8*6)           // should be a multople of 6
