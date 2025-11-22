@@ -155,6 +155,19 @@ void loop() {
       data_count++;
     }
   }
+  else
+  {
+    if((status < MUST_STOP) && buffer)
+    { int32_t buffer2[4];
+      static uint32_t t0=0;
+      if(millis()>t0+1000)
+      { t0=millis();
+        memcpy(buffer2,buffer,16);
+        for(int ii=0;ii<4;ii++) Serial.printf("%08x ",buffer2[ii]); Serial.println();
+      }
+    }
+    if(status==MUST_STOP) {status=JUST_STOPPED;Serial.println("\njust stopped");}
+  }
   //
   loop_count++;
   asm("wfi");
