@@ -148,25 +148,29 @@ void loop() {
   }
   // filing
   int32_t *buffer = is2_last_read();
-  if(have_disk && buffer)
+  if(buffer)
   {
-    if(status != STOPPED)
-    { status=logger(buffer,status);
-      data_count++;
-    }
-  }
-  else
-  {
-    if((status < MUST_STOP) && buffer)
-    { int32_t buffer2[4];
-      static uint32_t t0=0;
-      if(millis()>t0+1000)
-      { t0=millis();
-        memcpy(buffer2,buffer,16);
-        for(int ii=0;ii<4;ii++) Serial.printf("%08x ",buffer2[ii]); Serial.println();
+    if(have_disk)
+    { // write data to disk
+      if(status != STOPPED)
+      { status=logger(buffer,status);
+        data_count++;
       }
     }
-    if(status==MUST_STOP) {status=JUST_STOPPED;Serial.println("\njust stopped");}
+    else
+    { // write some data every second to screen
+      if(status < MUST_STOP)
+      { int32_t buffer2[8];
+        static uint32_t t0=0;
+        if(millis()>t0+1000)
+        { t0=millis();
+          memcpy(buffer2,buffer,32);
+          for(int ii=0;ii<8;ii++) Serial.printf("%08x ",buffer2[ii]); Serial.println();
+        }
+      }
+      // simulate stopping process
+      if(status==MUST_STOP) {status=JUST_STOPPED; Serial.println("\njust stopped");}
+    }
   }
   //
   loop_count++;
