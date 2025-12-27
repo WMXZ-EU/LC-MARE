@@ -4213,7 +4213,7 @@
 		)
 		(uuid "82283a63-5d74-438f-984d-cb8f5aa38f87")
 	)
-	(label "V_PreAmp"
+	(label "V_Battery"
 		(at 250.19 49.53 0)
 		(effects
 			(font

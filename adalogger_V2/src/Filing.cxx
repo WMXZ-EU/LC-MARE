@@ -219,11 +219,11 @@ uint32_t mdt=0;
       digitalWrite(LED_BUILTIN, LOW);
       return ndat;
   }
-  int32_t flash_disk(void) { return 0;}
+  int32_t flush_disk(void) { return 0;}
 
 #elif PROC==1
   //compress and write to file
-  #define MBIT 32
+  //#define MBIT 32 (is defined in global.h)
   static int kko=0;
   static int32_t disk_buffer[NBUF_I2S];
 
@@ -268,6 +268,7 @@ uint32_t mdt=0;
 //      ndat += flushBuffer(nbuf);
 //      kk=0;
 //    }
+    outData[kk++]=0xA5A5A5A5
     outData[kk++]=nb;
     outData[kk++]=ncmp;
     //
@@ -298,8 +299,11 @@ uint32_t mdt=0;
             outData[kk] = (tmp << nx);
         }
     }
-    kko=kk;
+    kk++
+    uint32_t nbuf=(kk/128+1)*128;
+    return flushBuffer(nbuf);
 /*
+    kko=kk;
     uint32_t nbuf=(kk/128)*128*4;
     //Serial.printf("%d %d %d %d %08x %08x %08x %08x\n",nb,ncmp,kk,kko,
     //  disk_buffer[kko+0],disk_buffer[kko+1],disk_buffer[kko+2],disk_buffer[kko+3]);
@@ -308,11 +312,11 @@ uint32_t mdt=0;
     kko=kk % 128;
     kk=(kk/128)*128;
     for(int ii=0;ii<kko;ii++) disk_buffer[ii]=disk_buffer[kk++];
-*/
     return ndat;
+*/
   }
 
-  int32_t flash_disk(void)
+  int32_t flush_disk(void)
   {
     uint32_t nbuf=kko*4;
     kko=0;
@@ -396,7 +400,7 @@ status_t logger(int32_t * buffer,status_t status)
     if((tmp_time < old_time) || (status == MUST_STOP))
     {
       // flash last buffer
-      num_bytes_written += flash_disk();
+      num_bytes_written += flush_disk();
 
       int16_t vsens=analogRead(A1);
       // create header for WAV file and write to SD card

@@ -42,6 +42,8 @@ uint32_t data_count=0;
 uint16_t have_disk=0;
 uint16_t setup_ready=0;
 uint16_t setup1_ready=0;
+char status_text[6][16]={"DO_START\0", "CLOSED\0", "RECORDING\0", "MUST_STOP\0", "JUST_STOPPED\0", "STOPPED\0"};
+
 void setup() {
   // put your setup code here, to run once:
   // reduce MCU clock
@@ -129,7 +131,7 @@ void setup() {
   if(!Serial)
   { //usb_stop();
   }
-  Serial.print("status: ");Serial.println(status);
+  Serial.print("status: ");Serial.println(status_text[status]);
 }
 
 void loop() {

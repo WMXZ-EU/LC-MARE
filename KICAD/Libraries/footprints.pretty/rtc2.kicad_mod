@@ -1,0 +1,149 @@
+(footprint "rtc2"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 -0.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "506dc455-b61e-4895-a904-043defc92792")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "rtc2"
+		(at 0 1 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "b5aaece0-2293-44f7-9320-d2c2addf2b22")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "19384bc8-1163-4406-b2ce-f47ae7055a94")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d0312ccb-2aa4-451d-83d9-aa1422cc4937")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_rect
+		(start 4 -24)
+		(end 22.5 -2)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "1a1417eb-1f33-4c69-9190-bce9b195a43c")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "6b7aed70-fe0b-4d39-adba-30b63baf4a77")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole roundrect
+		(at 20.595 -5.712)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.09842519685)
+		(uuid "49d88c22-d5a3-4441-b9e4-eb143e633fa2")
+	)
+	(pad "2" thru_hole circle
+		(at 20.595 -8.252)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "e5f55b9b-0ed1-4f9e-befa-af0108caf5e4")
+	)
+	(pad "3" thru_hole circle
+		(at 20.595 -10.792)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "9176ca8c-1dba-4084-914e-b40ee12b30ae")
+	)
+	(pad "4" thru_hole circle
+		(at 20.595 -13.332)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "4e1571aa-a62b-46d1-9902-f902fd1e31d1")
+	)
+	(pad "5" thru_hole circle
+		(at 20.595 -15.872)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "3bbce0e6-6f78-4857-8eac-847a4290d34e")
+	)
+	(pad "6" thru_hole circle
+		(at 20.595 -18.412)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "92cd495f-6362-4862-94ca-41d76e878a14")
+	)
+	(pad "7" thru_hole circle
+		(at 20.595 -20.952)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "53a833b8-7e7e-4dba-9dbc-1c4a24a0e4dd")
+	)
+	(embedded_fonts no)
+	(model "C:/Users/zimme/Documents/LC-MARE/KICAD/Libraries/3D/rtc2.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

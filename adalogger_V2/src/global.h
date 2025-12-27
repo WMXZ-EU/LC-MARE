@@ -35,8 +35,9 @@
 
   #define PROC      0     // 0 Wav file; 1 compress (not approved yet, so should be 0)
 
-  #define MBIT      32
-  #define MBUF      (8*6)           // should be a multople of 6
+  #define MBIT      32    // number of bits in I2S
+
+  #define MBUF      (8*6)           // should be a multiple of 6 (so it can be divided in 2 or 3)
   #if PROC==0
     #define NBUF_I2S  (MBUF/2*1024) // actual buffer length in samples for acquisition and filing (dual buffer)
   #else
@@ -63,7 +64,7 @@
 
   // program states
   enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED};
-
+  extern char status_text[][16];
   // RP2040 specific
   #define MC 1 // use second core for acquisition 
 
