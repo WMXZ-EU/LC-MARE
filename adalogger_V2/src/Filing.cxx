@@ -83,11 +83,11 @@ void dateTime(uint16_t* date, uint16_t* time, uint8_t* ms10)
 static HdrStruct wav_hdr;
 char *wav_Info_ptr=wav_hdr.info;
 
-char * insertChunk(char *ptr, const char * id, char * txt)
+char * insertChunk(char *ptr, const char *id, char *txt)
 {
   memcpy(ptr,id,4); ptr+=4;
     int leno=strlen(txt);
-    int len = (1+(leno+1)/4)*4;
+    int len = (1+(leno+3)/4)*4;
     *(uint32_t *) ptr = len; ptr+=4;
     memcpy(ptr,txt,leno); ptr+=leno; 
     for(int ii=leno; ii<len;ii++) *ptr++=0;
@@ -145,7 +145,8 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
   char *wptr=wav_Info_ptr;
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
-  sprintf(infotext,"%6d; %6d; %6d; %6d; %6d; %6d.",t_acq,t_on,t_rep,fsamp/1000,again, vsens);
+  sprintf(infotext,"%6d; %6d; %6d; %6d; %6d; %6d; %3d; %3d.",
+                    t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //
   if(missed_acq>0)

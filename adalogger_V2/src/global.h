@@ -33,13 +33,12 @@
   #define NCHAN_I2S   1   // controls the I2S interface
   #define NCH         1   // for wav header (Mono or stereo)
 
-  #define PROC      1     // 0 Wav file; 1 compress (not approved yet, so should be 0)
-
   #define MBIT      32    // number of bits in I2S
 
   #define MBUF      (8*6)           // should be a multiple of 6 (so it can be divided in 2 or 3)
   #if PROC==0
     #define NBUF_I2S  (MBUF/2*1024) // actual buffer length in samples for acquisition and filing (dual buffer)
+    #define SHIFT 0
   #else
     #define NBUF_I2S  (MBUF/3*1024) // actual buffer length in samples for acquisition and filing (triple buffer)
     #define SHIFT (8+4)

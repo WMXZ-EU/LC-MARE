@@ -31,4 +31,6 @@
   // definitions for acquisition and filing
   #define FSAMP     96000
   //
+  #define PROC      1     // 0 Wav raw file; 1 compress 
+
 #endif
