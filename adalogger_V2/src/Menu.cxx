@@ -41,7 +41,7 @@ void parameterPrint(void)
   Serial.println(Program);
   Serial.print("Version    "); Serial.println(Version);
   getUID();
-  Serial.print("UID        "); Serial.println(uid_str);
+  Serial.print("UID        "); Serial.println(uid_strng);
   Serial.print("eeprom (w) "); Serial.print(eeprom); Serial.println();
   Serial.print("t_acq  (a) "); Serial.print(t_acq);  Serial.println(" sec");
   Serial.print("t_on   (o) "); Serial.print(t_on);   Serial.println(" min");
@@ -160,7 +160,7 @@ status_t menu(status_t status)
         { Serial.print("g = "); Serial.println(again);
         }
         if(ch=='u') 
-        { Serial.print("u = "); Serial.println(uid_str);
+        { Serial.print("u = "); Serial.println(uid_strng);
         }
         if(ch=='p') 
         { Serial.print("p = "); Serial.println(PROC);

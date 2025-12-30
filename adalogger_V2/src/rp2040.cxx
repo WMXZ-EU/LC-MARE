@@ -381,8 +381,9 @@ static const uint16_t pio_tdm_in_program_instructions[] = {
 
       dma_channel_start(_channelDMA[0]);
   }
-  uint32_t  acq_count=0;
-  static uint32_t missed_list[32];
+  
+  uint32_t  acq_count=0;  // acq buffer count
+  uint32_t missed_list[32];
   uint32_t *acq_missed_ptr = &missed_list[0];
 
   void reset_missed_list(void)
@@ -410,8 +411,7 @@ static const uint16_t pio_tdm_in_program_instructions[] = {
       {  missed_acq++;
         // store missed counter
         *acq_missed_ptr++=acq_count;
-        if(acq_missed_ptr>=&missed_list[31]) acq_missed_ptr=&missed_list[0];
-
+        if(acq_missed_ptr>=&missed_list[0]+32) acq_missed_ptr=&missed_list[0];
       }
 
       dma_channel_set_write_addr(_channelDMA[ii], i2s_buffer[ii], false);
@@ -637,7 +637,7 @@ uint32_t estAlarmTime(uint32_t secs) { return (secs<alarm)? alarm: secs; } // wi
   }
 
 #include "pico/unique_id.h"
-char uid_str[10]; 
+char uid_strng[10]; 
 void getUID(void)
 {
   pico_unique_board_id_t id;
@@ -647,7 +647,7 @@ void getUID(void)
   { Serial.print(id.id[len],HEX); Serial.print(' '); 
   } 
   Serial.println();  
-  sprintf(uid_str,"%02X%02X%02X%02X",id.id[4],id.id[5],id.id[6],id.id[7]);
+  sprintf(uid_strng,"%02X%02X%02X%02X",id.id[4],id.id[5],id.id[6],id.id[7]);
 }
 /************************************ RTC **********************************************/
 

@@ -219,12 +219,10 @@ uint32_t mdt=0;
       digitalWrite(LED_BUILTIN, LOW);
       return ndat;
   }
-  int32_t flush_disk(void) { return 0;}
 
 #elif PROC==1
   //compress and write to file
   //#define MBIT 32 (is defined in global.h)
-  static int kko=0;
   static int32_t disk_buffer[NBUF_I2S];
 
   int32_t flushBuffer(int32_t nbuf)
@@ -241,88 +239,73 @@ uint32_t mdt=0;
   int32_t storeData(int32_t *buffer)
   {
     int32_t ndat=0;
-    for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>8;
-    uint32_t amax=0;
-    for(int ii=0;ii<NBUF_I2S;ii++) 
-    { int32_t tmp;
-      tmp=buffer[ii];
-      if(tmp<0) tmp=-tmp;
-      if(tmp>amax) amax=tmp;
-    }
-      // estimate mask (allow only values > 2)
-    uint32_t nb=0;
-    for(nb=2; nb<24; nb++) if(amax < (1<<(nb-1))) break;
-
-    uint32_t ncmp = (NBUF_I2S*nb) / MBIT;
-    uint32_t mask = (1<<nb) -1;
-
-    // pack data
+    //
+    // shift to right to minimize noise
+    for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
+    //
     // 
-    uint32_t *tempData = (uint32_t *) buffer;
     uint32_t *outData  = (uint32_t *) disk_buffer;
-    for(int ii=kko;ii<NBUF_I2S;ii++) outData[ii]=0;
+    for(int ii=0;ii<NBUF_I2S;ii++) outData[ii]=0;
 
-    int kk = kko;
-//    if(kk==NBUF_I2S-2)
-//    { uint32_t nbuf=NBUF_I2S*4;
-//      ndat += flushBuffer(nbuf);
-//      kk=0;
-//    }
-    outData[kk++]=0xA5A5A5A5
-    outData[kk++]=nb;
-    outData[kk++]=ncmp;
-    //
-    int nx = MBIT;
-    for (int ii = 0; ii < NBUF_I2S; ii ++)
-    {   nx -= nb;
-        uint32_t tmp = tempData[ii] & mask;
-        if(nx > 0)
-        {   outData[kk] |= (tmp << nx);
-        }
-        else if(nx==0) 
-        {   outData[kk++] |= tmp;
-            if(kk==NBUF_I2S)
-            { uint32_t nbuf=NBUF_I2S*4;
-              ndat += flushBuffer(nbuf);
-              kk=0;
-            }
-            nx=MBIT;
-        } 
-        else    // nx is < 0
-        {   outData[kk++] |= (tmp >> (-nx));
-            if(kk==NBUF_I2S)
-            { uint32_t nbuf=NBUF_I2S*4;
-              ndat += flushBuffer(nbuf);
-              kk=0;
-            }
-            nx += MBIT;
-            outData[kk] = (tmp << nx);
-        }
+    #define NDATA 1024
+    #define MD (NBUF_I2S/NDATA)
+
+    int kk = 0;
+    for(int mm=0; mm<MD;mm++)
+    { // pointer into buffer
+      int32_t *tempData=&buffer[mm*NDATA];
+
+      // find absolute maximum
+      uint32_t amax=0;
+      for(int ii=0;ii<NDATA;ii++) 
+      { int32_t tmp;
+        tmp=tempData[ii];
+        if(tmp<0) tmp=-tmp;
+        if(tmp>amax) amax=tmp;
+      }
+      // estimate mask (allow only values > 2)
+      uint32_t nb=0;
+      for(nb=2; nb<24; nb++) if(amax < (1<<(nb-1))) break;
+
+      uint32_t ncmp = (NDATA*nb) / MBIT;
+      uint32_t mask = (1<<nb) -1;
+
+      // mask input data
+      for(int ii=0;ii<NDATA;ii++) tempData[ii] &= mask;
+
+      // pack data
+      outData[kk++]=0xA5A5A5A5;
+      outData[kk++]=nb;
+      outData[kk++]=ncmp;
+      outData[kk++]=millis();
+      //
+      int nx = MBIT;
+      for (int ii = 0; ii < NDATA; ii ++)
+      {   nx -= nb;
+          uint32_t tmp = tempData[ii] & mask;
+          if(nx > 0)
+          {   outData[kk] |= (tmp << nx);
+          }
+          else if(nx==0) 
+          {   outData[kk++] |= tmp;
+              nx=MBIT;
+          } 
+          else    // nx is < 0
+          {   outData[kk++] |= (tmp >> (-nx));
+              nx += MBIT;
+              outData[kk] = (tmp << nx);
+          }
+      }
+      // advance to next word
+      if (nx==MBIT) continue;
+      kk++;
     }
-    kk++
-    uint32_t nbuf=(kk/128+1)*128;
-    return flushBuffer(nbuf);
-/*
-    kko=kk;
-    uint32_t nbuf=(kk/128)*128*4;
-    //Serial.printf("%d %d %d %d %08x %08x %08x %08x\n",nb,ncmp,kk,kko,
-    //  disk_buffer[kko+0],disk_buffer[kko+1],disk_buffer[kko+2],disk_buffer[kko+3]);
-    ndat += flushBuffer(nbuf);
+
     //
-    kko=kk % 128;
-    kk=(kk/128)*128;
-    for(int ii=0;ii<kko;ii++) disk_buffer[ii]=disk_buffer[kk++];
-    return ndat;
-*/
-  }
-
-  int32_t flush_disk(void)
-  {
-    uint32_t nbuf=kko*4;
-    kko=0;
+    // ceil to 512 block limit
+    uint32_t nbuf=(kk/128+1)*512;
     return flushBuffer(nbuf);
   }
-
 #endif
 
 // Filing
@@ -338,6 +321,7 @@ extern uint32_t data_count;
 
 char dayDir[40];
 char hourDir[10];
+char extent[2][4]={"wav","bin"};
 
 status_t logger(int32_t * buffer,status_t status)
 {
@@ -353,29 +337,31 @@ status_t logger(int32_t * buffer,status_t status)
     sprintf(datestring,"%s_%s",date_str,time_str);          // used in wav header
     //
     if(t.day != old_day)
-    { 
-      sprintf(dayDir,"/%s_%s",uid_str,date_str);
+    { // create new top folder
+      sprintf(dayDir,"/%s_%s",uid_strng,date_str);
       if(!sd.exists(dayDir))
       { sd.mkdir(dayDir);
       }
+      // go into top folder
       sd.chdir(dayDir);
       old_day=t.day;
     }
     //
     if(t.hour != old_hour)
-    { 
+    { // go into top folder
       sd.chdir(dayDir);
-
+      // create hourly file folder
       sprintf(hourDir,"%02d",t.hour);
       if(!sd.exists(hourDir))
       { sd.mkdir(hourDir);
       }
+      // go into hourly file folder
       sd.chdir(hourDir);        
       old_hour = t.hour;
     }
-    //
+    // create file name and open file
     char fileName[80];
-    sprintf(fileName,"%s_%s_%s.%s",uid_str,date_str,time_str,"wav");
+    sprintf(fileName,"%s_%s_%s.%s",uid_strng,date_str,time_str,extent[PROC]);
     file=sd.open(fileName, FILE_WRITE);
     if(!file)
     { status=JUST_STOPPED; 
@@ -384,6 +370,7 @@ status_t logger(int32_t * buffer,status_t status)
     }
     //
     Serial.print(fileName); Serial.print("; ");
+    // initialize file header (wav)
     file.write(&wav_hdr,512);
     num_bytes_written=0;
     status=RECORDING;
@@ -399,9 +386,6 @@ status_t logger(int32_t * buffer,status_t status)
     uint32_t tmp_time=(tt % t_acq );
     if((tmp_time < old_time) || (status == MUST_STOP))
     {
-      // flash last buffer
-      num_bytes_written += flush_disk();
-
       int16_t vsens=analogRead(A1);
       // create header for WAV file and write to SD card
       char *wav_header=wavHeaderUpdate(num_bytes_written,vsens);
@@ -423,7 +407,8 @@ status_t logger(int32_t * buffer,status_t status)
         if(missed_acq>0) 
         { uint32_t * ptr=get_missed_list(); 
           Serial.print("Missed "); Serial.print(missed_acq); Serial.print(": ");
-          for(int ii=0; (ii<32) && (ii<missed_acq) ; ii++) {Serial.print(ptr[ii]); Serial.print(' ');} Serial.println();
+          for(int ii=0; (ii<16) && (ii<missed_acq) ; ii++) {Serial.print(ptr[ii]); Serial.print(' ');} 
+          Serial.println();
         }
       }
       data_count = 0;

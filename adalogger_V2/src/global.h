@@ -23,7 +23,7 @@
 #define GLOBAL_H
 
 #include "../config.h"
-  #define Version "2.0.1" // 27-09-2025
+  #define Version "2.0.2" // 30-12-2025
   #define PreAmp  0                   // 0: CMOS; 1: FET; 2 Mark
   #define Program "Adalogger_V2a"
 
@@ -33,7 +33,7 @@
   #define NCHAN_I2S   1   // controls the I2S interface
   #define NCH         1   // for wav header (Mono or stereo)
 
-  #define PROC      0     // 0 Wav file; 1 compress (not approved yet, so should be 0)
+  #define PROC      1     // 0 Wav file; 1 compress (not approved yet, so should be 0)
 
   #define MBIT      32    // number of bits in I2S
 
@@ -42,7 +42,10 @@
     #define NBUF_I2S  (MBUF/2*1024) // actual buffer length in samples for acquisition and filing (dual buffer)
   #else
     #define NBUF_I2S  (MBUF/3*1024) // actual buffer length in samples for acquisition and filing (triple buffer)
+    #define SHIFT (8+4)
   #endif
+  // comment: NBUF_I2S ( here(PROC==1) 64*1024 bytes) corresponds to 128 512byte blovks
+  // compression by a factor of 4 would result into 16 blocks
 
   // Acoustic sensor
   #define MEMS 0

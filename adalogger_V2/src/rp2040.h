@@ -42,7 +42,7 @@
   void hibernate_init(void) ;
   void hibernate_until(uint32_t secs) ;
 
-  extern char uid_str[]; 
+  extern char uid_strng[]; 
   void getUID(void); 
 
   // NeoPixel
