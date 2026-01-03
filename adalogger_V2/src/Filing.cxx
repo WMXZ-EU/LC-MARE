@@ -145,8 +145,8 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
   char *wptr=wav_Info_ptr;
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
-  sprintf(infotext,"%6d; %6d; %6d; %6d; %6d; %6d; %3d; %3d.",
-                    t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC);
+  sprintf(infotext,"%6d; %6d; %6d; %6d; %6d; %6d; %3d; %3d; %4d; %3d.",
+                    t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, 1024, MD);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //
   if(missed_acq>0)
@@ -206,6 +206,7 @@ void SD_stop(void)
     sd.card()->syncDevice();
 }
 
+extern uint32_t  acq_count;
 uint32_t mdt=0;
 #if PROC==0
   // write to file
@@ -248,13 +249,18 @@ uint32_t mdt=0;
     uint32_t *outData  = (uint32_t *) disk_buffer;
     for(int ii=0;ii<NBUF_I2S;ii++) outData[ii]=0;
 
-    #define NDATA 1024
-    #define MD (NBUF_I2S/NDATA)
-
     int kk = 0;
     for(int mm=0; mm<MD;mm++)
     { // pointer into buffer
       int32_t *tempData=&buffer[mm*NDATA];
+
+      //extimate mean
+      int64_t meanData64=0;
+      for(int ii=0;ii<NDATA;ii++)  meanData64 += tempData[ii];
+      meanData64 /= NDATA;
+      // remove mean
+      int32_t meanData= (int32_t) meanData64;
+      for(int ii=0;ii<NDATA;ii++) tempData[ii] -= meanData;
 
       // find absolute maximum
       uint32_t amax=0;
@@ -278,7 +284,7 @@ uint32_t mdt=0;
       outData[kk++]=0xA5A5A5A5;
       outData[kk++]=nb;
       outData[kk++]=ncmp;
-      outData[kk++]=millis();
+      outData[kk++]=meanData;
       //
       int nx = MBIT;
       for (int ii = 0; ii < NDATA; ii ++)

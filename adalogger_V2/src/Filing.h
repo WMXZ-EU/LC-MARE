@@ -33,7 +33,7 @@
       unsigned int nSamplesPerSec;    //28
       unsigned int nAvgBytesPerSec;   //32
       unsigned short nBlockAlign;     //36
-      unsigned short  nBitsPerSamples;//36
+      unsigned short  nBitsPerSamples;//38
       char    lId[4];                 //40
       unsigned int  lLen;             //44
       char    iId[4];                 //48

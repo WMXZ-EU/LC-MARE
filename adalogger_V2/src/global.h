@@ -39,9 +39,12 @@
   #if PROC==0
     #define NBUF_I2S  (MBUF/2*1024) // actual buffer length in samples for acquisition and filing (dual buffer)
     #define SHIFT 0
+    #define MD (1)
   #else
     #define NBUF_I2S  (MBUF/3*1024) // actual buffer length in samples for acquisition and filing (triple buffer)
     #define SHIFT (8+4)
+    #define NDATA 1024
+    #define MD (NBUF_I2S/NDATA)
   #endif
   // comment: NBUF_I2S ( here(PROC==1) 64*1024 bytes) corresponds to 128 512byte blovks
   // compression by a factor of 4 would result into 16 blocks
