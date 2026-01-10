@@ -1,6 +1,6 @@
 {
   "board": {
-    "active_layer": 17,
+    "active_layer": 6,
     "active_layer_preset": "",
     "auto_track_width": true,
     "hidden_netclasses": [],
@@ -45,25 +45,27 @@
       "pads",
       "zones",
       "drc_warnings",
+      "drc_exclusions",
       "locked_item_shadows",
       "conflict_shadows",
       "shapes"
     ],
-    "visible_layers": "00000000_00000000_00000000_82000025",
-    "zone_display_mode": 0
+    "visible_layers": "00000000_00000000_00000000_82002075",
+    "zone_display_mode": 1
   },
   "git": {
-    "repo_password": "",
     "repo_type": "",
     "repo_username": "",
     "ssh_key": ""
   },
   "meta": {
-    "filename": "PreampV5-mare.kicad_prl",
+    "filename": "LC_MARE.kicad_prl",
     "version": 5
   },
   "net_inspector_panel": {
     "col_hidden": [
+      false,
+      false,
       false,
       false,
       false,
@@ -85,7 +87,9 @@
       6,
       7,
       8,
-      9
+      9,
+      10,
+      11
     ],
     "col_widths": [
       186,
@@ -97,7 +101,9 @@
       112,
       83,
       112,
-      112
+      112,
+      112,
+      318
     ],
     "custom_group_rules": [],
     "expanded_rows": [],

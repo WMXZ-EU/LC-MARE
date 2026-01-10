@@ -35,6 +35,7 @@ static uint16_t eeprom=0;
 uint32_t alarm=0xffffffff;
 void eepromWrite32(byte a, uint32_t v);
 void eepromCommit();
+#define EE_ALARM 11
 
 void parameterPrint(void)
 { Serial.println("\n====================");
@@ -62,7 +63,7 @@ static char * menuGetLine(void)
   while(!Serial.available()) continue;
   Serial.setTimeout(5000);
   int count;
-  count = Serial.readBytesUntil('\r',buffer,40);
+  count = Serial.readBytesUntil('\n',buffer,40);
   buffer[count]=0;
   Serial.println(buffer);
   return buffer;
@@ -131,13 +132,13 @@ status_t menu(status_t status)
           alarm /= 3600;
           alarm = (alarm+h_off)*3600;
           Serial.print(" ("); Serial.print(alarm-rtc_get()); Serial.println(" sec)");
-          eepromWrite32(11,alarm);
+          eepromWrite32(EE_ALARM, alarm);
           eepromCommit();
           hibernate_until(alarm);
         }
         else
         {
-            reboot();
+          reboot();
         }
       }
       else if(ch=='?')  // get parameter
@@ -236,9 +237,12 @@ status_t menu(status_t status)
           while(Serial.available()) {volatile char c = Serial.read(); (void) c;}
           // print time stamp
           datetime_t t;
-          XRTCgetDatetime(&t);    
-          Serial.println("Actual time on XRTC is");
-          printDatetime("  ",&t);
+          //XRTCgetDatetime(&t);    
+          //Serial.println("Actual time on XRTC is");
+          //printDatetime("  ",&t);
+          rtcGetDatetime(&t);
+          printDatetime("rtc",&t);
+
           Serial.println("If correct press return, otherwise enter correct date and time");
 
           // correct RTC time is required
@@ -306,6 +310,13 @@ void eepromUpdate()
   EEPROM.write(0,eeprom&0xff);
   EEPROM.commit();
 }
+
+void eepromUpdateAlarm(uint32_t alarm) 
+{ 
+    eepromWrite32(EE_ALARM,alarm);
+    eepromCommit();
+}
+
 void eepromList(void)
 {  for(int ii=0;ii<16;ii++) {Serial.print(EEPROM.read(ii)); Serial.print(' ');} Serial.println();
 }
@@ -313,7 +324,7 @@ void eepromList(void)
 uint16_t eepromLoad(void)
 { // load parameters from EEPROM
   eepromInit();
-  alarm = eepromRead32(11);
+  alarm = eepromRead32(EE_ALARM);
   Serial.println(alarm,HEX);
 
   eeprom=EEPROM.read(0);

@@ -103,9 +103,11 @@ void test_wire(TwoWire *wire)
         delay(100);
         uint8_t error = wire->endTransmission();
         if(error) 
-            Serial.printf("I2C not found %x\n",ii);  
+            //Serial.printf("I2C not found %x\n",ii);  
+            continue;
         else 
             Serial.printf("I2C found %x\n",ii);      
     }
+    Serial.println("Done");
     //while(1);  
 }

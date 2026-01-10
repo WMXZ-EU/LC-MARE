@@ -460,19 +460,20 @@ uint32_t RV3028_getUNIX()
 
       Serial.print("Config EEPROM 0x37 after: ");
       Serial.println(readConfigEEPROM_RAMmirror(0x37));
+      return true;
     }
     else
     {
-      Serial.print("Does not exist");
+      Serial.println("Does not exist");
+      return false;
     }
-    return true;
   }
 
 
 float XRTCgetTemperature(void) {return 0.0f;}
 
   uint8_t *getXRTC(uint8_t *buffer,uint16_t nbuf)
-  { // read time from RTC
+  { // read time from XRTC
     i2c_read_data(address,time_reg,buffer,nbuf);
     for(int ii=0;ii<nbuf;ii++) buffer[ii]=bcd2bin(buffer[ii]);
     
@@ -480,7 +481,7 @@ float XRTCgetTemperature(void) {return 0.0f;}
   }
 
   uint8_t *setXRTC(uint8_t *buffer, uint16_t nbuf)
-  { // write time to RTC
+  { // write time to XRTC
     for(int ii=0;ii<nbuf;ii++) buffer[ii]=bin2bcd(buffer[ii]);
     i2c_write_data(address,time_reg,buffer,nbuf);
     return buffer;
@@ -561,12 +562,14 @@ void XRTCclearAlarm(void)
 	clearAlarmInterruptFlag();  
 }
 
+void eepromUpdateAlarm(uint32_t alarm);
 void XRTCsetAlarm(uint32_t secs)
 { uint8_t min,hour,date;
   datetime_t tm;
   time2date(secs, &tm, 2000);
   Serial.printf("%d %d %d %d %d\n",tm.year,tm.month,tm.day,tm.hour,tm.min);
   enableAlarmInterrupt(tm.min, tm.hour, tm.day, false, 0, false); 
+  eepromUpdateAlarm(secs);
 } 
 
 
@@ -839,8 +842,15 @@ void XRTCsetAlarm(uint32_t secs)
 
       rtcGetDatetime(&t);
       printDatetime("rtc",&t);
+      return 1;
     }
-    return 1;
+    else
+    {
+      datetime_t t;
+      rtcGetDatetime(&t);
+      printDatetime("rtc",&t);
+      return 0;
+    }
   }
   
   void rtcSetDatetime(datetime_t *t)
@@ -848,7 +858,7 @@ void XRTCsetAlarm(uint32_t secs)
       rtc_set_datetime(t);
   }
 
-  void rtcGetDatetime( datetime_t *t)
+  void rtcGetDatetime(datetime_t *t)
   {
     rtc_get_datetime(t);
   }    

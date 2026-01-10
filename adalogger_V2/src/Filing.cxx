@@ -139,7 +139,7 @@ void wavHeaderInit(int32_t fsamp, int32_t nchan, int32_t nbits)
 }
 
 char datestring[80];
-char infotext[80];
+char infotext[128];
 char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
 {
   char *wptr=wav_Info_ptr;
@@ -452,9 +452,6 @@ status_t logger(int32_t * buffer,status_t status)
 }
 
 /*************************Configuration file ****************************************/
-void eepromWrite32(byte a, uint32_t v);
-void eepromCommit();
-
 static char configText[16*80]={0};  // maximal 16 lines of 80 characters each
 static int configIndex[16]={0};     // maximal 16 parameters (actual 11 entries)
 int16_t loadConfigfromFile(void)

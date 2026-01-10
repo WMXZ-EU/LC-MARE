@@ -52,28 +52,31 @@ void setup() {
   neo_pixel_init();
   neo_pixel_show(10, 0, 0);
 
-  if(0)
-  {
-    //while(!Serial);
-    #define ADC_EN      5
-    #define ADC_SHDNZ   6
+  #if 0
+  // test i2c connections
+    {
+      while(!Serial);
+      #define ADC_EN      5
+      #define ADC_SHDNZ   6
 
-    if(1)
-    { Serial.println("Power on ADC");
-      pinMode(ADC_EN,OUTPUT);
-      acqPower(HIGH);
-      adcReset();
-      delay(100);
-      adcStart();
-    }
+      if(1)
+      { Serial.println("Power on ADC");
+        pinMode(ADC_EN,OUTPUT);
+        acqPower(HIGH);
+        pinMode(ADC_SHDNZ,OUTPUT);
+        adcReset();
+        delay(100);
+        adcStart();
+      }
 
-    Serial.println("wire");
-    test_wire(&Wire);
-    Serial.println("wire1");
-    test_wire(&Wire1);
-    neo_pixel_show(0, 0, 10);
-    while(1);
-  }  
+      Serial.println("wire");
+      test_wire(&Wire);
+      Serial.println("wire1");
+      test_wire(&Wire1);
+      neo_pixel_show(0, 0, 10);
+      while(1);
+    }  
+  #endif
 
   if(eepromLoad()==0)
   { // should load parameters from LFS or uSD (TBD)
@@ -85,23 +88,59 @@ void setup() {
 
   neo_pixel_show(10, 10, 0);
 
+  if (1)
   for(int p=0;p<30;p++) // disable GIPOs
   { if(p==17) continue; // neopixel
     pinMode(p, INPUT); 
     gpio_set_input_enabled(p, false); 
   }
   
-  rtc_setup();
+  if(1)
+  { datetime_t setTime = { 2026, 1, 1, 4, 0, 0, 0 };
+    rtc_init();
+    rtc_set_datetime(&setTime);
+    Serial.print("rtc running "); Serial.println(rtc_running());
+    datetime_t t;
+    rtcGetDatetime(&t);
+    printDatetime("rtc",&t);
+  }
+
+  #if 0
+    // for testing rtc
+    while(1)
+    { // for testing
+      delay(1000);
+      datetime_t t;
+      rtcGetDatetime(&t);
+      printDatetime("rtc",&t);
+    }
+  #endif
+
+  int xrtc=0;
+  xrtc=rtc_setup();
+  Serial.print("xrtc "); Serial.println(xrtc);
+
+  #if 0
+    // sync is done in mRTC.cxx
+    if(xrtc)
+    {
+      datetime_t t;
+      XRTCgetDatetime(&t);  
+      rtcSetDatetime(&t);  
+      Serial.println("Corrected time is");
+      printDatetime("rtc",&t);
+    }
+  #endif
+
   if(alarm!=0xffffffff)
   { delay(0.1);
     uint32_t tt = rtc_get();
-    if(tt<alarm)
+    if(xrtc && (tt<alarm))  // only hibernate if xrtc exists
     { hibernate_until(alarm);
     }
     else
     { // clean-up initial alarm value
-      eepromWrite32(11,0xffffffff);
-      eepromCommit();
+      eepromUpdateAlarm(0xffffffff);
     }
   }
 
