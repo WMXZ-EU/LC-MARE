@@ -29,7 +29,7 @@
 ## Miscalaneous
   program developed for TMS320ADC6140 ADC, but derived from program for MEMS I2S microphone 
   external RTC is RV2038
-  integer compression (code is present but not finally tested)
+  integer compression (PROC = 1)
 
 ## UF2 file
  Direct link to uf2 file: 
