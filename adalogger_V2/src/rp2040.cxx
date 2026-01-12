@@ -95,58 +95,77 @@
       .length = 6,
       .origin = -1,
   };
-/*
-  #define pio_tdm_in_wrap_target 0
-  #define pio_tdm_in_wrap 9
+  /*
+  // following is for single channel TDM but 2 word transfer
+    #define pio_tdm_in_wrap_target 0
+    #define pio_tdm_in_wrap 9
 
-  static const uint16_t pio_tdm_in_program_instructions[] = {
-              //     .wrap_target
-      0xf83d, //  0: set    x, 29           side 3     
-      0x5001, //  1: in     pins, 1         side 2     
-      0xb842, //  2: nop                    side 3     
-      0x4001, //  3: in     pins, 1         side 0     
-      0x0843, //  4: jmp    x--, 3          side 1     
-      0x4001, //  5: in     pins, 1         side 0     
-      0xe83e, //  6: set    x, 30           side 1     
-      0xa042, //  7: nop                    side 0     
-      0x0847, //  8: jmp    x--, 7          side 1     
-      0xb042, //  9: nop                    side 2     
-              //     .wrap
-  };
+    static const uint16_t pio_tdm_in_program_instructions[] = {
+                //     .wrap_target
+        0xf83d, //  0: set    x, 29           side 3     
+        0x5001, //  1: in     pins, 1         side 2     
+        0xb842, //  2: nop                    side 3     
+        0x4001, //  3: in     pins, 1         side 0     
+        0x0843, //  4: jmp    x--, 3          side 1     
+        0x4001, //  5: in     pins, 1         side 0     
+        0xe83e, //  6: set    x, 30           side 1     
+        0xa042, //  7: nop                    side 0     
+        0x0847, //  8: jmp    x--, 7          side 1     
+        0xb042, //  9: nop                    side 2     
+                //     .wrap
+    };
 
-  static const struct pio_program pio_tdm_in_program = {
-      .instructions = pio_tdm_in_program_instructions,
-      .length = 10,
-      .origin = -1,
-  };
-*/
+    static const struct pio_program pio_tdm_in_program = {
+        .instructions = pio_tdm_in_program_instructions,
+        .length = 10,
+        .origin = -1,
+    };
+  */
 #endif
 
 #if NCHAN_I2S==2
-#define pio_tdm_in_wrap_target 0
-#define pio_tdm_in_wrap 11
+  #define pio_tdm_in_wrap_target 0
+  #define pio_tdm_in_wrap 11
 
-static const uint16_t pio_tdm_in_program_instructions[] = {
-            //     .wrap_target
-    0xf840, //  0: set    y, 0            side 3     //(7<<13)| (3<<11)| (2<<5)| (nw-2)
-    0x5001, //  1: in     pins, 1         side 2     
-    0xf83d, //  2: set    x, 29           side 3     //(7<<13)| (3<<11)| (1<<5)| (nbits-3)
-    0x4001, //  3: in     pins, 1         side 0     
-    0x0843, //  4: jmp    x--, 3          side 1     
-    0x4001, //  5: in     pins, 1         side 0     
-    0xe83d, //  6: set    x, 29           side 1     //(7<<13)| (3<<11)| (1<<5)| (nbits-3)   
-    0x4001, //  7: in     pins, 1         side 0     
-    0x0847, //  8: jmp    x--, 7          side 1     
-    0x4001, //  9: in     pins, 1         side 0     
-    0x0885, // 10: jmp    y--, 5          side 1     
-    0x5001, // 11: in     pins, 1         side 2     
-            //     .wrap
-};
-  static const struct pio_program pio_tdm_in_program = {
-      .instructions = pio_tdm_in_program_instructions,
-      .length = 12,
-      .origin = -1,
+  #if 0
+  // following is for multi channel TDM
+  static const uint16_t pio_tdm_in_program_instructions[] = {
+      SETY(0b11,NCHAN_I2S-2),
+      INP(0b10,1),
+      SETX(0b11,MBIT-3),
+      INP(0b00,1),
+      JMPX(0b01,3),
+      INP(0b00,1),
+      SETX(0b01,MBIT-3),
+      INP(0b00,1),
+      JMPX(0b01,7),
+      INP(0b00,1),
+      JMPY(0b01,5),
+      INP(0b10,1)
   };
+  #endif
+  // following is for multi channel TDM
+  static const uint16_t pio_tdm_in_program_instructions[] = {
+              //     .wrap_target
+      0xf840, //  0: set    y, 0            side 3     //(7<<13)| (3<<11)| (2<<5)| (nw-2)
+      0x5001, //  1: in     pins, 1         side 2     
+      0xf83d, //  2: set    x, 29           side 3     //(7<<13)| (3<<11)| (1<<5)| (nbits-3)
+      0x4001, //  3: in     pins, 1         side 0     
+      0x0843, //  4: jmp    x--, 3          side 1     
+      0x4001, //  5: in     pins, 1         side 0     
+      0xe83d, //  6: set    x, 29           side 1     //(7<<13)| (3<<11)| (1<<5)| (nbits-3)   
+      0x4001, //  7: in     pins, 1         side 0     
+      0x0847, //  8: jmp    x--, 7          side 1     
+      0x4001, //  9: in     pins, 1         side 0     
+      0x0885, // 10: jmp    y--, 5          side 1     
+      0x5001, // 11: in     pins, 1         side 2     
+              //     .wrap
+  };
+    static const struct pio_program pio_tdm_in_program = {
+        .instructions = pio_tdm_in_program_instructions,
+        .length = 12,
+        .origin = -1,
+    };
 #endif
 
 #if 0

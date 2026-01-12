@@ -205,7 +205,7 @@ void loop() {
         static uint32_t t0=0;
         if(millis()>t0+1000)
         { t0=millis();
-          memcpy(buffer2,buffer,32);
+          memcpy(buffer2,buffer,8*4);
           for(int ii=0;ii<8;ii++) Serial.printf("%08x ",buffer2[ii]); Serial.println();
         }
       }
