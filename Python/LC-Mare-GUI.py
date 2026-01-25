@@ -138,7 +138,7 @@ class Window(tk.Frame):
         edit.insert(0,txt)
 
     def mgetEntry(self,ser,str,edit):
-        data=str+edit.get()+"\r"
+        data=str+edit.get()+"\n"
         ser.write(data.encode())
         ser.readline()
 
@@ -275,7 +275,7 @@ class Window(tk.Frame):
                 #ser.reset_input_buffer()
                 #
                 # load now data from device
-                ser.write(b'?d\r')
+                ser.write(b'?d\n')
                 txt1=ser.readline().decode('utf-8').rstrip()
                 ip1=txt1.find("=")
                 self.mcuClocklabel.configure(text=txt1[ip1+2:])
@@ -419,7 +419,7 @@ class Window(tk.Frame):
 
     def clickSyncButton(self):
         date_time=datetime.now()
-        date_string=date_time.strftime("!d%Y-%m-%d %H:%M:%S\r")
+        date_string=date_time.strftime("!d%Y-%m-%d %H:%M:%S\n")
         #
         com=getComPort()
         if com:

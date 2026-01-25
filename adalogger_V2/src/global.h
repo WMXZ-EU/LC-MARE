@@ -23,7 +23,7 @@
 #define GLOBAL_H
 
 #include "../config.h"
-  #define Version "2.0.2" // 30-12-2025
+  #define Version "2.0.3" // 25-01-2026
   #define PreAmp  0                   // 0: CMOS; 1: FET; 2 Mark
   #define Program "Adalogger_V2a"
 

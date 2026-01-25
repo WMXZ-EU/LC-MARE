@@ -136,7 +136,8 @@ void setup() {
   { delay(0.1);
     uint32_t tt = rtc_get();
     if(xrtc && (tt<alarm))  // only hibernate if xrtc exists
-    { hibernate_until(alarm);
+    { neo_pixel_show(0, 0, 0);
+      hibernate_until(alarm);
     }
     else
     { // clean-up initial alarm value

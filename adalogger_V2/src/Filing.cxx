@@ -200,7 +200,7 @@ uint16_t SD_init(void)
 }
 
 void SD_stop(void)
-{
+{ storeConfigToFile();
   //https://github.com/greiman/SdFat/issues/401
   if(have_sd)
     sd.card()->syncDevice();
@@ -454,6 +454,44 @@ status_t logger(int32_t * buffer,status_t status)
 /*************************Configuration file ****************************************/
 static char configText[16*80]={0};  // maximal 16 lines of 80 characters each
 static int configIndex[16]={0};     // maximal 16 parameters (actual 11 entries)
+/*
+# configuration file
+# should end with '#' or ';' comment may follow
+#
+!a 60			# file size (sec)
+!o 1			# on time (min)
+!r 0			# repetition interval (min)
+!f 192		# sampling frequency (kHz)
+!g 0			# analog gain (dB)
+!s AS1-208		# (ISRC) source with sensitivity
+!c WMXZ		# (ICMS) commissioning organization 
+!n wmxz		# (IART) name of operator (creator)
+!p Development	# (IPRD) project 
+!e Home		# (ISBJ) area 
+!l B01		# (INAM) location id 
+*/
+void storeConfigToFile(void)
+{
+    FsFile file = sd.open("config.txt",(O_RDWR | O_CREAT)); 
+    if(file) 
+    { file.printf("# configuration file\n");
+      file.printf("# should end with '#' or ';' comment may follow\n");
+      file.printf("#\n");
+      file.printf("!a %d  # file size (sec)",t_acq);
+      file.printf("!o %d  # on time (min)",t_on);
+      file.printf("!r %d  # repetition interval (min)",t_rep);
+      file.printf("!f %d	# sampling frequency (kHz)",fsamp/1000);
+      file.printf("!g %d	# analog gain (dB)",again);
+      file.printf("!s %s	# (ISRC) source with sensitivity",ISRC);
+      file.printf("!c %s	# (ICMS) commissioning organization ",ICMS);
+      file.printf("!n %s	# (IART) name of operator (creator)",IART);
+      file.printf("!p %s	# (IPRD) project ",IPRD);
+      file.printf("!e %s	# (ISBJ) area ",ISBJ);
+      file.printf("!l %s	# (INAM) location id ",INAM);
+      file.close(); 
+    }
+}
+
 int16_t loadConfigfromFile(void)
 {
   const int nmax=sizeof(configText);

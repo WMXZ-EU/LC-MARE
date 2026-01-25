@@ -86,7 +86,7 @@
       0x4001, //  3: in     pins, 1         side 0     
       0x0843, //  4: jmp    x--, 3          side 1     
       0x5001, //  5: in     pins, 1         side 2     // is above in null,1
-      //     .wrap
+      //     .wrape
   #endif
   };
 
