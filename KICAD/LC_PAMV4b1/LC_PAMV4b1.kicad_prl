@@ -1,6 +1,6 @@
 {
   "board": {
-    "active_layer": 39,
+    "active_layer": 5,
     "active_layer_preset": "",
     "auto_track_width": false,
     "hidden_netclasses": [],
@@ -49,7 +49,7 @@
       "conflict_shadows",
       "shapes"
     ],
-    "visible_layers": "00000000_00000000_00000280_02000020",
+    "visible_layers": "00000000_00000000_00000280_82000020",
     "zone_display_mode": 1
   },
   "git": {
@@ -58,7 +58,7 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "LC_PAMV4b.kicad_prl",
+    "filename": "LC_PAMV4b1.kicad_prl",
     "version": 5
   },
   "net_inspector_panel": {

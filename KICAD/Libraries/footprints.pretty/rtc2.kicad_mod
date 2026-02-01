@@ -62,7 +62,7 @@
 			(type solid)
 		)
 		(fill no)
-		(layer "F.SilkS")
+		(layer "Dwgs.User")
 		(uuid "1a1417eb-1f33-4c69-9190-bce9b195a43c")
 	)
 	(fp_text user "${REFERENCE}"

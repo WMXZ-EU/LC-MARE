@@ -1,12 +1,14 @@
-# uncomment prev line to save cell to file (is only in LC-Mare-UI.ipynb file)
+# uncomment prev line and remove ' ' between % % save cell to file (is only in LC-Mare-UI.ipynb file)
 # LC-Mare-GUI
 # use this cell to test and develop GUI
 # to compile "pyinstaller LC-Mare-GUI.py --noconfirm"
 # will generate "dist/LC-Mare-GUI/LC-Mare-GUI.exe"
 # and  "dist/LC-Mare-GUI/_internal" with all required pyd/dll files
 #
+
 import os
 import tkinter as tk
+from tkinter.scrolledtext import ScrolledText
 import time
 from datetime import datetime
 import serial
@@ -15,12 +17,11 @@ import serial.tools.list_ports
 def getComPort():
     s=serial.tools.list_ports.comports(True)
     for ii in range(len(s)):
-        if (s[ii].pid==0x815d) & (s[ii].vid==0x239a): # adafruit adalogger rp2040
+        if (s[ii].vid==0x239a) & (s[ii].pid==0x815d): # adafruit adalogger rp2040
             return s[ii].device
     return None
 
 class Window(tk.Frame):
-
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)        
         self.master = master
@@ -116,15 +117,65 @@ class Window(tk.Frame):
         self.mputEntry(self.m_start_edit,str(date_time.month))
         self.mputEntry(self.y_start_edit,str(date_time.year))
 
-        com=getComPort()
-        if com:
-            print('init',com)
-            with serial.Serial(com) as ser:
+        s=serial.tools.list_ports.comports(True)
+        if len(s)>0:
+            with serial.Serial(s[0].device) as ser:
                 ser.reset_input_buffer()
                 ser.reset_output_buffer()
 
+        if 1:
+            self.scrolledText = ScrolledText(self.master, width=100, bd=10, 
+                                             relief="raised",font=("Helvetica", 10))
+            self.scrolledText.place(x=700,y=70)
+            #self.scrolledText.configure(state ='disabled')
+            #
+            self.startButton=tk.Button(self, text="Start", command=self.clickRun, font=("Helvetica", 18))
+            self.startButton.place(x=700, y=10)
+            self.task_is_running=0
+
     def clickExitButton(self):
         self.master.destroy() 
+
+    def timer_task(self):
+        ser = self.ser
+        if ser.in_waiting>0:
+            self.scrolledText.insert(tk.END,ser.read_all().decode('utf-8'))
+            self.scrolledText.see(tk.END)
+        if self.task_is_running:
+            self.after(100,self.timer_task)            
+
+    def clickRun(self):
+        if self.startButton["text"]=="Start":
+            print('Start')
+            self.startButton.config(text="Stop")
+            #
+            com=getComPort()
+            if com:
+                print('start',com)
+                self.ser=serial.Serial(com,timeout=0.1)
+                if self.ser:
+                    self.ser.reset_input_buffer()
+                    self.ser.read_all()
+                    # start acquisition
+                    self.task_is_running=1
+                    self.ser.write(b's\n')
+                    #
+                    self.after(100,self.timer_task)
+        else:
+            print('Stop')
+            self.startButton.config(text="Start")
+            #
+            if self.task_is_running==1:
+                # stop acquisition
+                self.task_is_running=0
+                self.ser.write(b'e\n')
+                #
+                line=self.ser.readline()
+                if line:
+                    txt=line.decode('utf-8')#.rstrip()
+                    self.scrolledText.insert(tk.END,txt)
+                    self.scrolledText.see(tk.END)
+                self.ser.close()
 
     def mEntry(self,txt,x,y,w,dx):
         label = tk.Label(text=txt,font=("Helvetica", 18))
@@ -138,7 +189,7 @@ class Window(tk.Frame):
         edit.insert(0,txt)
 
     def mgetEntry(self,ser,str,edit):
-        data=str+edit.get()+"\n"
+        data=str+edit.get()+"\r"
         ser.write(data.encode())
         ser.readline()
 
@@ -151,59 +202,6 @@ class Window(tk.Frame):
     def mUpdate(self,ser,edit,txt):
         txt1=self.mgetParam(ser,txt)
         self.mputEntry(edit,txt1)
-
-    '''    
-    def ndays(self,d,m,y):
-        def lpY(y): return (y%4==0) | ((y%100==0) & (y%400>0))
-        dom=[31,28,31,30,31,30,31,31,30,31,30,31]
-        #
-        # number of days since 1-1-1970
-        y1=y-1970
-        days=y1*365
-        for ii in range(y1): 
-            if lpY(1970+ii): days +=1 
-        #
-        m -= 1
-        for ii in range(m):
-            days += dom[ii]
-            if ii==1:
-                if lpY(y): days += 1
-        #
-        d -= 1
-        days += d
-        return days, (days+4)%7 # 1-1-70 was thursday 1-1-24 was monday
-
-    def nidays(self,days):
-        def lpY(y): return (y%4==0) | ((y%100==0) & (y%400>0))
-        dom=[31,28,31,30,31,30,31,31,30,31,30,31]
-        #
-        y1=0
-        while days>0:
-            if lpY(1970+y1): 
-                days -=366
-            else:
-                days -= 365
-            y1 +=1
-        #
-        if y1>0:
-            y1 -= 1
-        y1 += 1970
-        if days<=0:
-            if lpY(y1): 
-                days += 366
-            else:
-                days += 365
-        #
-        days += 1
-        m = 0
-        while days >=0:
-            if (m==1) & lpY(y1): days -=1
-            days -= dom[m]
-            m += 1
-        days += dom[m-1]
-        return (y1,m,days)
-
-    '''
 
     # following text is response to "p\n" command
     '''
@@ -231,51 +229,9 @@ class Window(tk.Frame):
             with serial.Serial(com) as ser:
                 ser.reset_input_buffer()
                 ser.read_all()
-                # stop acquisition
-                #ser.write(b'e\r')
-                #txt=ser.readline().decode('utf-8').rstrip()
-                #print(txt)
-                '''
-                ser.write(b'p\r')
-                txt1=ser.readline().decode('utf-8').rstrip()
-                txt1=ser.readline().decode('utf-8').rstrip() # ====================
-                txt1=ser.readline().decode('utf-8').rstrip() # Adalogger_V2a
-                txt2=ser.readline().decode('utf-8').rstrip() #  Version    2.0.x
-                txt1=ser.readline().decode('utf-8').rstrip() #  unique_board_id: DF 64 3C F0 13 5B 23 26 
-                txt1=ser.readline().decode('utf-8').rstrip() #  UID        135B2326
-                #print(txt1)
-                if txt1[:3]=='UID': self.mputEntry(self.sernum_edit,txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  eeprom (w) 255
-                #print('3',txt1)
-                #if txt1[9]=='w': print(txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  t_acq  (a) 60 sec
-                #print('4',txt1)
-                #if txt1[9]=='a': print(txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  t_on   (o) 1 min
-                #print('5',txt1)
-                #if txt1[9]=='o': print(txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  t_rep  (r) 0 min
-                #print('6',txt1)
-                #if txt1[9]=='r': print(txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  fsamp  (f) 192000 Hz
-                #print('7',txt1)
-                #if txt1[9]=='f': print(txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  again  (g) 0 dB
-                #print('8',txt1)
-                #if txt1[9]=='g': print(txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  Processing 0
-                #print('9',txt1)
-                if txt1[0]=='P': self.mputEntry(self.proc_edit,txt1[11:])
-                txt1=ser.readline().decode('utf-8').rstrip() #  eprom content
-                print('10',txt1)
-                '''
-                ## stop monitor
-                #ser.write(b':m0\r')
-                #txt=ser.readline().decode('utf-8').rstrip()
-                #ser.reset_input_buffer()
                 #
                 # load now data from device
-                ser.write(b'?d\n')
+                ser.write(b'?d\r')
                 txt1=ser.readline().decode('utf-8').rstrip()
                 ip1=txt1.find("=")
                 self.mcuClocklabel.configure(text=txt1[ip1+2:])
@@ -293,55 +249,9 @@ class Window(tk.Frame):
                 #
                 self.mUpdate(ser,self.sernum_edit,"?u")
                 self.mUpdate(ser,self.proc_edit,"?p")
-                #
-                #days=int(self.mgetParam(ser,"?0"))
-                #year,month,day=self.nidays(days+20000)
-                #self.mputEntry(self.d_start_edit,str(day))
-                #self.mputEntry(self.m_start_edit,str(month))
-                #self.mputEntry(self.y_start_edit,str(year))
-        #else:
-        #    #for items in os.listdir():  print(items)
-        #    print("current directory: ",os.getcwd())
-        #    with open("config.txt","r") as f:
-        #        for line in f:
-        #            ip0=line.find("=")
-        #            ip1=line.find(";")
-        #            match line[0]:
-        #                case 'b': self.mputEntry(self.b_edit,line[ip0+1:ip1])
-        #                case 'k': self.mputEntry(self.k_edit,line[ip0+1:ip1])
-        #                case 'n': self.mputEntry(self.n_edit,line[ip0+1:ip1])
-        #
-        #                case 'a': self.mputEntry(self.t_acq_edit,line[ip0+1:ip1])
-        #                case 'o': self.mputEntry(self.t_on_edit, line[ip0+1:ip1])
-        #                case 'r': self.mputEntry(self.t_rep_edit,line[ip0+1:ip1])
-        #                #
-        #                case '1': self.mputEntry(self.h_1_edit,line[ip0+1:ip1])
-        #                case '2': self.mputEntry(self.h_2_edit,line[ip0+1:ip1])
-        #                case '3': self.mputEntry(self.h_3_edit,line[ip0+1:ip1])
-        #                case '4': self.mputEntry(self.h_4_edit,line[ip0+1:ip1])
-        #                #
-        #                case '5': self.mputEntry(self.d_on_edit, line[ip0+1:ip1])
-        #                case '6': self.mputEntry(self.d_rep_edit,line[ip0+1:ip1])
-        #                #
-        #                case 'f': self.mputEntry(self.fsamp_edit,line[ip0+1:ip1])
-        #                case 'c': self.mputEntry(self.proc_edit, line[ip0+1:ip1])
-        #                case 's': self.mputEntry(self.shift_edit,line[ip0+1:ip1])
-        #                case 'g': self.mputEntry(self.again_edit,line[ip0+1:ip1])
-        #                #
-        #                case '0':
-        #                    days=int(line[ip0+1:ip1])
-        #                    year,month,day=self.nidays(days+20000)
-        #                    self.mputEntry(self.d_start_edit,str(day))
-        #                    self.mputEntry(self.m_start_edit,str(month))
-        #                    self.mputEntry(self.y_start_edit,str(year))
-
 
     def clickSaveButton(self):
-        #dx=self.d_start_edit.get()
-        #mx=self.m_start_edit.get()
-        #yx=self.y_start_edit.get()
-        #days,dow=self.ndays(int(dx),int(mx),int(yx))
-        ##
+        #
         com=getComPort()
         if com:
             print('save',com)
@@ -355,51 +265,10 @@ class Window(tk.Frame):
                 self.mgetEntry(ser,'!o',self.t_on_edit)
                 self.mgetEntry(ser,'!r',self.t_rep_edit)
                 #
-        #        self.mgetEntry(ser,'!1',self.h_1_edit)
-        #        self.mgetEntry(ser,'!2',self.h_2_edit)
-        #        self.mgetEntry(ser,'!3',self.h_3_edit)
-        #        self.mgetEntry(ser,'!4',self.h_4_edit)
-        #        #
-        #        self.mgetEntry(ser,'!5',self.d_on_edit)
-        #        self.mgetEntry(ser,'!6',self.d_rep_edit)
-                #
                 self.mgetEntry(ser,'!f',self.fsamp_edit)
                 self.mgetEntry(ser,'!g',self.again_edit)
-        #        self.mgetEntry(ser,'!p',self.proc_edit)
-        #        self.mgetEntry(ser,'!s',self.shift_edit)
-        #        #
-        #        data="!0"+str(days-20000)+"\r"
-        #        print('put', data)
-        #        ser.write(data.encode())
         #        #
                 ser.read_all()
-        #with open("config.txt","w") as f:
-        #    f.write("b="+self.b_edit.get()+"; author\n")
-        #    f.write("k="+self.k_edit.get()+"; project\n")
-        #    f.write("n="+self.n_edit.get()+"; site\n")
-        #    #
-        #    f.write("a="+self.t_acq_edit.get()+"; t_acq\n")
-        #    f.write("o="+self.t_on_edit.get()+"; t_on\n")
-        #    f.write("r="+self.t_rep_edit.get()+"; t_rep\n")
-        #    #
-        #    f.write("1="+self.h_1_edit.get()+"; h_1\n")
-        #    f.write("2="+self.h_2_edit.get()+"; h_2\n")
-        #    f.write("3="+self.h_3_edit.get()+"; h_3\n")
-        #    f.write("4="+self.h_4_edit.get()+"; h_4\n")
-        #    #
-        #    f.write("5="+self.d_on_edit.get()+"; d_on\n")
-        #    f.write("6="+self.d_rep_edit.get()+"; d_rep\n")
-        #    #
-        #    f.write("f="+self.fsamp_edit.get()+"; fsamp\n")
-        #    f.write("c="+self.proc_edit.get()+"; proc\n")
-        #    f.write("s="+self.shift_edit.get()+"; shift\n")
-        #    f.write("g="+self.again_edit.get()+"; again\n")
-        #    #
-        #    f.write("0="+str(days-20000)+"; d_0\n")
-        #
-        #print("current directory: ",os.getcwd())
-        ##for items in os.listdir():  print(items)
-        #self.storeButton["state"]=tk.NORMAL
 
     def clickStoreButton(self):
         com=getComPort()
@@ -419,7 +288,7 @@ class Window(tk.Frame):
 
     def clickSyncButton(self):
         date_time=datetime.now()
-        date_string=date_time.strftime("!d%Y-%m-%d %H:%M:%S\n")
+        date_string=date_time.strftime("!d%Y-%m-%d %H:%M:%S\r")
         #
         com=getComPort()
         if com:
@@ -437,7 +306,10 @@ class Window(tk.Frame):
 root = tk.Tk()
 app = Window(root)
 root.wm_title("MicroPAM LC-Mare (WMXZ)")
-root.geometry("700x500")
+if 0:
+    root.geometry("700x500")
+else:
+    root.geometry("1500x500")
 
 root.after(1000, app.update_clock)
 root.mainloop()
