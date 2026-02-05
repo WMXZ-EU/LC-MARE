@@ -6510,225 +6510,228 @@ LOAD C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-
 .iplt           0x100217b4        0x0
  .iplt          0x100217b4        0x0 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/thumb/crtbegin.o
 
-.rodata         0x100217b8     0x26e8
+.rodata         0x100217b8     0x26f0
  *(EXCLUDE_FILE(*libm.a: *libc.a:*lib_a-mem*.o *libgcc.a:) .rodata* .big_const*)
  .rodata.loop.str1.1
-                0x100217b8      0xc80 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
+                0x100217b8      0xc81 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
                                  0x14 (size before relaxing)
  .rodata.setup1.str1.1
-                0x10022438        0x7 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
+                0x10022439        0x7 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
  .rodata.setup.str1.1
-                0x10022438       0x92 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
- .rodata        0x10022438        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
+                0x10022439       0x92 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
+ *fill*         0x10022439        0x1 
+ .rodata        0x1002243a        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\adalogger_V2.ino.cpp.o
  .rodata._Z8adc_initv.str1.1
-                0x10022440       0x3c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Adc.cpp.o
+                0x10022442       0x3c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Adc.cpp.o
  .rodata._ZL4regs
-                0x10022440        0x4 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Adc.cpp.o
+                0x10022442        0x4 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Adc.cpp.o
  .rodata._ZL5chmap
-                0x10022444        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Adc.cpp.o
+                0x10022446        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Adc.cpp.o
  .rodata._Z11wavInfoInitv.str1.1
-                0x1002244c       0x56 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x1002244e       0x56 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
  .rodata._Z15wavHeaderUpdatels.str1.1
-                0x1002244c       0x58 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x1002244e       0x59 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
  .rodata._Z17storeConfigToFilev.str1.1
-                0x1002244c      0x1ef C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x1002244e      0x1ef C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
  .rodata._Z18loadConfigfromFilev.str1.1
-                0x1002244c        0x6 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x1002244e        0x6 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
  .rodata._Z10configShowv.str1.1
-                0x1002244c       0x32 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x1002244e       0x32 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
  .rodata._Z7SD_initv.str1.1
-                0x1002244c       0x66 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x1002244e       0x66 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
  .rodata._Z6loggerPl8status_t.str1.1
-                0x1002244c       0x7a C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x1002244e       0x7a C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+ *fill*         0x1002244e        0x2 
  .rodata._ZTV6FsFile
-                0x1002244c       0x24 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
-                0x1002244c                _ZTV6FsFile
+                0x10022450       0x24 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Filing.cxx.o
+                0x10022450                _ZTV6FsFile
  .rodata._Z14parameterPrintv.str1.1
-                0x10022470       0xa8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
+                0x10022474       0xa8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
  .rodata._ZL11menuGetTimeP10datetime_t.str1.1
-                0x10022470       0x17 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
+                0x10022474       0x17 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
  .rodata._ZL12menuGetInt16Pt.isra.0.str1.1
-                0x10022470        0x3 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
+                0x10022474        0x3 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
  .rodata._Z4menu8status_t.str1.1
-                0x10022470       0xea C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
+                0x10022474       0xea C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\Menu.cxx.o
  .rodata._Z9time2datemP10datetime_tt.str1.1
-                0x10022470        0x2 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
+                0x10022474        0x2 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
  .rodata._Z13printDatetimePKcP10datetime_t.str1.1
-                0x10022470       0x23 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
+                0x10022474       0x23 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
  .rodata._Z8initXRTChh.str1.1
-                0x10022470       0x55 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
+                0x10022474       0x55 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
  .rodata._Z12XRTCsetAlarmm.str1.1
-                0x10022470       0x10 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
+                0x10022474       0x10 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
  .rodata._Z9rtc_setupv.str1.1
-                0x10022470       0x14 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
+                0x10022474       0x14 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
  .rodata._ZL11daysInMonth
-                0x10022470        0xc C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
+                0x10022474        0xc C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\mRTC.cxx.o
  .rodata.channel_config_set_chain_to.part.0.str1.1
-                0x1002247c       0xe4 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
+                0x10022480       0xe4 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
  .rodata._ZL10rosc_writePVmm.constprop.0.str1.1
-                0x1002247c       0x7b C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
+                0x10022480       0x7b C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
  .rodata._Z9dma_setupv.str1.1
-                0x1002247c       0x4d C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
+                0x10022480       0x4d C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
  .rodata._Z6getUIDv.str1.1
-                0x1002247c       0x23 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
+                0x10022480       0x23 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
  .rodata._ZL18pio_tdm_in_program
-                0x1002247c        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
+                0x10022480        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
  .rodata._ZL31pio_tdm_in_program_instructions
-                0x10022484        0xc C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
+                0x10022488        0xc C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\sketch\src\rp2040.cxx.o
  .rodata._ZTV7TwoWire
-                0x10022490       0x50 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\Wire\Wire.a(Wire.cpp.o)
-                0x10022490                _ZTV7TwoWire
- .rodata        0x100224e0      0x1d8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\Wire\Wire.a(Wire.cpp.o)
+                0x10022494       0x50 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\Wire\Wire.a(Wire.cpp.o)
+                0x10022494                _ZTV7TwoWire
+ *fill*         0x100224e4        0x4 
+ .rodata        0x100224e8      0x1d8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\Wire\Wire.a(Wire.cpp.o)
  .rodata._ZN14SPIClassRP20405setRXEh.str1.1
-                0x100226b8       0x67 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
+                0x100226c0       0x67 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
  .rodata._ZN14SPIClassRP20405setCSEh.str1.1
-                0x100226b8       0x64 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
+                0x100226c0       0x64 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
  .rodata._ZN14SPIClassRP20406setSCKEh.str1.1
-                0x100226b8       0x66 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
+                0x100226c0       0x66 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
  .rodata._ZN14SPIClassRP20405setTXEh.str1.1
-                0x100226b8       0x64 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
+                0x100226c0       0x64 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
  .rodata._ZN14SPIClassRP20405beginEb.str1.1
-                0x100226b8       0x23 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
+                0x100226c0       0x23 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
  .rodata._ZTV14SPIClassRP2040
-                0x100226b8       0x40 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
-                0x100226b8                _ZTV14SPIClassRP2040
- .rodata        0x100226f8       0x40 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
+                0x100226c0       0x40 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
+                0x100226c0                _ZTV14SPIClassRP2040
+ .rodata        0x10022700       0x40 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SPI\SPI.a(SPI.cpp.o)
  .rodata._ZN14ExFatPartition4initEP22FsBlockDeviceInterfacehm.str1.1
-                0x10022738        0x6 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\ExFatLib\ExFatPartition.cpp.o
+                0x10022740        0x6 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\ExFatLib\ExFatPartition.cpp.o
  .rodata._ZN11PioSdioCard11cardCommandE8CmdRsp_tmPv.str1.1
-                0x10022738       0x1c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+                0x10022740       0x1c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
  .rodata.str1.1
-                0x10022738       0x25 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+                0x10022740       0x25 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
  .rodata._ZTV11PioSdioCard
-                0x10022738       0x6c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
-                0x10022738                _ZTV11PioSdioCard
+                0x10022740       0x6c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+                0x10022740                _ZTV11PioSdioCard
  .rodata._ZL10crc7_table
-                0x100227a4      0x100 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+                0x100227ac      0x100 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
  .rodata._ZL15wr_resp_program
-                0x100228a4        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
- .rodata._ZL28wr_resp_program_instructions
                 0x100228ac        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
- .rodata._ZL15wr_data_program
+ .rodata._ZL28wr_resp_program_instructions
                 0x100228b4        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
- .rodata._ZL28wr_data_program_instructions
+ .rodata._ZL15wr_data_program
                 0x100228bc        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
- .rodata._ZL15rd_data_program
+ .rodata._ZL28wr_data_program_instructions
                 0x100228c4        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
- .rodata._ZL28rd_data_program_instructions
+ .rodata._ZL15rd_data_program
                 0x100228cc        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
- .rodata._ZL14rd_clk_program
+ .rodata._ZL28rd_data_program_instructions
                 0x100228d4        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+ .rodata._ZL14rd_clk_program
+                0x100228dc        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
  .rodata._ZL27rd_clk_program_instructions
-                0x100228dc        0xa C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
- *fill*         0x100228e6        0x2 
+                0x100228e4        0xa C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+ *fill*         0x100228ee        0x2 
  .rodata._ZL15cmd_rsp_program
-                0x100228e8        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+                0x100228f0        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
  .rodata._ZL28cmd_rsp_program_instructions
-                0x100228f0       0x14 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
+                0x100228f8       0x14 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\PioSdio\PioSdioCard.cpp.o
  .rodata._ZTV9SdSpiCard
-                0x10022904       0x6c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\SdSpiCard\SdSpiCard.cpp.o
-                0x10022904                _ZTV9SdSpiCard
+                0x1002290c       0x6c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\SdCard\SdSpiCard\SdSpiCard.cpp.o
+                0x1002290c                _ZTV9SdSpiCard
  .rodata._ZL11lookupTable
-                0x10022970      0x12c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\common\upcase.cpp.o
+                0x10022978      0x12c C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\common\upcase.cpp.o
  .rodata._ZL8mapTable
-                0x10022a9c       0xd4 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\common\upcase.cpp.o
+                0x10022aa4       0xd4 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\SdFat\common\upcase.cpp.o
  .rodata._ZL14ws2812_program
-                0x10022b70        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\Adafruit_NeoPixel\Adafruit_Neopixel_RP2.cpp.o
- .rodata._ZL27ws2812_program_instructions
                 0x10022b78        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\Adafruit_NeoPixel\Adafruit_Neopixel_RP2.cpp.o
+ .rodata._ZL27ws2812_program_instructions
+                0x10022b80        0x8 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273\libraries\Adafruit_NeoPixel\Adafruit_Neopixel_RP2.cpp.o
  .rodata._ZN10PIOProgram7prepareEPP8pio_hw_tPiS3_ii.str1.1
-                0x10022b80       0xb7 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(PIOProgram.cpp.o)
+                0x10022b88       0xb7 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(PIOProgram.cpp.o)
  .rodata._ZN9SerialUSB5beginEm.str1.1
-                0x10022b80        0xc C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(SerialUSB.cpp.o)
+                0x10022b88        0xc C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(SerialUSB.cpp.o)
  .rodata._ZTV9SerialUSB
-                0x10022b80       0x34 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(SerialUSB.cpp.o)
-                0x10022b80                _ZTV9SerialUSB
+                0x10022b88       0x34 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(SerialUSB.cpp.o)
+                0x10022b88                _ZTV9SerialUSB
  .rodata._ZN8USBClass14registerStringEPKc.str1.1
-                0x10022bb4        0x1 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(USB.cpp.o)
+                0x10022bbc        0x1 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(USB.cpp.o)
  .rodata._ZN8USBClass24tud_descriptor_device_cbEv.str1.1
-                0x10022bb4       0x22 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(USB.cpp.o)
+                0x10022bbc       0x22 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(USB.cpp.o)
  .rodata._ZN7arduino5Print7printlnEv.str1.1
-                0x10022bb4        0x3 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(Print.cpp.o)
+                0x10022bbc        0x3 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(Print.cpp.o)
  .rodata._GLOBAL__sub_I_rp2040.str1.1
-                0x10022bb4        0x1 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(main.cpp.o)
+                0x10022bbc        0x1 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(main.cpp.o)
  .rodata.main.str1.1
-                0x10022bb4       0x32 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(main.cpp.o)
+                0x10022bbc       0x32 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(main.cpp.o)
  .rodata.noInterrupts.str1.1
-                0x10022bb4       0x13 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(wiring_private.cpp.o)
+                0x10022bbc       0x13 C:\Users\wzimm\AppData\Local\arduino\sketches\634EA3A1716AAC4F9CE823C133A88273/..\..\cores\64a62fae12a67ccc454b9f9e24a6c662\core.a(wiring_private.cpp.o)
  .rodata.panic.str1.1
-                0x10022bb4       0x12 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(panic.c.o)
+                0x10022bbc       0x12 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(panic.c.o)
  .rodata.spin_lock_claim_unused.str1.1
-                0x10022bb4       0x1b C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(sync.c.o)
+                0x10022bbc       0x1b C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(sync.c.o)
  .rodata.user_irq_claim_unused.str1.1
-                0x10022bb4       0x1b C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(irq.c.o)
+                0x10022bbc       0x1b C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(irq.c.o)
  .rodata.timer_hardware_alarm_claim.str1.1
-                0x10022bb4       0x22 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(timer.c.o)
+                0x10022bbc       0x22 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(timer.c.o)
  .rodata.dma_claim_unused_channel.str1.1
-                0x10022bb4       0x1e C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(dma.c.o)
+                0x10022bbc       0x1e C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(dma.c.o)
  .rodata.pio_claim_unused_sm.str1.1
-                0x10022bb4       0x24 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(pio.c.o)
+                0x10022bbc       0x24 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(pio.c.o)
  .rodata.hard_assertion_failure.str1.1
-                0x10022bb4        0xc C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(runtime.c.o)
+                0x10022bbc        0xc C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(runtime.c.o)
  .rodata._usbd_driver
-                0x10022bb4       0xa0 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(usbd.c.o)
+                0x10022bbc       0xa0 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(usbd.c.o)
  .rodata.str1.1
-                0x10022c54       0x14 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(dcd_rp2040.c.o)
+                0x10022c5c       0x14 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(dcd_rp2040.c.o)
  .rodata.str1.1
-                0x10022c54       0x46 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(rp2040_usb.c.o)
+                0x10022c5c       0x46 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(rp2040_usb.c.o)
  .rodata.str1.4
-                0x10022c54      0x184 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-assert.o)
+                0x10022c5c      0x184 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-assert.o)
                                  0x43 (size before relaxing)
  .rodata.str1.4
-                0x10022dd8        0x2 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-puts.o)
+                0x10022de0        0x2 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-puts.o)
  .rodata.str1.4
-                0x10022dd8       0x15 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-strtod.o)
- .rodata        0x10022dd8      0x120 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-strtod.o)
+                0x10022de0       0x15 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-strtod.o)
+ .rodata        0x10022de0      0x120 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-strtod.o)
  .rodata.str1.4
-                0x10022ef8       0x12 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-locale.o)
+                0x10022f00       0x12 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-locale.o)
  .rodata.str1.4
-                0x10022ef8       0x42 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfprintf.o)
- .rodata        0x10022ef8      0x224 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfprintf.o)
+                0x10022f00       0x42 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfprintf.o)
+ .rodata        0x10022f00      0x224 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfprintf.o)
  .rodata.str1.4
-                0x1002311c       0x4f C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-gdtoa-gethex.o)
- .rodata        0x1002311c      0x100 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-gdtoa-gethex.o)
-                0x1002311c                __hexdig
+                0x10023124       0x4f C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-gdtoa-gethex.o)
+ .rodata        0x10023124      0x100 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-gdtoa-gethex.o)
+                0x10023124                __hexdig
  .rodata.str1.4
-                0x1002321c       0x6d C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-dtoa.o)
+                0x10023224       0x6d C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-dtoa.o)
  .rodata.str1.4
-                0x1002321c        0x9 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfscanf.o)
- .rodata        0x1002321c      0x3ee C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfscanf.o)
+                0x10023224        0x9 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfscanf.o)
+ .rodata        0x10023224      0x3ee C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfscanf.o)
  .rodata.str1.4
-                0x1002360a        0x1 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-mbrtowc.o)
- *fill*         0x1002360a        0x2 
- .rodata        0x1002360c      0x101 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-ctype_.o)
-                0x1002360c                _ctype_
- *fill*         0x1002370d        0x3 
- .rodata        0x10023710      0x2b2 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfiscanf.o)
+                0x10023612        0x1 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-mbrtowc.o)
+ *fill*         0x10023612        0x2 
+ .rodata        0x10023614      0x101 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-ctype_.o)
+                0x10023614                _ctype_
+ *fill*         0x10023715        0x3 
+ .rodata        0x10023718      0x2b2 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-svfiscanf.o)
  .rodata.str1.4
-                0x100239c2       0x59 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-mprec.o)
- *fill*         0x100239c2        0x6 
- .rodata        0x100239c8      0x128 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-mprec.o)
-                0x100239d8                __mprec_tinytens
-                0x10023a00                __mprec_bigtens
-                0x10023a28                __mprec_tens
+                0x100239ca       0x59 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-mprec.o)
+ *fill*         0x100239ca        0x6 
+ .rodata        0x100239d0      0x128 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-mprec.o)
+                0x100239e0                __mprec_tinytens
+                0x10023a08                __mprec_bigtens
+                0x10023a30                __mprec_tens
  .rodata.str1.4
-                0x10023af0       0x42 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfprintf.o)
- .rodata        0x10023af0      0x224 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfprintf.o)
+                0x10023af8       0x42 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfprintf.o)
+ .rodata        0x10023af8      0x224 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfprintf.o)
  .rodata.str1.4
-                0x10023d14       0x2f C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfiprintf.o)
- .rodata        0x10023d14      0x18c C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfiprintf.o)
-                0x10023ea0                        . = ALIGN (0x4)
+                0x10023d1c       0x2f C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfiprintf.o)
+ .rodata        0x10023d1c      0x18c C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/../../../../arm-none-eabi/lib/thumb\libc.a(libc_a-vfiprintf.o)
+                0x10023ea8                        . = ALIGN (0x4)
  *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.flashdata*)))
-                0x10023ea0                        . = ALIGN (0x4)
+                0x10023ea8                        . = ALIGN (0x4)
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x10023ea0                        __exidx_start = .
+                0x10023ea8                        __exidx_start = .
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x10023ea0                        __exidx_end = .
-                0x10023ea0                        . = ALIGN (0x4)
+                0x10023ea8                        __exidx_end = .
+                0x10023ea8                        . = ALIGN (0x4)
 
 .ram_vector_table
                 0x20000000       0xc0
@@ -6737,7 +6740,7 @@ LOAD C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-
                 0x20000000       0xc0 C:\Users\wzimm\AppData\Local\Arduino15\packages\rp2040\hardware\rp2040\5.5.0/lib/rp2040/libpico.a(runtime_init.c.o)
                 0x20000000                ram_vector_table
 
-.data           0x200000c0     0x1b94 load address 0x10023ea0
+.data           0x200000c0     0x1b94 load address 0x10023ea8
                 0x200000c0                        __data_start__ = .
  *(vtable)
  *(.time_critical*)
@@ -6993,23 +6996,23 @@ LOAD C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-
                 0x20001c54                        . = ALIGN (0x4)
 
 .tm_clone_table
-                0x20001c54        0x0 load address 0x10025a34
+                0x20001c54        0x0 load address 0x10025a3c
  .tm_clone_table
                 0x20001c54        0x0 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/thumb/crtbegin.o
  .tm_clone_table
                 0x20001c54        0x0 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/thumb/crtend.o
 
-.igot.plt       0x20001c54        0x0 load address 0x10025a34
+.igot.plt       0x20001c54        0x0 load address 0x10025a3c
  .igot.plt      0x20001c54        0x0 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/thumb/crtbegin.o
 
-.tdata          0x20001c54        0x0 load address 0x10025a34
+.tdata          0x20001c54        0x0 load address 0x10025a3c
                 0x20001c54                        . = ALIGN (0x4)
  *(.tdata .tdata.* .gnu.linkonce.td.*)
                 0x20001c54                        __tdata_end = .
                 0x20001c54                        PROVIDE (__data_end__ = .)
-                0x10023ea0                        __etext = LOADADDR (.data)
+                0x10023ea8                        __etext = LOADADDR (.data)
 
-.tbss           0x20001c54        0x0 load address 0x10025a34
+.tbss           0x20001c54        0x0 load address 0x10025a3c
                 0x20001c54                        . = ALIGN (0x4)
                 0x20001c54                        __bss_start__ = .
                 0x20001c54                        __tls_base = .
@@ -7017,7 +7020,7 @@ LOAD C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-
  *(.tcommon)
                 0x20001c54                        __tls_end = .
 
-.bss            0x20001c58    0x3236c load address 0x10025a34
+.bss            0x20001c58    0x3236c load address 0x10025a3c
                 0x20001c58                        . = ALIGN (0x4)
                 0x20001c58                        __tbss_end = .
  *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.bss*)))
@@ -7339,19 +7342,19 @@ LOAD C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-
  *fill*         0x200347c4     0xb83c 
                 0x20040000                        __HeapLimit = .
 
-.scratch_x      0x20040000        0x0 load address 0x10025a34
+.scratch_x      0x20040000        0x0 load address 0x10025a3c
                 0x20040000                        __scratch_x_start__ = .
  *(.scratch_x.*)
                 0x20040000                        . = ALIGN (0x4)
                 0x20040000                        __scratch_x_end__ = .
-                0x10025a34                        __scratch_x_source__ = LOADADDR (.scratch_x)
+                0x10025a3c                        __scratch_x_source__ = LOADADDR (.scratch_x)
 
-.scratch_y      0x20041000        0x0 load address 0x10025a34
+.scratch_y      0x20041000        0x0 load address 0x10025a3c
                 0x20041000                        __scratch_y_start__ = .
  *(.scratch_y.*)
                 0x20041000                        . = ALIGN (0x4)
                 0x20041000                        __scratch_y_end__ = .
-                0x10025a34                        __scratch_y_source__ = LOADADDR (.scratch_y)
+                0x10025a3c                        __scratch_y_source__ = LOADADDR (.scratch_y)
 
 .stack1_dummy   0x20040000      0x800
  *(.stack1*)
@@ -7364,7 +7367,7 @@ LOAD C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-
 .rel.dyn        0x20041800        0x0
  .rel.iplt      0x20041800        0x0 C:/Users/wzimm/AppData/Local/Arduino15/packages/rp2040/tools/pqt-gcc/4.1.0-1aec55e/bin/../lib/gcc/arm-none-eabi/14.3.0/thumb/crtbegin.o
 
-.flash_end      0x10025a34        0x0
+.flash_end      0x10025a3c        0x0
  *(.embedded_end_block*)
                 [!provide]                        PROVIDE (__flash_binary_end = .)
                 0x20040000                        __StackLimit = (ORIGIN (RAM) + LENGTH (RAM))

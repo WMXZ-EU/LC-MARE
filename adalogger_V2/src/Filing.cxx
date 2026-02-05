@@ -147,7 +147,7 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
   char *wptr=wav_Info_ptr;
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
-  sprintf(infotext,"%4; %4d; %4d; %6d; %6d; %6d; %3d; %3d; %4d; %3d; %4d; %4d; $4d; %4d.",
+  sprintf(infotext,"%4d; %4d; %4d; %4d; %4d; %6d; %3d; %3d; %4d; %3d; %4d; %4d; %4d; %4d.",
                     t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NDATA, MD, 
                     h_rec[0],h_rec[1],h_rec[2],h_rec[3]);
   wptr=insertChunk(wptr,"IKEY",infotext);
