@@ -73,30 +73,10 @@ class Window(tk.Frame):
         self.h_3_edit = self.mEntry("h_3:",xo,yo+ii*40,2,60); ii+=1
         self.h_4_edit = self.mEntry("h_4:",xo,yo+ii*40,2,60); ii+=1
         yo += 30
-        self.d_start_edit = self.mEntry("d_start:",xo-320,yo+ii*40,3,90); 
-        self.m_start_edit = self.mEntry("m_start:",xo-160,yo+ii*40,3,90); 
-        self.y_start_edit = self.mEntry("y_start:",xo,yo+ii*40,5,90); ii+=1
-        #
-        self.d_on_edit    = self.mEntry("d_on:", xo,yo+ii*40,5,80); ii+=1
-        self.d_rep_edit   = self.mEntry("d_rep:",xo,yo+ii*40,5,80); ii+=1
+        self.h_start_edit = self.mEntry("h_start:",xo-320,yo+ii*40,3,90); 
 
         # temporary disabling input
-        #self.b_edit.configure(state="disabled")
-        #self.k_edit.configure(state="disabled")
-        #self.n_edit.configure(state="disabled")
-
         self.shift_edit.configure(state="disabled")
-
-        self.h_1_edit.configure(state="disabled")
-        self.h_2_edit.configure(state="disabled")
-        self.h_3_edit.configure(state="disabled")
-        self.h_4_edit.configure(state="disabled")
-
-        self.d_start_edit.configure(state="disabled")
-        self.m_start_edit.configure(state="disabled")
-        self.y_start_edit.configure(state="disabled")
-        self.d_on_edit.configure(state="disabled")
-        self.d_rep_edit.configure(state="disabled")
         # end disabling input
 
         # create buttons
@@ -108,14 +88,11 @@ class Window(tk.Frame):
         tk.Button(self, text="Load", command=self.clickLoadButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
         tk.Button(self, text="Sync", command=self.clickSyncButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
         tk.Button(self, text="Save", command=self.clickSaveButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
-        self.storeButton = tk.Button(self, text="Store", command=self.clickStoreButton, font=("Helvetica", 18))
-        self.storeButton.place(x=xm, y=ym+ii*dym)
 
+        self.restartButton = tk.Button(self, text="Restart", command=self.clickRestartButton, font=("Helvetica", 18))
+        self.restartButton.place(x=300, y=ym+ii*dym)
+        self.mputEntry(self.h_start_edit,'0')
         #
-        date_time=datetime.now()
-        self.mputEntry(self.d_start_edit,str(date_time.day))
-        self.mputEntry(self.m_start_edit,str(date_time.month))
-        self.mputEntry(self.y_start_edit,str(date_time.year))
 
         s=serial.tools.list_ports.comports(True)
         if len(s)>0:
@@ -189,7 +166,7 @@ class Window(tk.Frame):
         edit.insert(0,txt)
 
     def mgetEntry(self,ser,str,edit):
-        data=str+edit.get()+"\r"
+        data=str+edit.get()+"\n"
         ser.write(data.encode())
         ser.readline()
 
@@ -221,7 +198,6 @@ class Window(tk.Frame):
     20:51:57.950 -> 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 
     '''
     def clickLoadButton(self):
-        self.storeButton["state"]=tk.DISABLED
 
         com=getComPort()
         if com:
@@ -231,7 +207,7 @@ class Window(tk.Frame):
                 ser.read_all()
                 #
                 # load now data from device
-                ser.write(b'?d\r')
+                ser.write(b'?d\n')
                 txt1=ser.readline().decode('utf-8').rstrip()
                 ip1=txt1.find("=")
                 self.mcuClocklabel.configure(text=txt1[ip1+2:])
@@ -249,6 +225,11 @@ class Window(tk.Frame):
                 #
                 self.mUpdate(ser,self.sernum_edit,"?u")
                 self.mUpdate(ser,self.proc_edit,"?p")
+                #
+                self.mUpdate(ser,self.h_1_edit,"?1")
+                self.mUpdate(ser,self.h_2_edit,"?2")
+                self.mUpdate(ser,self.h_3_edit,"?3")
+                self.mUpdate(ser,self.h_4_edit,"?4")
 
     def clickSaveButton(self):
         #
@@ -267,28 +248,31 @@ class Window(tk.Frame):
                 #
                 self.mgetEntry(ser,'!f',self.fsamp_edit)
                 self.mgetEntry(ser,'!g',self.again_edit)
+                #
+                self.mgetEntry(ser,'!1',self.h_1_edit)
+                self.mgetEntry(ser,'!2',self.h_2_edit)
+                self.mgetEntry(ser,'!3',self.h_3_edit)
+                self.mgetEntry(ser,'!4',self.h_4_edit)
         #        #
                 ser.read_all()
 
-    def clickStoreButton(self):
+    def clickRestartButton(self):
+        have_delay=self.h_start_edit.get()=='0'
+        print(have_delay)
+        #
         com=getComPort()
         if com:
-            print('store',com)
+            print('restart',com)
             with serial.Serial(com) as ser:
                 ser.read_all()
-        #        ser.write("!w1\r".encode())
-        #        time.sleep(0.1)
-        #        txt=ser.readline().decode('utf-8').rstrip()
-        #        #
-        #        ser.write(":w".encode())
-        #        time.sleep(0.1)
-        #        txt=ser.readline().decode('utf-8').rstrip()
-        #        txt=ser.readline().decode('utf-8').rstrip()
-        #        print(txt)
+                if have_delay:
+                    ser.write("x\n".encode())
+                else:
+                    self.mgetEntry(ser,'x',self.h_start_edit)
 
     def clickSyncButton(self):
         date_time=datetime.now()
-        date_string=date_time.strftime("!d%Y-%m-%d %H:%M:%S\r")
+        date_string=date_time.strftime("!d%Y-%m-%d %H:%M:%S\n")
         #
         com=getComPort()
         if com:
