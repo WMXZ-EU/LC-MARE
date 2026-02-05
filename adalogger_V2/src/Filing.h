@@ -45,6 +45,7 @@
   uint16_t SD_init(void);
   status_t logger(int32_t * buffer,status_t status);
 
+  int16_t loadConfigfromFile(void);
   void storeConfigToFile(void);
   void configLoad(void);
   void configShow(void);

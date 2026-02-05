@@ -145,89 +145,118 @@ status_t menu(status_t status)
       {
         while(!Serial.available()) delay(10);
         ch=Serial.read();
-        if(ch=='a') 
-        { Serial.print("a = "); Serial.println(t_acq); 
-        }
-        if(ch=='o') 
-        { Serial.print("o = "); Serial.println(t_on);
-        }
-        if(ch=='r') 
-        { Serial.print("r = "); Serial.println(t_rep);
-        }
-        if(ch=='f') 
-        { Serial.print("f = "); Serial.println(fsamp);
-        }
-        if(ch=='g') 
-        { Serial.print("g = "); Serial.println(again);
-        }
-        if(ch=='u') 
-        { Serial.print("u = "); Serial.println(uid_strng);
-        }
-        if(ch=='p') 
-        { Serial.print("p = "); Serial.println(PROC);
-        }
-        if(ch=='w') 
-        { Serial.print("w = "); Serial.println(eeprom);
-        }
-        if(ch=='d')
-        { datetime_t t;
-          XRTCgetDatetime(&t);    
-          printDatetime("d =",&t);
-        }
-        if(ch=='n') 
-        { Serial.print("n = "); Serial.println(&IART[0]);
-        }
-        if(ch=='k') 
-        { Serial.print("k = "); Serial.println(&IPRD[0]);
-        }
-        if(ch=='l') 
-        { Serial.print("l = "); Serial.println(&INAM[0]);
+        switch(ch)
+        {
+          case 'a':
+            Serial.print("a = "); Serial.println(t_acq); 
+            break;
+          case 'o':
+            Serial.print("o = "); Serial.println(t_on);
+            break;
+          case 'r':
+            Serial.print("r = "); Serial.println(t_rep);
+            break;
+          case 'f':
+            Serial.print("f = "); Serial.println(fsamp);
+            break;
+          case 'g':
+            Serial.print("g = "); Serial.println(again);
+            break;
+          case 'u':
+            Serial.print("u = "); Serial.println(uid_strng);
+            break;
+          case 'p':
+            Serial.print("p = "); Serial.println(PROC);
+            break;
+          case 'w':
+            Serial.print("w = "); Serial.println(eeprom);
+            break;
+          case 'd':
+            datetime_t t;
+            XRTCgetDatetime(&t);    
+            printDatetime("d =",&t);
+            break;
+          case 'n':
+             Serial.print("n = "); Serial.println(&IART[0]);
+            break;
+          case 'k':
+            Serial.print("k = "); Serial.println(&IPRD[0]);
+            break;
+          case 'l':
+            Serial.print("l = "); Serial.println(&INAM[0]);
+            break;
+          case '1':
+            Serial.print("1 = "); Serial.println(h_rec[0]);
+            break;
+          case '2':
+            Serial.print("2 = "); Serial.println(h_rec[1]);
+            break;
+          case '3':
+            Serial.print("3 = "); Serial.println(h_rec[2]);
+            break;
+          case '4':
+            Serial.print("4 = "); Serial.println(h_rec[3]);
+            break;
         }
       }
       else if(ch=='!')  // modify parameters
       {
         while(!Serial.available()) delay(10);
         ch=Serial.read();
-        if(ch=='a') 
-        { menuGetInt16((uint16_t*)&t_acq); 
-        }
-        if(ch=='o') 
-        { menuGetInt16((uint16_t*)&t_on);
-        }
-        if(ch=='r') 
-        { menuGetInt16((uint16_t*)&t_rep);
-        }
-        if(ch=='f') 
-        { menuGetInt32((uint32_t*)&fsamp);
-          acqModifyFrequency(fsamp);        
-        }
-        if(ch=='g') 
-        { menuGetInt16((uint16_t*)&again);
-          setAGain((int8_t)again&0xff);
-        }
-        if(ch=='w') 
-        { menuGetInt16((uint16_t*)&eeprom);
-          eepromUpdate();
-        }
-        if(ch=='u') 
-        { menuGetLine();
-        }
-        if(ch=='p') 
-        { menuGetLine();
-        }
-        if(ch=='n') 
-        { menuGetString(&IART[0]);
-        }
-        if(ch=='k') 
-        { menuGetString(&IPRD[0]);
-        }
-        if(ch=='l') 
-        { menuGetString(&INAM[0]);
-        }
-        if(ch=='d')
-        { datetime_t t;
-          menuGetTime(&t);
-          XRTCsetDatetime(&t);
+        switch(ch)
+        { case 'a':
+            menuGetInt16((uint16_t*)&t_acq); 
+            break;
+          case 'o':
+            menuGetInt16((uint16_t*)&t_on);
+            break;
+          case 'r':
+            menuGetInt16((uint16_t*)&t_rep);
+            break;
+          case 'f':
+            menuGetInt32((uint32_t*)&fsamp);
+            acqModifyFrequency(fsamp);
+            break;    
+          case 'g':
+            menuGetInt16((uint16_t*)&again);
+            setAGain((int8_t)again&0xff);
+            break;
+          case 'w':
+            menuGetInt16((uint16_t*)&eeprom);
+            eepromUpdate();
+            break;
+          case 'u':
+            menuGetLine();
+            break;
+          case 'p':
+            menuGetLine();
+            break;
+          case 'n':
+            menuGetString(&IART[0]);
+            break;
+          case 'k':
+            menuGetString(&IPRD[0]);
+            break;
+          case 'l':
+            menuGetString(&INAM[0]);
+            break;
+          case 'd':
+            datetime_t t;
+            menuGetTime(&t);
+            XRTCsetDatetime(&t);
+            break;
+          case '1':
+            menuGetInt16((uint16_t*)&h_rec[0]);
+            break;
+          case '2':
+            menuGetInt16((uint16_t*)&h_rec[1]);
+            break;
+          case '3':
+            menuGetInt16((uint16_t*)&h_rec[2]);
+            break;
+          case '4':
+            menuGetInt16((uint16_t*)&h_rec[3]);
+            break;
         }
       }
       else if(ch=='c')  // check and correct RTC time

@@ -80,7 +80,7 @@ void setup() {
 
   if(eepromLoad()==0)
   { // should load parameters from LFS or uSD (TBD)
-    ;
+    loadConfigfromFile();
   }
 
   while(millis()<(WAIT*1000)) if(Serial) { Serial.print(millis());break;}

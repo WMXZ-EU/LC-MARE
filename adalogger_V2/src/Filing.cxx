@@ -28,9 +28,11 @@
 #include "Filing.h"
 #include "Adc.h"
 
-uint32_t t_acq = T_ACQ;   // seconds
-uint32_t t_on  = T_ON;    // minutes
-uint32_t t_rep = T_REP;   // minutes (for continuous recording set t_rep < t_acq)
+uint16_t t_acq = T_ACQ;   // seconds
+uint16_t t_on  = T_ON;    // minutes
+uint16_t t_rep = T_REP;   // minutes (for continuous recording set t_rep < t_acq)
+
+uint16_t h_rec[4] = {0,12,12,24};
 
 char ISRC[40]={' '}; //  Source
 char ICMS[40]={' '}; //  Organization
@@ -139,14 +141,15 @@ void wavHeaderInit(int32_t fsamp, int32_t nchan, int32_t nbits)
 }
 
 char datestring[80];
-char infotext[128];
+char infotext[256];
 char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
 {
   char *wptr=wav_Info_ptr;
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
-  sprintf(infotext,"%6d; %6d; %6d; %6d; %6d; %6d; %3d; %3d; %4d; %3d.",
-                    t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, 1024, MD);
+  sprintf(infotext,"%4; %4d; %4d; %6d; %6d; %6d; %3d; %3d; %4d; %3d; %4d; %4d; $4d; %4d.",
+                    t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NDATA, MD, 
+                    h_rec[0],h_rec[1],h_rec[2],h_rec[3]);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //
   if(missed_acq>0)
@@ -437,7 +440,27 @@ status_t logger(int32_t * buffer,status_t status)
       {
         status = CLOSED;
         //
-        if(t_rep>t_on)                      // if foreseen  check for hibernation
+        // check for hibernation
+        uint32_t tto = tt / (24*3600);  // seconds to start of day
+        uint32_t ttx = tt % (24*3600);  // seconds into day
+        uint32_t hhx = ttx / 3600;
+        if(hhx < h_rec[0])
+        { // sleep until h_rec[0]
+            uint32_t alarm=tto+h_rec[0]*3600;
+            hibernate_until(alarm);
+        }
+        if((hhx > h_rec[1]) && (hhx < h_rec[2]))
+        { // sleep untl h_rec[2]
+            uint32_t alarm=tto+h_rec[2]*3600;
+            hibernate_until(alarm);
+        }
+        if((hhx > h_rec[3]))
+        { // sleep until h_rec[0]+24
+            uint32_t alarm=tto+(24+h_rec[0])*3600;
+            hibernate_until(alarm);
+        }
+        //
+        if(t_rep>t_on)                      // if forseen  check for duty cycle
         { uint32_t ttm=tt/60;
           //Serial.printf("%d %d %d %d\n",t_acq,t_rep,ttm,(ttm % t_rep));
 
@@ -456,8 +479,8 @@ status_t logger(int32_t * buffer,status_t status)
 }
 
 /*************************Configuration file ****************************************/
-static char configText[16*80]={0};  // maximal 16 lines of 80 characters each
-static int configIndex[16]={0};     // maximal 16 parameters (actual 11 entries)
+static char configText[20*80]={0};  // maximal 20 lines of 80 characters each
+static int configIndex[20]={0};     // maximal 20 parameters (actual 11 entries)
 /*
 # configuration file
 # should end with '#' or ';' comment may follow
@@ -492,6 +515,10 @@ void storeConfigToFile(void)
       file.printf("!p %s	# (IPRD) project ",IPRD);
       file.printf("!e %s	# (ISBJ) area ",ISBJ);
       file.printf("!l %s	# (INAM) location id ",INAM);
+      file.printf("!1 %d	# h_rec[0] ",h_rec[0]);
+      file.printf("!2 %d	# h_rec[1] ",h_rec[1]);
+      file.printf("!3 %d	# h_rec[2] ",h_rec[2]);
+      file.printf("!4 %d	# h_rec[3] ",h_rec[3]);
       file.close(); 
     }
 }
@@ -537,6 +564,10 @@ int16_t loadConfigfromFile(void)
           case 'p': sscanf(txt2,"%s",&IPRD[0]); break; // project (Development)
           case 'e': sscanf(txt2,"%s",&ISBJ[0]); break; // area (atHome)
           case 'l': sscanf(txt2,"%s",&INAM[0]); break; // location id (B01)
+          case '1': sscanf(txt2,"%d",&h_rec[0]); break; // h_rec[0]
+          case '2': sscanf(txt2,"%d",&h_rec[1]); break; // h_rec[1]
+          case '3': sscanf(txt2,"%d",&h_rec[2]); break; // h_rec[2]
+          case '4': sscanf(txt2,"%d",&h_rec[3]); break; // h_rec[3]
         }
     }
   return ii;

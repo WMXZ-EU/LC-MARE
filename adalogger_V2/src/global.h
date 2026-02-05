@@ -74,9 +74,11 @@
   #define MC 1 // use second core for acquisition 
 
   // in filing.cxx
-  extern uint32_t t_acq;  // seconds (each file)
-  extern uint32_t t_on;   // minutes (each on period)
-  extern uint32_t t_rep;  // minutes (for continuous recording set t_rep < t_acq)
+  extern uint16_t t_acq;  // seconds (each file)
+  extern uint16_t t_on;   // minutes (each on period)
+  extern uint16_t t_rep;  // minutes (for continuous recording set t_rep < t_acq)
+  extern uint16_t h_rec[]; // hours for selective recordings {0,12,12,24}
+
   // in rp2040.cxx
   extern uint32_t fsamp;  // sampling frequency (kHz)
   // in Adc.cxx
