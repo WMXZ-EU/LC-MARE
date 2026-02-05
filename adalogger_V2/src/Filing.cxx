@@ -206,40 +206,44 @@ void SD_stop(void)
     sd.card()->syncDevice();
 }
 
+//---------------------------- Disk interface -------------------------------------------
 extern uint32_t  acq_count;
-uint32_t mdt=0;
-#if PROC==0
-  // write to file
-  int32_t storeData(int32_t *buffer)
-  {
-      uint32_t nbuf=NBUF_I2S*4;
-      digitalWrite(LED_BUILTIN, HIGH);
-      uint32_t to=millis();
-      int ndat= file.write(buffer,nbuf);
-      uint32_t dt=(millis()-to);
-      if(dt>mdt) mdt=dt;
-      digitalWrite(LED_BUILTIN, LOW);
-      return ndat;
-  }
-
-#elif PROC==1
-  //compress and write to file
-  //#define MBIT 32 (is defined in global.h)
-  static int32_t disk_buffer[NBUF_I2S];
-
-  int32_t flushBuffer(int32_t nbuf)
-  {
+uint32_t mdt=0;   // keep max write time
+int write_disk(int32_t *buffer,int32_t nbuf)
+{
     digitalWrite(LED_BUILTIN, HIGH);
     uint32_t to=millis();
-    int ndat= file.write(disk_buffer,nbuf);
+    int ndat= file.write(buffer,nbuf);
     uint32_t dt=(millis()-to);
     if(dt>mdt) mdt=dt;
     digitalWrite(LED_BUILTIN, LOW);
     return ndat;
-  }
+}
+
+#if PROC==0
+  // write to file
+  // Gloabal constants (see global.h)
+    // #define MBUF (8*6)               // for RP2040 (should be multiple 6, i.e of 2 and 3)
+    // #define NDATA 1024               // number of samples in single block
+    // #define NBUF_I2S  (MBUF/3*NDATA) // actual buffer length in samples for acquisition and filing (triple buffer)
 
   int32_t storeData(int32_t *buffer)
   {
+      uint32_t nbuf=NBUF_I2S*4;
+      return write_disk(buffer,nbuf);
+  }
+
+#elif PROC==1
+  // compress and write to file
+  // Gloabal constants (see global.h)
+    // #define SHIFT (8+4)              // shift to right to remove unused bits
+    // #define MD (NBUF_I2S/NDATA)      // number blocks per disk buffer
+    // #define MBIT 32                  // number of bits in ICS
+
+  static int32_t disk_buffer[NBUF_I2S];
+  //
+  int32_t storeData(int32_t *buffer)
+  { 
     int32_t ndat=0;
     //
     // shift to right to minimize noise
@@ -310,12 +314,12 @@ uint32_t mdt=0;
 
     //
     // ceil to 512 block limit
-    uint32_t nbuf=(kk/128+1)*512;
-    return flushBuffer(nbuf);
+    uint32_t nbuf=((kk+127)/128)*512;
+    return write_disk(disk_buffer,nbuf);
   }
 #endif
 
-// Filing
+//---------------------------- Filing ----------------------------------
 uint32_t num_bytes_written=0;
 char date_str[20];
 char time_str[20];
