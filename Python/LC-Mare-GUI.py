@@ -109,17 +109,21 @@ class Window(tk.Frame):
             self.startButton=tk.Button(self, text="Start", command=self.clickRun, font=("Helvetica", 18))
             self.startButton.place(x=700, y=10)
             self.task_is_running=0
+            #
+            self.monitorButton=tk.Button(self, text="Monitor", command=self.clickMonitor, font=("Helvetica", 18))
+            self.monitorButton.place(x=800, y=10)
+            self.monitor_is_running=0
 
     def clickExitButton(self):
         self.master.destroy() 
 
-    def timer_task(self):
+    def run_task(self):
         ser = self.ser
         if ser.in_waiting>0:
             self.scrolledText.insert(tk.END,ser.read_all().decode('utf-8'))
             self.scrolledText.see(tk.END)
         if self.task_is_running:
-            self.after(100,self.timer_task)            
+            self.after(100,self.run_task)
 
     def clickRun(self):
         if self.startButton["text"]=="Start":
@@ -137,7 +141,7 @@ class Window(tk.Frame):
                     self.task_is_running=1
                     self.ser.write(b's\n')
                     #
-                    self.after(100,self.timer_task)
+                    self.after(100,self.run_task)
         else:
             print('Stop')
             self.startButton.config(text="Start")
@@ -153,6 +157,25 @@ class Window(tk.Frame):
                     self.scrolledText.insert(tk.END,txt)
                     self.scrolledText.see(tk.END)
                 self.ser.close()
+
+    def monitor_task(self):
+        ser = self.ser
+        if ser.in_waiting>0:
+            self.scrolledText.insert(tk.END,ser.read_all().decode('utf-8'))
+            self.scrolledText.see(tk.END)
+        if self.monitor_is_running:
+            self.after(100,self.monitor_task)
+
+    def clickMonitor(self):
+        if self.monitor_is_running==1:
+            self.monitor_is_running=0
+        else:
+            self.monitor_is_running=1
+            com=getComPort()
+            if com:
+                self.ser=serial.Serial(com,timeout=0.1)
+                if self.ser:
+                    self.after(100,self.monitor_task)
 
     def mEntry(self,txt,x,y,w,dx):
         label = tk.Label(text=txt,font=("Helvetica", 18))
