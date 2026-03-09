@@ -34,12 +34,12 @@ uint16_t t_rep = T_REP;   // minutes (for continuous recording set t_rep < t_acq
 
 uint16_t h_rec[4] = {0,12,12,24};
 
-char ISRC[40]={' '}; //  Source
-char ICMS[40]={' '}; //  Organization
-char IART[40]={"WMXZ"}; // 'Artist' (creator)
-char IPRD[40]={"LC-Mare"}; // 'Product' (Activity)
-char ISBJ[40]={' '}; // 'subject' (Area)
-char INAM[40]={"test"}; // 'Name' (location id)
+char ISRC[40]={SRC_str}; //  Source
+char ICMS[40]={CMS_str}; //  Organization
+char IART[40]={ART_str}; // 'Artist' (creator)
+char IPRD[40]={PRD_str}; // 'Product' (Activity)
+char ISBJ[40]={SBJ_str}; // 'subject' (Area)
+char INAM[40]={NAM_str}; // 'Name' (location id)
 
 // microSD card
 #if SDFAT_FILE_TYPE != 3
@@ -147,8 +147,8 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
   char *wptr=wav_Info_ptr;
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
-  sprintf(infotext,"%4d; %4d; %4d; %4d; %4d; %6d; %3d; %3d; %4d; %3d; %4d; %4d; %4d; %4d.",
-                    t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NDATA, MD, 
+  sprintf(infotext,"%s; %4d; %4d; %4d; %4d; %4d; %6d; %3d; %3d; %4d; %3d; %4d; %4d; %4d; %4d.",
+                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NDATA, MD, 
                     h_rec[0],h_rec[1],h_rec[2],h_rec[3]);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //

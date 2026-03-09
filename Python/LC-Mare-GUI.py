@@ -63,17 +63,17 @@ class Window(tk.Frame):
         xo=350
         yo=170
         ii=0
-        self.t_acq_edit = self.mEntry("t_acq:",xo,yo+ii*40,5,80); ii+=1
-        self.t_on_edit  = self.mEntry("t_on:", xo,yo+ii*40,5,80); ii+=1
-        self.t_rep_edit = self.mEntry("t_rep:",xo,yo+ii*40,5,80); ii+=1
+        self.t_acq_edit = self.mEntry("t_acq (s):",xo,yo+ii*40,5,110); ii+=1
+        self.t_on_edit  = self.mEntry("t_on (m):", xo,yo+ii*40,5,110); ii+=1
+        self.t_rep_edit = self.mEntry("t_rep (m):",xo,yo+ii*40,5,110); ii+=1
         ii=0
-        xo += 160
-        self.h_1_edit = self.mEntry("h_1:",xo,yo+ii*40,2,60); ii+=1
-        self.h_2_edit = self.mEntry("h_2:",xo,yo+ii*40,2,60); ii+=1
-        self.h_3_edit = self.mEntry("h_3:",xo,yo+ii*40,2,60); ii+=1
-        self.h_4_edit = self.mEntry("h_4:",xo,yo+ii*40,2,60); ii+=1
+        xo += 170
+        self.h_1_edit = self.mEntry("h_1 (h):",xo,yo+ii*40,2,90); ii+=1
+        self.h_2_edit = self.mEntry("h_2 (h):",xo,yo+ii*40,2,90); ii+=1
+        self.h_3_edit = self.mEntry("h_3 (h):",xo,yo+ii*40,2,90); ii+=1
+        self.h_4_edit = self.mEntry("h_4 (h):",xo,yo+ii*40,2,90); ii+=1
         yo += 30
-        self.h_start_edit = self.mEntry("h_start:",xo-320,yo+ii*40,3,90); 
+        self.h_start_edit = self.mEntry("h_start (h):",xo-320,yo+ii*40,3,130);
 
         # temporary disabling input
         self.shift_edit.configure(state="disabled")
@@ -89,7 +89,7 @@ class Window(tk.Frame):
         tk.Button(self, text="Sync", command=self.clickSyncButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
         tk.Button(self, text="Save", command=self.clickSaveButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
 
-        self.restartButton = tk.Button(self, text="Restart", command=self.clickRestartButton, font=("Helvetica", 18))
+        self.restartButton = tk.Button(self, text="Reboot", command=self.clickRestartButton, font=("Helvetica", 18))
         self.restartButton.place(x=300, y=ym+ii*dym)
         self.mputEntry(self.h_start_edit,'0')
         #

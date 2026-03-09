@@ -2786,7 +2786,7 @@
 		(path "/321914da-faa0-4343-8cb1-4cbaeff9fb20")
 		(sheetname "/")
 		(sheetfile "LC_PAMV4b1.kicad_sch")
-		(attr through_hole dnp)
+		(attr through_hole exclude_from_bom)
 		(fp_line
 			(start -6.5964 -0.0234)
 			(end -6.5964 -1.2284)
@@ -3238,6 +3238,17 @@
 			(uuid "57a945c1-41ee-4a8f-9403-4e1a1b503200")
 		)
 		(embedded_fonts no)
+		(model "C:/Users/wzimm/Desktop/KICAD2/Libraries/3D/PreampV5-mare_sp.step"
+			(offset
+				(xyz -114.5 75.5 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz -0 -0 -0)
+			)
+		)
 	)
 	(footprint "myLibrary:rtc2"
 		(layer "F.Cu")
@@ -5919,7 +5930,7 @@
 			(uuid "be6f0b5d-5972-4d36-8abf-60f6fd0e4127")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/zimme/Documents/LC-MARE/KICAD/Libraries/3D/ADC_V2_fd.step"
+		(model "C:/Users/wzimm/Desktop/KICAD2/Libraries/3D/ADC_V2_fd.step"
 			(offset
 				(xyz -11 -9 2.5)
 			)
@@ -6558,7 +6569,7 @@
 		(path "/8e96782b-9c06-42ed-b7c3-be7eb093ffb9")
 		(sheetname "/")
 		(sheetfile "LC_PAMV4b1.kicad_sch")
-		(attr through_hole exclude_from_bom dnp)
+		(attr through_hole exclude_from_bom)
 		(fp_line
 			(start -1.61 4.56)
 			(end 0.625 4.56)
@@ -6934,15 +6945,15 @@
 			(uuid "c157ae63-ea95-4243-b556-593565ecef77")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Molex.3dshapes/Molex_PicoBlade_53048-0210_1x02_P1.25mm_Horizontal.wrl"
+		(model "C:/Users/wzimm/Documents/GitHub/LC-MARE/KICAD/Libraries/3D/picoBlade2.wrl"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0.5 -3.5 2)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -0 -0 180)
 			)
 		)
 	)

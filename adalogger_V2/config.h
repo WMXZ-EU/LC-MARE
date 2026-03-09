@@ -33,4 +33,13 @@
   //
   #define PROC      1     // 0 Wav raw file; 1 compress 
 
+  //for filing meta data
+  #define SRC_str "AS1" //  Source
+  #define CMS_str "WMXZ" //  Organization
+  #define ART_str "WMXZ" // 'Artist' (creator)
+  #define PRD_str "microPAM" // 'Product' (Activity)
+  #define SBJ_str "5Terre" // 'subject' (Area)
+  #define NAM_str "Test"// 'Name' (location id)
+
+
 #endif

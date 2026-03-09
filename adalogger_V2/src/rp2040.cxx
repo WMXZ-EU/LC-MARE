@@ -655,6 +655,7 @@ uint32_t estAlarmTime(uint32_t secs) { return (secs<alarm)? alarm: secs; } // wi
     goDormant();
   }
 
+/************************************ UID **********************************************/
 #include "pico/unique_id.h"
 char uid_strng[10]; 
 void getUID(void)
@@ -668,7 +669,6 @@ void getUID(void)
   Serial.println();  
   sprintf(uid_strng,"%02X%02X%02X%02X",id.id[4],id.id[5],id.id[6],id.id[7]);
 }
-/************************************ RTC **********************************************/
 
 /************************************ NEO Pixel ****************************************/
 #include <Adafruit_NeoPixel.h>
