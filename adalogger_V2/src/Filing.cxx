@@ -281,6 +281,8 @@ int write_disk(int32_t *buffer,int32_t nbuf)
       uint32_t nb=0;
       for(nb=2; nb<24; nb++) if(amax < (1<<(nb-1))) break;
 
+      //nb=10; // for consumption testing only
+
       uint32_t ncmp = (NDATA*nb) / MBIT;
       uint32_t mask = (1<<nb) -1;
 
