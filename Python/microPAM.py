@@ -5,18 +5,53 @@ import numpy as np
 from numba import jit
 #
 # utilities
+#--------------------------------------------------------
+def find_chunk(hh,key):
+    for ii in range(len(hh)):
+        try:
+            txt=hh[ii].tobytes().decode()
+        except:
+            continue
+        if txt==key:
+            break
+    return ii
+#--------------------------------------------------------
+def wavInfo(hh):
+    ii=find_chunk(hh[:128],'fmt ')
+    nch=hh[ii+2]&0xffff
+    fs=hh[ii+3]
+    nbits=hh[ii+5]>>16
+    return fs,nch,nbits
+#
+#--------------------------------------------------------
+def decodeInfo(x):
+    ii=find_chunk(x,'INFO')
+    if x[ii].tobytes().decode() != 'INFO':
+        return
+    ii +=1
+    info={}
+    while ii<len(x):
+        key=x[ii].tobytes().decode()
+        nd=x[ii+1]//4
+        txt=x[ii+2:ii+2+nd].tobytes().decode().strip('\00')
+        info.update({key:txt})
+        ii += 2+nd
+    return info
+#
 #------------------------------------------------------
 def loadData(fileName):
     xx = np.fromfile(fileName, dtype='uint32')
-    return xx[:128],xx[128:]
+    ii=find_chunk(xx,'data')+2
+    return xx[:ii],xx[ii:]
 #
 #------------------------------------------------------
 def saveData(fileName,hh,xx):
     # save 'wav' style file (i.e. data with RIFF header)
     yy=np.concatenate((hh,xx)).astype('uint32')
     nn=xx.shape[0]*4
-    yy[127]=nn
-    yy[1]=nn+512-2*4
+    ii=find_chunk(hh,'data')
+    yy[ii+1]=nn
+    yy[1]=nn+(yy.shape[0]-2)*4
     yy.tofile(fileName)
 #
 #--------------------------------------------------------
@@ -99,62 +134,41 @@ def decodeData(xx,blklen,nc):
     return data.astype('int32')
 #
 #--------------------------------------------------------
-def wavInfo(hh):
-    # decode wav header
-    #print(hh[0].tobytes().decode()) # is RIFF
-    #print(hh[2].tobytes().decode()) # is WAVE
-    #print(hh[3].tobytes().decode()) # is fmt
-    fs=hh[6]
-    nch=hh[5]&0xffff
-    nbits=hh[8]>>16
-    #print(hh[126].tobytes().decode()) # is data
-    ns=hh[127]    # is length of data block ()
-    return fs,nch,nbits,ns
-#
-#--------------------------------------------------------
-def toString(x):
-    # convert wav meta data to pait of strings
-    return x[0].tobytes().decode(),x[2:1+x[1]//4].tobytes().decode().strip('\x00')
-#
-#--------------------------------------------------------
-def decodeInfo(hh):
-    # decode wav header metafile
-    #print(hh[9].tobytes().decode())
-    #print(hh[11].tobytes().decode())
-    info={}
-    ik=12; 
-    while(1):
-        if hh[ik]==0: break
-        key,text=toString(hh[ik:]); 
-        info.update({key:text})
-        ik +=hh[ik+1]//4+1;
-    return info
-#
-#--------------------------------------------------------
-def load_microPAM(fname,scale):
+def load_microPAM(fname):
     hh,xx=loadData(fname)
 
-    fs,nch,nbits,ns=wavInfo(hh)
-    #print("fs",fs,"nch",nch,"nbits",nbits)
+    fs,nch,nbits=wavInfo(hh)
 
-    info=decodeInfo(hh)
+    ii= find_chunk(hh,'LIST')
+    info=decodeInfo(hh[ii:ii+hh[ii+1]//4])
     #for key, value in info.items():  print(f"{key}: {value}")
 
-    config=info['IKEY'][:-1].split(';') # last character is '.'
-    gain=int(config[4])
-    shift=int(config[6])
-    cmpr=int(config[7])
-    blklen=int(config[8])
-    nblk=int(config[9])
-    #print('gain',gain,'"shift"',31-shift,'nblk',nblk)
+    if 'IKEY' in info.keys():
+        config=info['IKEY'][:-1].split(';') # last character is '.'
+        gain=int(config[4])
+        shift=int(config[6])
+        cmpr=int(config[7])
+        blklen=int(config[8])
+        nblk=int(config[9])
+        #
+        # have LC-MARE (very likely)
+        preamp = 20 # dB
+        Vref = 2.75 # V/MSB
+    else:
+        cmpr=0
+        gain=1
+        preamp = 0 # dB
+        Vref = 1 # V/MSB
+
+    scale=Vref/10**(preamp/20)
 
     # check if compressed and decode if necessary
     if cmpr==1:
         data=decodeData(xx,blklen,nblk) # nblk data blocks form 1 disk block
-        scale /=2**(31-shift)   # //LSB -> // MSB
+        scale /=2**(nbits-1-shift)   # //LSB -> // MSB
     else:
         data=xx.astype('int32')
-        scale /=2**(31)         # //LSB -> // MSB
+        scale /=2**(nbits-1)         # //LSB -> // MSB
     #
     # convert to V
     scale /= 10**(gain/20)  # V/LSB
@@ -162,12 +176,11 @@ def load_microPAM(fname,scale):
     return fs,data
 #
 #--------------------------------------------------------
-def loadLC_mare(fname):
+def load_LC_mare(fname):
     #
-    preamp = 20 # dB
-    Vref = 2.75 # V/MSB
-
-    scale=Vref/10**(preamp/20)
+    #preamp = 20 # dB
+    #Vref = 2.75 # V/MSB
+    #scale=Vref/10**(preamp/20)
     #print(scale, 'V/MSB')
-    return load_microPAM(fname,scale)
+    return load_microPAM(fname)
 

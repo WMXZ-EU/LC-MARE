@@ -19,4 +19,4 @@ To run LC-MARE GUI from console:
 > python LC-MARE-GUI.py
 
 For other programs
-> pip install scipy matplotlib
+> pip install scipy matplotlib numba
