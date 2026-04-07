@@ -95,10 +95,13 @@ void setup() {
     gpio_set_input_enabled(p, false); 
   }
   
+  // set mcu rtc
+  // put it to some time so it is running
+  // it will be synchronized to external rtc later
   if(1)
   { datetime_t setTime = { 2026, 1, 1, 4, 0, 0, 0 };
     rtc_init();
-    rtc_set_datetime(&setTime);
+    rtc_set_datetime(&setTime); 
     Serial.print("rtc running "); Serial.println(rtc_running());
     datetime_t t;
     rtcGetDatetime(&t);
@@ -116,6 +119,7 @@ void setup() {
     }
   #endif
 
+  // set-up external rtc
   int xrtc=0;
   xrtc=rtc_setup();
   Serial.print("xrtc "); Serial.println(xrtc);
@@ -141,6 +145,7 @@ void setup() {
     }
     else
     { // clean-up initial alarm value
+      // as there is no external rtc or we passed alarm time
       eepromUpdateAlarm(0xffffffff);
     }
   }
@@ -155,6 +160,7 @@ void setup() {
     setup_ready=1;
     while(!setup1_ready) delay(10);
   #endif
+  //
   have_disk=SD_init();
   Serial.print("have disk: "); Serial.println(have_disk);
   if(have_disk) configShow();
@@ -193,7 +199,7 @@ void loop() {
   if(buffer)
   {
     if(have_disk)
-    { // write data to disk
+    { // write data to disk to clean up
       if(status != STOPPED)
       { status=logger(buffer,status);
         data_count++;

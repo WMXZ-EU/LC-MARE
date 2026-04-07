@@ -14,7 +14,10 @@ def find_chunk(hh,key):
             continue
         if txt==key:
             break
-    return ii
+    if ii<len(hh):
+        return ii
+    else:
+        return -1
 #--------------------------------------------------------
 def wavInfo(hh):
     ii=find_chunk(hh[:128],'fmt ')
@@ -26,22 +29,24 @@ def wavInfo(hh):
 #--------------------------------------------------------
 def decodeInfo(x):
     ii=find_chunk(x,'INFO')
-    if x[ii].tobytes().decode() != 'INFO':
-        return
+    if ii<0: return {}
+    if x[ii].tobytes().decode() != 'INFO':  return {}
     ii +=1
     info={}
     while ii<len(x):
         key=x[ii].tobytes().decode()
         nd=x[ii+1]//4
-        txt=x[ii+2:ii+2+nd].tobytes().decode().strip('\00')
+        if nd==0: break
+        txt=x[ii+2:ii+1+nd].tobytes().decode().strip('\00')
         info.update({key:txt})
-        ii += 2+nd
+        ii += 1+nd
     return info
 #
 #------------------------------------------------------
 def loadData(fileName):
     xx = np.fromfile(fileName, dtype='uint32')
     ii=find_chunk(xx,'data')+2
+    if ii<0: return [],[]
     return xx[:ii],xx[ii:]
 #
 #------------------------------------------------------
@@ -140,39 +145,50 @@ def load_microPAM(fname):
     fs,nch,nbits=wavInfo(hh)
 
     ii= find_chunk(hh,'LIST')
-    info=decodeInfo(hh[ii:ii+hh[ii+1]//4])
-    #for key, value in info.items():  print(f"{key}: {value}")
-
-    if 'IKEY' in info.keys():
-        config=info['IKEY'][:-1].split(';') # last character is '.'
-        gain=int(config[4])
-        shift=int(config[6])
-        cmpr=int(config[7])
-        blklen=int(config[8])
-        nblk=int(config[9])
-        #
-        # have LC-MARE (very likely)
-        preamp = 20 # dB
-        Vref = 2.75 # V/MSB
-    else:
+    if ii<0:
+        # plain wav file without LIST meta data
         cmpr=0
         gain=1
         preamp = 0 # dB
         Vref = 1 # V/MSB
+    else:
+        # there is an LIST field (decode and check if microPAM)
+        info=decodeInfo(hh[ii:ii+hh[ii+1]//4])
+        #for key, value in info.items():  print(f"{key}: {value}")
 
-    scale=Vref/10**(preamp/20)
+        if 'IKEY' in info.keys():
+            config=info['IKEY'][:-1].split(';') # last character is '.'
+            gain=int(config[4])
+            shift=int(config[6])
+            cmpr=int(config[7])
+            blklen=int(config[8])
+            nblk=int(config[9])
+            #
+            # have LC-MARE (very likely)
+            preamp = 20 # dB
+            Vref = 2.75 # V/MSB
+        else:
+            cmpr=0
+            gain=1
+            preamp = 0 # dB
+            Vref = 1 # V/MSB
+
+    # factor to scale from MSB to V
+    scale=Vref/10**((preamp+gain)/20)
 
     # check if compressed and decode if necessary
     if cmpr==1:
         data=decodeData(xx,blklen,nblk) # nblk data blocks form 1 disk block
         scale /=2**(nbits-1-shift)   # //LSB -> // MSB
     else:
-        data=xx.astype('int32')
+        if nbits==16:
+            data=np.frombuffer(xx,dtype='int16')
+        else:
+            data=xx.astype('int32')
         scale /=2**(nbits-1)         # //LSB -> // MSB
     #
     # convert to V
-    scale /= 10**(gain/20)  # V/LSB
-    data = data*scale       # data now  in V
+    data = data*scale       # data is now  in V
     return fs,data
 #
 #--------------------------------------------------------
@@ -183,4 +199,23 @@ def load_LC_mare(fname):
     #scale=Vref/10**(preamp/20)
     #print(scale, 'V/MSB')
     return load_microPAM(fname)
+
+def get_Info(fname):
+    hh,xx=loadData(fname)
+    ii= find_chunk(hh,'LIST')
+    if ii<0: return {}
+    info=decodeInfo(hh[ii:ii+hh[ii+1]//4])
+    return info
+
+def get_Voltage(fname):
+    #get power supply voltage (microPAM)
+    info=get_Info(fname)
+    #print(info.keys())
+    #for key, value in info.items():  print(f"{key}: {value}")
+
+    if 'IKEY' in info.keys():
+        config=info['IKEY'][:-1].split(';') # last character is '.'
+        return int(config[5])
+    else:
+        return 0
 

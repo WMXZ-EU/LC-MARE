@@ -50,6 +50,7 @@ void parameterPrint(void)
   Serial.print("fsamp  (f) "); Serial.print(fsamp);  Serial.println(" Hz");
   Serial.print("again  (g) "); Serial.print(again);  Serial.println(" dB");
   Serial.print("Processing "); Serial.println(PROC);
+  Serial.print("Voltage "); Serial.println(analogRead(A1));
 
   eepromList();
 
