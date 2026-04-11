@@ -35,4 +35,14 @@
  Direct link to uf2 file: 
  - https://github.com/WMXZ-EU/microPAM/blob/main/adalogger_V2/build/rp2040.rp2040.adafruit_feather_adalogger/adalogger_V2.ino.uf2
  
- ## 
+ ## Upgrade firmware
+ - copy UF2 file (e.g. as above from Github) to local PC
+ - disconnect battery 
+ - connect usb to PC
+ - Press boot button (furthest button from usb connector)
+ - while pressed, press shortly reset button (closest button from usb connector)
+ - release boot button
+ - on PC there should be a new disk showing up call uf2
+ - if not automatically opened, open this disk
+ - copy/drag UF2 file into this disk/folder
+ - once the file is completely copied, folder/disk will disappear and mcu will restart with new firmware
