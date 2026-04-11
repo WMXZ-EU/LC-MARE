@@ -351,6 +351,7 @@
     acqModifyFrequency(fsamp); // Will also start I2S
   }
 
+/*
   static int32_t * last_buffer=0;
   static uint32_t have_last_buffer=0;
   int32_t * is2_last_read(void)
@@ -360,9 +361,10 @@
     }
     return 0;
   }
+*/
 
   int _channelDMA[2];
-  static int32_t i2s_buffer[2][NBUF_I2S];
+  int32_t i2s_buffer[3][NBUF_I2S];
   int _wordsPerBuffer=NBUF_I2S;
   uint32_t missed_acq=0;
   uint32_t count_acq=0;
@@ -415,22 +417,28 @@
   { return &missed_list[0];
   }
 
+  int32_t * buffer_ptr = 0;
+
   static void __not_in_flash_func(dma_irq)(void)
   { static int32_t val=0;
     for(int ii=0; ii<2; ii++)
     if(dma_channel_get_irq0_status(_channelDMA[ii]))
     { //
       dma_channel_acknowledge_irq0(_channelDMA[ii]);
-      if(have_last_buffer==0)
-      {
-        last_buffer=i2s_buffer[ii];
-        have_last_buffer=1;
+      if (buffer_ptr==0)
+      { memcpy(i2s_buffer[2], i2s_buffer[ii], 4*NBUF_I2S);
+        buffer_ptr=i2s_buffer[2];
       }
+      //if(have_last_buffer==0)
+      //{
+      //  last_buffer=i2s_buffer[ii];
+      //  have_last_buffer=1;
+      //}
       else
       {  missed_acq++;
         // store missed counter
+        if(acq_missed_ptr>&missed_list[31]) acq_missed_ptr=&missed_list[0];
         *acq_missed_ptr++=acq_count;
-        if(acq_missed_ptr>=&missed_list[0]+32) acq_missed_ptr=&missed_list[0];
       }
 
       dma_channel_set_write_addr(_channelDMA[ii], i2s_buffer[ii], false);

@@ -243,8 +243,12 @@ int write_disk(int32_t *buffer,int32_t nbuf)
     // #define MD (NBUF_I2S/NDATA)      // number blocks per disk buffer
     // #define MBIT 32                  // number of bits in ICS
 
-  static int32_t disk_buffer[NBUF_I2S];
+  //static int32_t disk_buffer[NBUF_I2S];
   //
+  // temporary storage for processing
+  int32_t tempData[NDATA];
+  uint32_t *utemp = (uint32_t *) tempData;
+
   int32_t storeData(int32_t *buffer)
   { 
     int32_t ndat=0;
@@ -253,25 +257,30 @@ int write_disk(int32_t *buffer,int32_t nbuf)
     for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
     //
     // 
-    uint32_t *outData  = (uint32_t *) disk_buffer;
-    for(int ii=0;ii<NBUF_I2S;ii++) outData[ii]=0;
+    uint32_t *outData  = (uint32_t *) buffer;//reuse input buffer as output buffer;
+    //for(int ii=0;ii<NBUF_I2S;ii++) outData[ii]=0;
 
+    //
     int kk = 0;
-    for(int mm=0; mm<MD;mm++)
-    { // pointer into buffer
-      int32_t *tempData=&buffer[mm*NDATA];
+    for(int mm=0; mm<MD; mm++)
+    { // copy data to temporatory storage and clean input/output buffer
+      for(int ii=0; ii<NDATA; ii++)
+      {
+        tempData[ii]= buffer[mm*NDATA+ii];
+        buffer[mm*NDATA+ii]=0;
+      }
 
       //extimate mean
       int64_t meanData64=0;
-      for(int ii=0;ii<NDATA;ii++)  meanData64 += tempData[ii];
-      meanData64 /= NDATA;
+      for(int ii=0; ii<NDATA; ii++)  meanData64 += tempData[ii];
+      int32_t meanData= (int32_t) (meanData64/NDATA);
+
       // remove mean
-      int32_t meanData= (int32_t) meanData64;
-      for(int ii=0;ii<NDATA;ii++) tempData[ii] -= meanData;
+      for(int ii=0; ii<NDATA; ii++) tempData[ii] -= meanData;
 
       // find absolute maximum
       uint32_t amax=0;
-      for(int ii=0;ii<NDATA;ii++) 
+      for(int ii=0; ii<NDATA; ii++) 
       { int32_t tmp;
         tmp=tempData[ii];
         if(tmp<0) tmp=-tmp;
@@ -279,7 +288,8 @@ int write_disk(int32_t *buffer,int32_t nbuf)
       }
       // estimate mask (allow only values > 2)
       uint32_t nb=0;
-      for(nb=2; nb<24; nb++) if(amax < (1<<(nb-1))) break;
+      for(nb=2; nb<24; nb++) if(amax < (1<<nb)) break;
+      nb++;
 
       //nb=10; // for consumption testing only
 
@@ -287,7 +297,7 @@ int write_disk(int32_t *buffer,int32_t nbuf)
       uint32_t mask = (1<<nb) -1;
 
       // mask input data
-      for(int ii=0;ii<NDATA;ii++) tempData[ii] &= mask;
+      for(int ii=0; ii<NDATA; ii++) utemp[ii] &= mask;
 
       // pack data
       outData[kk++]=0xA5A5A5A5;
@@ -296,31 +306,32 @@ int write_disk(int32_t *buffer,int32_t nbuf)
       outData[kk++]=meanData;
       //
       int nx = MBIT;
-      for (int ii = 0; ii < NDATA; ii ++)
+      for (int ii = 0; ii < NDATA; ii++)
       {   nx -= nb;
-          uint32_t tmp = tempData[ii] & mask;
           if(nx > 0)
-          {   outData[kk] |= (tmp << nx);
+          {   outData[kk] |= (utemp[ii] << nx);
           }
           else if(nx==0) 
-          {   outData[kk++] |= tmp;
+          {   outData[kk++] |= utemp[ii];
               nx=MBIT;
           } 
           else    // nx is < 0
-          {   outData[kk++] |= (tmp >> (-nx));
+          {   outData[kk++] |= (utemp[ii] >> (-nx));
               nx += MBIT;
-              outData[kk] = (tmp << nx);
+              outData[kk] = (utemp[ii] << nx);
           }
       }
-      // advance to next word
-      if (nx==MBIT) continue;
+      // advance to next block
+      if (nx==MBIT) continue; // allready pointing to next outData element
       kk++;
     }
 
     //
     // ceil to 512 block limit
     uint32_t nbuf=((kk+127)/128)*512;
-    return write_disk(disk_buffer,nbuf);
+    for (;kk<nbuf/4;kk++) buffer[kk]=0;
+    //
+    return write_disk(buffer,nbuf);
   }
 #endif
 
@@ -417,13 +428,14 @@ status_t logger(int32_t * buffer,status_t status)
       //
       uint32_t num_samples = num_bytes_written / (4 * NCH);
       if(Serial)
-      { Serial.printf("\t%5d %8d %3d %2d %4d %6d\t%8x %8x %8x %8x\n", 
+      { Serial.printf("\t%5d %8d %3d %2d %4d %6d\t%8x %8x %8x %8x %8x %8x %8x %8x\n", 
                         loop_count, num_samples, data_count, missed_acq, mdt, vsens,
-                                            buffer[0],buffer[1],buffer[2],buffer[3]);
+                                            buffer[0],buffer[1],buffer[2],buffer[3],
+                                            buffer[4],buffer[5],buffer[6],buffer[7]);
         if(missed_acq>0) 
         { uint32_t * ptr=get_missed_list(); 
           Serial.print("Missed "); Serial.print(missed_acq); Serial.print(": ");
-          for(int ii=0; (ii<16) && (ii<missed_acq) ; ii++) {Serial.print(ptr[ii]); Serial.print(' ');} 
+          //for(int ii=0; (ii<16) && (ii<missed_acq) ; ii++) {Serial.print(ptr[ii]); Serial.print(' ');} 
           Serial.println();
         }
       }
@@ -443,8 +455,8 @@ status_t logger(int32_t * buffer,status_t status)
         status = CLOSED;
         //
         // check for hibernation
-        uint32_t tto = tt / (24*3600);  // seconds to start of day
-        uint32_t ttx = tt % (24*3600);  // seconds into day
+        uint32_t tto = tt / (24*3600);  // seconds to beginning of day
+        uint32_t ttx = tt % (24*3600);  // seconds within day
         uint32_t hhx = ttx / 3600;
         if(hhx < h_rec[0])
         { // sleep until h_rec[0]

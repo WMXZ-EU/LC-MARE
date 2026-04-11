@@ -83,6 +83,7 @@ void setup() {
     loadConfigfromFile();
   }
 
+  //while(!Serial);
   while(millis()<(WAIT*1000)) if(Serial) { Serial.print(millis());break;}
   if(Serial) Serial.println("\n***********\nAdalogger\n***********\n");
 
@@ -180,6 +181,7 @@ void setup() {
   Serial.print("status: ");Serial.println(status_text[status]);
 }
 
+extern int32_t *buffer_ptr;
 void loop() {
   // put your main code here, to run repeatedly:
   // management
@@ -195,30 +197,30 @@ void loop() {
     neo_pixel_show(0, 10, 0);
   }
   // filing
-  int32_t *buffer = is2_last_read();
-  if(buffer)
-  {
-    if(have_disk)
+  //int32_t *buffer = is2_last_read();
+  if(buffer_ptr)
+  { if(have_disk)
     { // write data to disk to clean up
       if(status != STOPPED)
-      { status=logger(buffer,status);
+      { status=logger(buffer_ptr,status);
         data_count++;
       }
     }
     else
     { // write some data every second to screen
       if(status < MUST_STOP)
-      { int32_t buffer2[8];
+      { int32_t buffer2[16];
         static uint32_t t0=0;
         if(millis()>t0+1000)
         { t0=millis();
-          memcpy(buffer2,buffer,8*4);
+          memcpy(buffer2,buffer_ptr,8*4);
           for(int ii=0;ii<8;ii++) Serial.printf("%08x ",buffer2[ii]); Serial.println();
         }
       }
       // simulate stopping process
       if(status==MUST_STOP) {status=JUST_STOPPED; Serial.println("\njust stopped");}
     }
+    buffer_ptr=0;
   }
   //
   loop_count++;

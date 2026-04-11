@@ -37,8 +37,9 @@
 
   #define MBUF      (8*6)           // should be a multiple of 6 (so it can be divided in 2 or 3)
   #if PROC==0
-    #define NBUF_I2S  (MBUF/2*1024) // actual buffer length in samples for acquisition and filing (dual buffer)
+    #define NBUF_I2S  (MBUF/3*1024) // actual buffer length in samples for acquisition and filing (dual buffer)
     #define SHIFT 0
+    #define NDATA -1
     #define MD (1)
   #else
     #define NBUF_I2S  (MBUF/3*1024) // actual buffer length in samples for acquisition and filing (triple buffer)
