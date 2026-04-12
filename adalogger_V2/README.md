@@ -1,6 +1,6 @@
 # adalogger
  This directory contains the source code for RP2040 based Adalogger project that 
- can be found at https://www.micropam.com .
+ can be found at https://www.micropam.com . The code is also the baseis of the LC-MARE project.
 
  The menu is minimized to start/end acquisition, correct external RTC and to print actual acquisition parameters. It is expected that the user adapts the acquisition parameters in config.h and recompiles the program.
 

@@ -113,7 +113,7 @@ def decodeData(xx, blklen):
     for ix in io:
         nb = np.int32(xx[ix+1])
         nd = xx[ix + 2]
-        if (nb<24) and ((blklen * nb) == (nd * 32)): # cross-check for valid compressed block
+        if (nb<20) and (nb>4) and ((blklen * nb) == (nd * 32)): # cross-check for valid compressed block
             tmp0 = np.int32(xx[ix+3])
             k0 = ix + 4
             k1 = k0 + nd

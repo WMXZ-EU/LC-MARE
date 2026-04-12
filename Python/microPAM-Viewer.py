@@ -53,8 +53,8 @@ def analysis(fq,tq,qq,wa,fmin=0,fmax=None):
     Q=np.zeros((nf,nd))
     P=np.zeros((nf,nd))
     M=np.zeros((nf,nd))
-    A=np.zeros((nf,nd))
-    V=np.zeros((nf,nd))
+    #A=np.zeros((nf,nd))
+    #V=np.zeros((nf,nd))
     X=qq.real*qq.real + qq.imag*qq.imag
     for ii,j1 in enumerate(ni):
         j2=min(nq,j1+ns)
@@ -63,14 +63,13 @@ def analysis(fq,tq,qq,wa,fmin=0,fmax=None):
         Q[:,ii] = np.mean(U,axis=1)                         # mean power
         P[:,ii] = np.max(U,axis=1)                          # max power
         M[:,ii] = np.median(U,axis=1)                       # median power
-        A[:,ii] = np.mean(np.abs(U[:,1:]-U[:,:-1]),axis=1)  # ACI mean power variation
-        V[:,ii] = np.std(U,axis=1)                          # STD power
-    return {"T":T, "F":F, "Q":Q, "P":P, "M":M, "A":A, "V":V }
+        #A[:,ii] = np.mean(np.abs(U[:,1:]-U[:,:-1]),axis=1)  # ACI mean power variation
+        #V[:,ii] = np.std(U,axis=1)                          # STD power
+    return {"T":T, "F":F, "Q":Q, "P":P, "M":M}#, "A":A, "V":V }
 
 def detection(res2):
-    D=res2['P']/res2['M']
-    D = (D-1)*(D>1e+4)+1
-    return {"D":D}
+    S=res2['P']/res2['M']   # peak/median
+    return {"S":S}
 
 def doProcessing(filepath,params):
     fs, data = load_wav(filepath)
@@ -162,7 +161,7 @@ class App(tk.Tk):
                     'diff':  [0, 0,    2,'diff filter'],
                     'iplt':  [0, 0,    2,'do plotting'],
                     'mdyn':  [0, 60,   4,'max dynamic range (dB)'],
-                    'nfft':  [1, 1024, 0,'FFT size [pts]'],
+                    'nfft':  [1, 2048, 0,'FFT size [pts]'],
                     'rwin':  [1, 0.5,  0,'Time window [rel nfft]'],
                     'over':  [1, 0.5,  0,'Overlap [rel rwin]'],
                     'fmin':  [2,    0, 0,'Freq. min [Hz]'],
@@ -175,7 +174,7 @@ class App(tk.Tk):
         # define graphics to used in _show_results
         self.plots={'PSD': ("Q",np.mean,[]), 
                     "Peak":("P",np.max, []),
-                    "Det": ("D",np.max, [])}
+                    "SNR": ("S",np.max, [])}
 
         self._build_ui()
 
@@ -217,11 +216,16 @@ class App(tk.Tk):
     #----------------------------------------------------------------------------------
     def _build_menu(self,menu):
         fileMenu = tk.Menu(menu,tearoff=0)
+        menu.add_cascade(label="Parameters", menu=fileMenu)
         fileMenu.add_command(label="Edit",command=self._edit_parameters)
         fileMenu.add_command(label="Load",command=self._load_parameters)
         fileMenu.add_command(label="Save",command=self._save_parameters)
 
-        menu.add_cascade(label="Parameters", menu=fileMenu)
+        resultMenu = tk.Menu(menu,tearoff=0)
+        menu.add_cascade(label="Results", menu=resultMenu)
+        resultMenu.add_command(label="Load",command=self._load_results)
+        resultMenu.add_command(label="Save",command=self._save_results)
+
 
     def _edit_parameters(self):
         #encode for passing to paramClass
@@ -262,6 +266,14 @@ class App(tk.Tk):
                 **_get('gap')
                 }
 
+    def _load_results(self):
+        self.results = np.load('Results.npy',allow_pickle='TRUE').item()
+        self._add_paths(self.results,'done')
+        self.after(0, lambda: self._file_batch_done())
+
+    def _save_results(self):
+        np.save('Results.npy',self.results)
+
     #------------------------------------------------------------------------
     def _build_toolbar(self,parent):
         def btn(text, cmd, bold=False):
@@ -284,26 +296,25 @@ class App(tk.Tk):
         paths = []
         for root, _, files in os.walk(folder):
             for f in sorted(files):
-                if f.lower().endswith(".wav"):
+                if f.lower().endswith(".wav") or f.lower().endswith(".bin"):
                     paths.append(os.path.join(root, f))
         self._add_paths(paths)
 
-    def _add_paths(self, paths):
+    def _add_paths(self, paths, status='pending'):
         added = 0
         for p in paths:
             if p not in self.file_list:
                 self.file_list.append(p)
-                self.file_status[p] = 'pending'
+                self.file_status[p] = status
                 self.tree.insert("", "end", iid=p,
-                                 values=(os.path.basename(p),'pending', "—"))
+                                 values=(os.path.basename(p),status, "—"))
                 added += 1
         self._update_summary()
         #self.status_var.set(f"Aggiunti {added} file. Totale: {len(self.file_list)}")
 
         self._running=0
         return
-        #
-
+    #
     def _start_batch(self):
         if self._running==0:
             self.btn_run.config(text="⏹  Stop",fg='Red')
@@ -356,9 +367,9 @@ class App(tk.Tk):
     #-----------------------------------------------------------------------------
     def _build_file_list(self,parent):
         # Treeview
-        list_dict={   "name": ["File",  'e',    170],
+        list_dict={   "name": ["File",  'e',    175],
                     "status": ["Status",'center',70],
-                    "events": ['Events','center',50]}
+                    "events": ['Events','center',40]}
 
         cols= list_dict.keys()
         self.tree = ttk.Treeview(parent, columns=list(cols), show="headings",
@@ -488,7 +499,7 @@ class App(tk.Tk):
                 axm[-1].colorbar.remove()
             ax.cla()
             t_ext,tdim =_pretty_xtick(np.array(t_ext))
-            maxM=np.max(M)
+            maxM=np.percentile(M,99)#.max(M)
             minM=np.max([maxM-mdyn, np.min(M)])
             clim=[minM,maxM]
             im    = ax.imshow(M, aspect='auto', origin='lower',
@@ -513,22 +524,24 @@ class App(tk.Tk):
             t_ext=None
             f_ext=None
             X=[[] for _ in range(len(o_keys))]
-            for path in self.file_list:
-                if self.file_status[path] == 'done':
-                    r = self.results[path]
-                    if t_ext==None:
-                        t_ext = [r["T"][0], r["T"][-1]]
-                    else:
-                        t_ext[1] += r["T"][-1]
-                    if f_ext==None:
-                        f_ext = [r["F"][0] / 1000, r["F"][-1] / 1000]
-                    #
-                    for ii,key in enumerate(o_keys):
-                        f=O[key][1]
-                        x=r[O[key][0]]
-                        X[ii].append(f(x,axis=1))
+            for key in self.results:
+                r=self.results[key]
+                if t_ext==None:
+                    t_ext = [r["T"][0], r["T"][-1]]
                 else:
-                    continue
+                    t_ext[1] += r["T"][-1]
+                if f_ext==None:
+                    f_ext = [r["F"][0] / 1000, r["F"][-1] / 1000]
+                #
+                for ii,key in enumerate(o_keys):
+                    f=O[key][1]
+                    x=r[O[key][0]]
+                    # X[ii].append(f(x,axis=1))
+                    for jj in range(6):
+                        j1=jj*10
+                        j2=j1+10
+                        y=f(x[:,j1:j2],axis=1)
+                        X[ii].append(y)
 
             # replace data in dictionary
             for ii,key in enumerate(o_keys):
