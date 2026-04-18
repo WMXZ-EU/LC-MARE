@@ -245,6 +245,27 @@ int write_disk(int32_t *buffer,int32_t nbuf)
 
   //static int32_t disk_buffer[NBUF_I2S];
   //
+  int32_t encodeBlock(int32_t *out, uint32_t *utemp,  int32_t nb, int32_t ND, int32_t MB)
+  {
+      int nx = MB;
+      for (int ii = 0; ii < ND; ii++)
+      {   nx -= nb;
+          if(nx > 0)
+          {   out[kk] |= utemp[ii] << nx;
+          }
+          else if(nx==0) 
+          {   out[kk++] |= utemp[ii];
+              nx=MB;
+          } 
+          else    // nx is < 0
+          {   out[kk++] |= utemp[ii] >> (-nx);
+              nx += MB;
+              out[kk] = utemp[ii] << nx;
+          }
+      }
+      return (nx==MB)? kk else ++kk;
+  }
+
   // temporary storage for processing
   int32_t tempData[NDATA];
   uint32_t *utemp = (uint32_t *) tempData;
@@ -253,24 +274,22 @@ int write_disk(int32_t *buffer,int32_t nbuf)
   { 
     int32_t ndat=0;
     //
-    // shift to right to minimize noise
+    // shift to right to remove trailing zeros and minimize noise
     for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
     //
-    // 
-    uint32_t *outData  = (uint32_t *) buffer;//reuse input buffer as output buffer;
-    //for(int ii=0;ii<NBUF_I2S;ii++) outData[ii]=0;
-
+    //reuse input buffer also as output buffer;
+    uint32_t *outData  = (uint32_t *) buffer;
     //
     int kk = 0;
-    for(int mm=0; mm<MD; mm++)
+    for(int mm=0; mm<NBUF_I2S; mm+=NDATA)
     { // copy data to temporatory storage and clean input/output buffer
       for(int ii=0; ii<NDATA; ii++)
       {
-        tempData[ii]= buffer[mm*NDATA+ii];
-        buffer[mm*NDATA+ii]=0;
+        tempData[ii]= buffer[mm+ii];
+        outData[mm+ii]=0;   // clears also input buffer
       }
 
-      //extimate mean
+      //estimate mean
       int64_t meanData64=0;
       for(int ii=0; ii<NDATA; ii++)  meanData64 += tempData[ii];
       int32_t meanData= (int32_t) (meanData64/NDATA);
@@ -286,12 +305,11 @@ int write_disk(int32_t *buffer,int32_t nbuf)
         if(tmp<0) tmp=-tmp;
         if(tmp>amax) amax=tmp;
       }
+
       // estimate mask (allow only values > 2)
       uint32_t nb=0;
-      for(nb=2; nb<24; nb++) if(amax < (1<<nb)) break;
+      for(nb=2; nb<=24; nb++) if(amax < (1<<nb)) break;
       nb++;
-
-      //nb=10; // for consumption testing only
 
       uint32_t ncmp = (NDATA*nb) / MBIT;
       uint32_t mask = (1<<nb) -1;
@@ -300,32 +318,40 @@ int write_disk(int32_t *buffer,int32_t nbuf)
       for(int ii=0; ii<NDATA; ii++) utemp[ii] &= mask;
 
       // pack data
-      outData[kk++]=0xA5A5A5A5;
-      outData[kk++]=nb;
-      outData[kk++]=ncmp;
-      outData[kk++]=meanData;
-      //
-      int nx = MBIT;
-      for (int ii = 0; ii < NDATA; ii++)
-      {   nx -= nb;
-          if(nx > 0)
-          {   outData[kk] |= (utemp[ii] << nx);
-          }
-          else if(nx==0) 
-          {   outData[kk++] |= utemp[ii];
-              nx=MBIT;
-          } 
-          else    // nx is < 0
-          {   outData[kk++] |= (utemp[ii] >> (-nx));
-              nx += MBIT;
-              outData[kk] = (utemp[ii] << nx);
-          }
-      }
-      // advance to next block
-      if (nx==MBIT) continue; // allready pointing to next outData element
-      kk++;
-    }
+      #if 1
+        outData[kk++]=0xA5A5A5A5;
+        outData[kk++]=nb;
+        outData[kk++]=ncmp;
+        outData[kk++]=meanData;
+        //
+        int nx = MBIT;
+        for (int ii = 0; ii < NDATA; ii++)
+        {   nx -= nb;
+            if(nx > 0)
+            {   outData[kk] |= (utemp[ii] << nx);
+            }
+            else if(nx==0) 
+            {   outData[kk++] |= utemp[ii];
+                nx=MBIT;
+            } 
+            else    // nx is < 0
+            {   outData[kk++] |= (utemp[ii] >> (-nx));
+                nx += MBIT;
+                outData[kk] = (utemp[ii] << nx);
+            }
+        }
+        if !(nx==MBIT) k++; // next output word
+        // advance to next block
 
+      #else
+        int32_t nd = encodeBlock(&outData[kk+4],utemp,nb,NDATA,MBIT);
+        outData[kk++]=0xA5A5A5A5;
+        outData[kk++]=nb;
+        outData[kk++]=nd;
+        outData[kk++]=meanData;
+        kk += nd;
+      #endif
+    }
     //
     // ceil to 512 block limit
     uint32_t nbuf=((kk+127)/128)*512;

@@ -8,6 +8,7 @@
 # will generate "dist/micoPAM_Viewer/microPAM_Viewer.exe"
 # and  "dist/micoPAM_Viewer/_internal" with all required pyd/dll files
 #=============================================================================
+import sys
 import os
 import numpy as np
 
@@ -19,9 +20,10 @@ from tkinter import ttk, filedialog, messagebox
 
 import threading
 
-import microPAM as pam
+from microPAM import load_microPAM,dB
+
 def load_wav(filepath):
-    return pam.load_microPAM(filepath)
+    return load_microPAM(filepath)
 
 def spectrogram(xx, fs, nfft=1024,nw=512,ns=256):
     nx=xx.shape[0]
@@ -147,6 +149,9 @@ class App(tk.Tk):
         self.wm_title("microPAM Viewer (WMXZ)")
         self.geometry("1400x800+10+10")
         #
+        # Bind the window close (X) button
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+        #
         self.file_list   = []   # list of file paths
         self.results     = {}   # path → result dict
         self.file_status = {}   # path → status string
@@ -177,6 +182,12 @@ class App(tk.Tk):
                     "SNR": ("S",np.max, [])}
 
         self._build_ui()
+
+    def on_close(self):
+        """Handle window close event."""
+        print("Closing application...")
+        #self.destroy()  # Properly destroy the Tkinter window (needed?)
+        sys.exit(0)  # Ensure Python process exits
 
     def _build_ui(self):
         # ── Menu ──
@@ -226,7 +237,6 @@ class App(tk.Tk):
         resultMenu.add_command(label="Load",command=self._load_results)
         resultMenu.add_command(label="Save",command=self._save_results)
 
-
     def _edit_parameters(self):
         #encode for passing to paramClass
         param_keys=list(self.param.keys())
@@ -237,13 +247,13 @@ class App(tk.Tk):
                   [                   self.param[x][3]  for x in param_keys]]   # 4    
         #get input
         paramClass(self, txtvar,self.param_titles,self.param_groups)
-        #decode
+        #decode parameters
         for ii,key in enumerate(param_keys):
             self.param[key][1]=np.double(txtvar[2][ii].get())
         return
 
     def _save_parameters(self):
-        np.save('Parameters.npy', self.param) 
+        np.save('Parameters.npy', self.param)
         return
 
     def _load_parameters(self):
@@ -363,7 +373,7 @@ class App(tk.Tk):
         self.lbl_summary["total"].config(text=str(total))
         self.lbl_summary["done"].config(text=str(done))
         self.lbl_summary["tot_events"].config(text=str(tot_ev))
-        txt=""
+
     #-----------------------------------------------------------------------------
     def _build_file_list(self,parent):
         # Treeview
@@ -515,9 +525,6 @@ class App(tk.Tk):
             self._colorbar = self.fig.colorbar(im, ax=ax, fraction=0.015, pad=0.01)
             self._colorbar.ax.tick_params(labelsize=12)
 
-        def dB(x,aa=10):
-            return aa*np.log10(x)
-
         # processimg results
         if path==None:
             # accumulate and show global results 
@@ -594,7 +601,6 @@ class App(tk.Tk):
 def main():
     app=App()
     app.mainloop()
-    plt.close()
 #
 if __name__ == '__main__':
     main()

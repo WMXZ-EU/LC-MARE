@@ -1,7 +1,3 @@
-import numpy as np
-
-def dB(x):
-    return 10*np.log10(abs(x))
 
 import tkinter as tk
 from tkinter import filedialog
@@ -15,7 +11,7 @@ def get_fileName():
         # Ask the user to select a file
         file_path = filedialog.askopenfilename(
             title="Select a file",
-            filetypes=[("uPAM files", "*.bin"), ("wav files", "*.wav")]
+            filetypes=[("uPAM files", "*.bin *.wav")]
         )
 
         # Destroy the root window after selection
@@ -34,10 +30,18 @@ def get_fileName():
 fname=get_fileName()
 print(fname)
 
-import microPAM as pam
+from microPAM import load_microPAM, dB
 
-fs,data = pam.load_microPAM(fname)
+fs,data = load_microPAM(fname)
+if 0:
+    Vmax  =  12.277 # 24dBu ZOOM F3
+    Sens  = -168    # SQ 26-08
+    Senso = -200    # reference sensitivity (microPAM code)
+    rescale = 10.0**((Senso-Sens)/20)/Vmax
+    data *= rescale
 
+import numpy as np
+data=np.diff(data,axis=0)
 td = np.arange(data.shape[0])/fs
 print(fs,data.shape[0]/fs)
 
@@ -53,10 +57,10 @@ if 0:
 cal=-80 # dB//1V/Pa         # 1 Pa generates about 10^-4 V (-80 dB) (-200 dB//uPa)
 data = data/10**(cal/20)
 
-import scipy.signal as signal
+from scipy.signal import spectrogram, welch
 nw=512
 
-f,t,q=signal.spectrogram(data,fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
+f,t,q=spectrogram(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
 
 Q=dB(q)
 
@@ -80,7 +84,7 @@ U=np.mean(q,axis=1)
 fu=f.copy()
 #
 nw=64*1024
-f,q=signal.welch(data,fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
+f,q=welch(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
 #
 plt.figure()
 plt.plot(f,dB(q))
