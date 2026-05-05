@@ -1,0 +1,14 @@
+# configuration file
+# should end with '#' or ';' followed only by comment/explanation
+#
+!a 60	# file size (sec)
+!o 1	# on time (min)
+!r 0	# repetition interval (min)
+!f 192	# sampling frequency (kHz)
+!g 0	# analog gain (dB)
+!s AS1-200	# (ISRC) source (hydrophone)
+!c WMXZ		# (ICMS) commissioning organisation 
+!n wmxz		# (IART) name of operator (creator)
+!p Development	# (IPRD) project 
+!e Home		# (ISBJ) area 
+!l B01		# (INAM) location id 

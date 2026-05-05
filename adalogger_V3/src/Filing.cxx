@@ -27,6 +27,7 @@
 #include "mRTC.h"
 #include "Filing.h"
 #include "Adc.h"
+#include "mQueue.h"
 
 uint16_t t_acq = T_ACQ;   // seconds
 uint16_t t_on  = T_ON;    // minutes
@@ -46,26 +47,55 @@ char INAM[40]={NAM_str}; // 'Name' (location id)
  #error "SDFAT_FILE_TYPE != 3: edit SdFatConfig.h"
 #endif
 
-// definitions
-#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
-  // for SPI
-  #define SPI_SCK   18
-  #define SPI_MOSI  19
-  #define SPI_MISO  20
-  #define SPI_CS    23
+#if !defined(SD_MULT)
+  #define SD_MULT 4
+#endif
 
-  static uint16_t have_sd =0;
-  void spi_init()
-  { pinMode(SPI_CS, OUTPUT);
-    digitalWrite(SPI_CS,HIGH);
-    //
-    SPI1.setCS(SPI_CS);
-    SPI1.setRX(SPI_MISO);
-    SPI1.setTX(SPI_MOSI);
-    SPI1.setSCK(SPI_SCK);
-  }
-  // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
-  #define SD_CONFIG SdSpiConfig(SPI_CS, SHARED_SPI, SD_SCK_MHZ(50),(SpiPort_t *) &SPI1)
+#if !defined(USE_SDIO)
+  #define USE_SDIO 0
+#endif
+
+// definitions
+static uint16_t have_sd =0;
+
+#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+
+  // for SDIO
+  #if (USD_SDIO==1) && defined(HAS_BUILTIN_PIO_SDIO)
+
+    void spi_init(void) {}
+
+    // Note: fourth paramter of SdioConfig is the PIO clkDiv with default 1.00.
+    #define SD_CONFIG SdioConfig(PIN_SD_CLK, PIN_SD_CMD_MOSI, PIN_SD_DAT0_MISO)
+
+  #else // for SPI
+    #define _CS PIN_SPI1_SS
+
+    void spi_init()
+    { pinMode(_CS, OUTPUT);
+      digitalWrite(_CS,HIGH);
+      //
+      //SPI1.setCS(PIN_SPI1_SS);
+      //SPI1.setRX(PIN_SPI1_MISO);
+      //SPI1.setTX(PIN_SPI1_MOSI);
+      //SPI1.setSCK(PIN_SPI1_CLK);
+    }
+    // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+    #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
+  #endif
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
+    #define _CS PIN_SPI0_SS
+
+    void spi_init()
+    { pinMode(_CS, OUTPUT);
+      digitalWrite(_CS,HIGH);
+    }
+    // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+    #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI0)
+#else
+    void spi_init(void) {}
+
+    #error "undefined SD interface"
 #endif
 
 SdFs sd;  // defined in storage_configure
@@ -152,15 +182,8 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
                     h_rec[0],h_rec[1],h_rec[2],h_rec[3]);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //
-  if(missed_acq>0)
-  {   uint32_t * ptr=get_missed_list(); 
-      char *istr=infotext;
-      for(int ii=0; ii<missed_acq && ii<32; ii++) {sprintf(istr,"%4d",ptr[ii%32]); istr+=4;} 
-      wptr=insertChunk(wptr,"ICMT",infotext);
-  }
-  else
-  {   for(int ii=0; ii<8+32*4; ii++) wptr[ii]=0; 
-  }
+  sprintf(infotext,"missed_acq: %d\0",missed_acq); 
+  wptr=insertChunk(wptr,"ICMT",infotext);
   
   wav_hdr.dLen = nbytes;
   wav_hdr.rLen = nbytes+512-2*4;
@@ -176,7 +199,7 @@ uint16_t SD_init(void)
   for(jj=0;jj<5;jj++) if (sd.begin(SD_CONFIG)) break; else delay(1000);
   if(jj==5)
   {
-    Serial.printf("SD Storage %d failed or missing",SPI_CS);  Serial.println();
+    Serial.printf("SD Storage %d failed or missing",_CS);  Serial.println();
     return 0;
   }
   else
@@ -184,7 +207,7 @@ uint16_t SD_init(void)
     uint64_t totalSize = sd.clusterCount();
     uint64_t freeSize  = sd.freeClusterCount();
     uint32_t clusterSize = sd.bytesPerCluster();
-    Serial.printf("Storage %d ",SPI_CS); 
+    Serial.printf("Storage %d ",_CS); 
     Serial.print("; total clusters: "); Serial.print(totalSize); 
     Serial.print(" free clusters: "); Serial.print(freeSize);
     Serial.print(" clustersize: "); Serial.print(clusterSize/1024); Serial.println(" kByte");
@@ -236,97 +259,70 @@ int write_disk(int32_t *buffer,int32_t nbuf)
       return write_disk(buffer,nbuf);
   }
 
-#elif PROC==1
-  // compress and write to file
+#else  // compress and write to file
   // Gloabal constants (see global.h)
     // #define SHIFT (8+4)              // shift to right to remove unused bits
     // #define MD (NBUF_I2S/NDATA)      // number blocks per disk buffer
     // #define MBIT 32                  // number of bits in ICS
 
-  //static int32_t disk_buffer[NBUF_I2S];
-  //
-  int32_t encodeBlock(uint32_t *uout, uint32_t *uinp,  int32_t ndat, int32_t nb, int32_t MB)
-  {
-      int nx = MB;
+    //static int32_t disk_buffer[NBUF_I2S];
+    //
+    // temporary storage for processing
+    int32_t tempData[NDATA];
+    uint32_t *utemp = (uint32_t *) tempData;
+
+    #if 0
+    int32_t storeData(int32_t *buffer)
+    { 
+      int32_t ndat=0;
+      //
+      // shift to right to remove trailing zeros and minimize noise
+      for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
+      //
+      //reuse input buffer also as output buffer;
+      uint32_t *outData  = (uint32_t *) buffer;
+      //
+      int nch=1;
       int kk = 0;
-      for (int ii = 0; ii < ndat; ii++)
-      {   nx -= nb;
-          if(nx > 0)
-          {   uout[kk] |= uinp[ii] << nx;
-          }
-          else if(nx==0) 
-          {   uout[kk++] |= uinp[ii];
-              nx=MB;
-          } 
-          else    // nx is < 0
-          {   uout[kk++] |= uinp[ii] >> (-nx);
-              nx += MB;
-              uout[kk] = uinp[ii] << nx;
-          }
-      }
-      return (nx==MB)? kk : kk+1;
-  }
+      for(int mm=0; mm<NBUF_I2S; mm+=NDATA)
+      { 
 
-  // temporary storage for processing
-  int32_t tempData[NDATA];
-  uint32_t *utemp = (uint32_t *) tempData;
+        // copy data (differences) to temporatory storage and clean input/output buffer
+        tempData[0]=buffer[mm];
+        for(int ii=0; ii<NDATA; ii++)
+        { tempData[ii] = buffer[mm+ii]-buffer[mm+ii-nch];
+          outData[mm+ii-nch]=0;   // clears also input buffer
+        }
+        outData[mm+NDATA-nch]=0;
 
-  int32_t storeData(int32_t *buffer)
-  { 
-    int32_t ndat=0;
-    //
-    // shift to right to remove trailing zeros and minimize noise
-    for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
-    //
-    //reuse input buffer also as output buffer;
-    uint32_t *outData  = (uint32_t *) buffer;
-    //
-    int kk = 0;
-    for(int mm=0; mm<NBUF_I2S; mm+=NDATA)
-    { // copy data to temporatory storage and clean input/output buffer
-      for(int ii=0; ii<NDATA; ii++)
-      {
-        tempData[ii]= buffer[mm+ii];
-        outData[mm+ii]=0;   // clears also input buffer
-      }
+        // find absolute maximum
+        uint32_t amax=0;
+        for(int ii=nch; ii<NDATA; ii++) 
+        { int32_t tmp;
+          tmp=tempData[ii];
+          if(tmp<0) tmp=-tmp;
+          if(tmp>amax) amax=tmp;
+        }
 
-      //estimate mean
-      int64_t meanData64=0;
-      for(int ii=0; ii<NDATA; ii++)  meanData64 += tempData[ii];
-      int32_t meanData= (int32_t) (meanData64/NDATA);
+        // estimate mask (allow only values > 2)
+        uint32_t nb=0;
+        for(nb=2; nb<=24; nb++) if(amax < (1<<nb)) break;
+        nb++;
 
-      // remove mean
-      for(int ii=0; ii<NDATA; ii++) tempData[ii] -= meanData;
+        uint32_t ncmp = (NDATA*nb) / MBIT;
+        uint32_t mask = (1<<nb) -1;
 
-      // find absolute maximum
-      uint32_t amax=0;
-      for(int ii=0; ii<NDATA; ii++) 
-      { int32_t tmp;
-        tmp=tempData[ii];
-        if(tmp<0) tmp=-tmp;
-        if(tmp>amax) amax=tmp;
-      }
+        // mask input data
+        for(int ii=nch; ii<NDATA; ii++) utemp[ii] &= mask;
 
-      // estimate mask (allow only values > 2)
-      uint32_t nb=0;
-      for(nb=2; nb<=24; nb++) if(amax < (1<<nb)) break;
-      nb++;
-
-      uint32_t ncmp = (NDATA*nb) / MBIT;
-      uint32_t mask = (1<<nb) -1;
-
-      // mask input data
-      for(int ii=0; ii<NDATA; ii++) utemp[ii] &= mask;
-
-      // pack data
-      #if 1
+        // pack data
         outData[kk++]=0xA5A5A5A5;
         outData[kk++]=nb;
         outData[kk++]=ncmp;
-        outData[kk++]=meanData;
+        for(int ii=0; ii<nch;ii++) outData[kk++]=tempData[ii];
         //
         int nx = MBIT;
-        for (int ii = 0; ii < NDATA; ii++)
+        for (int ii = nch; ii < NDATA; ii++)
         {   nx -= nb;
             if(nx > 0)
             {   outData[kk] |= (utemp[ii] << nx);
@@ -343,24 +339,115 @@ int write_disk(int32_t *buffer,int32_t nbuf)
         }
         if (!(nx==MBIT)) kk++; // next output word
         // advance to next block
-
-      #else
-        int32_t nd = encodeBlock(&outData[kk+4],utemp,NDATA,NDATA,MBIT);
-        outData[kk++]=0xA5A5A5A5;
-        outDate[kk++]=millis()
-        outData[kk++]=nb;
-        outData[kk++]=nd;
-        outData[kk++]=meanData;
-        kk += nd;
-      #endif
+      }
+      //
+      // ceil to 512 block limit
+      uint32_t nbuf=((kk+127)/128)*512;
+      for (;kk<nbuf/4;kk++) buffer[kk]=0;
+      //
+      return write_disk(buffer,nbuf);
     }
-    //
-    // ceil to 512 block limit
-    uint32_t nbuf=((kk+127)/128)*512;
-    for (;kk<nbuf/4;kk++) buffer[kk]=0;
-    //
-    return write_disk(buffer,nbuf);
-  }
+  #else
+    int32_t __not_in_flash_func(encodeBlock)(uint32_t *uout, uint32_t *uinp,  int32_t ndata, int32_t nb, int32_t MB)
+    {   int nx = MB;
+        int kk = 0;
+        for (int ii = 0; ii < ndata; ii++)
+        {   nx -= nb;
+            if(nx > 0)
+            {   uout[kk] |= uinp[ii] << nx;
+            }
+            else if(nx==0) 
+            {   uout[kk++] |= uinp[ii];
+                nx=MB;
+            } 
+            else    // nx is < 0
+            {   uout[kk++] |= uinp[ii] >> (-nx);
+                nx += MB;
+                uout[kk] = uinp[ii] << nx;
+            }
+        }
+        return (nx==MB)? kk : kk+1;
+    }
+
+    int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, int nch)
+    {
+      // copy data (differences) to temporary storage and clean input/output buffer
+      for(int ii=0; ii<nch;ii++) tempData[ii]=inp[ii];
+      // differentiate along channels
+      for(int ii=nch; ii<ndat; ii++)
+      { tempData[ii] = inp[ii]-inp[ii-nch];
+      }
+      // clear input to to used as output
+      for(int ii=0;ii<ndat;ii++) inp[ii]=0;
+
+      // find absolute maximum
+      uint32_t amax=0;
+      for(int ii=nch; ii<ndat; ii++) 
+      { int32_t tmp;
+        tmp=tempData[ii];
+        if(tmp<0) tmp=-tmp;
+        if(tmp>amax) amax=tmp;
+      }
+
+      // estimate mask (allow only values > 2)
+      uint32_t nb=0;
+      for(nb=2; nb<=24; nb++) if(amax < (1<<nb)) break;
+      nb++;
+      uint32_t mask = (1<<nb) -1;
+
+      uint32_t *utmp = (uint32_t *) tempData;
+
+      // mask input data
+      for(int ii=nch; ii<NDATA; ii++) utmp[ii] &= mask;
+
+      out[0]=0xA5A5A5A5;
+      out[1]=millis();
+      out[2]=nb;
+      out[3]=0;
+      for(int ii=0; ii<nch;ii++) {out[4+ii]=tempData[ii]; tempData[ii]=0;}
+      int32_t nd = encodeBlock(&out[4+nch],utmp,ndat, nb,MBIT);
+
+      out[3]=nd;
+      //
+      out[NDATA-1]=4+nch+nd;
+      return 4+nch+nd;
+    }
+
+    int32_t *__not_in_flash_func(compressData)(int32_t *buffer)
+    {
+      int32_t ndat=NDATA;
+      int nch=NCH;
+      //
+      // shift to right to remove trailing zeros and minimize noise
+      for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
+      //
+      //reuse input buffer also as output buffer;
+      uint32_t *outData  = (uint32_t *) buffer;
+      //
+      int kk = 0;
+      for(int mm=0; mm<NBUF_I2S; mm+=ndat)
+      { 
+        kk += encodeData(&outData[kk],&buffer[mm],ndat, nch);
+      }
+      //
+      if (NBUF_I2S>ndat)
+      {
+        // ceil to 512 block limit
+        uint32_t nbuf=((kk+127)/128)*128;
+        for (;kk<nbuf;kk++) outData[kk]=0;
+        outData[NBUF_I2S-1]=nbuf;
+      }
+      return buffer;
+    }
+
+    int32_t storeData(int32_t *buffer)
+    { 
+      int32_t nbuf = buffer[MD*NBUF_I2S-1];
+      //
+      return write_disk(buffer,4*nbuf);
+    }
+  #endif
+
 #endif
 
 //---------------------------- Filing ----------------------------------
@@ -377,9 +464,54 @@ extern uint32_t data_count;
 char dayDir[40];
 char hourDir[10];
 char extent[2][4]={"wav","bin"};
+int32_t logBuffer[9];
 
-status_t logger(int32_t * buffer,status_t status)
+void printStatus(uint32_t num_bytes_written,int16_t vsens)
 {
+      uint32_t num_samples = num_bytes_written / (4 * NCH);
+      if(Serial)
+      { Serial.printf("\t%5d %8d %3d %2d %4d %6d:\t", 
+                        loop_count, num_samples, data_count, missed_acq, mdt, vsens);
+        for(int ii=0;ii<9;ii++) Serial.printf("%8x ",logBuffer[ii]);
+        Serial.println();
+
+      }
+      data_count = 0;
+      loop_count = 0;
+      missed_acq = 0;
+      mdt=0;
+
+}
+
+uint32_t diskBuffer[MD*NBUF_I2S];
+
+status_t logger(status_t status)
+{
+  if(getDataCount()<MD) return status;
+
+  uint32_t *ptr=diskBuffer;
+  uint32_t ndat=0;
+  pullData(ptr);
+
+  for(int ii=1; ii<MD;ii++)
+  { // accumulate datablocks to speed up uSD writing
+    #if PROC==0
+      ptr +=NBUF_I2S;
+    #elif PROC==1
+      ptr +=ptr[NBUF_I2S-1];
+    #endif
+    pullData(ptr);
+  }
+  #if PROC==1
+    ptr += ptr[NBUF_I2S-1];
+    ndat = ptr-diskBuffer;
+    for(int ii=ndat;ii<MD*NBUF_I2S; ii++) diskBuffer[ii]=0;
+    ndat = ((ndat+127)/128)*128;
+    diskBuffer[MD*NBUF_I2S-1]=ndat;
+  #endif
+
+  int32_t * buffer=(int32_t*) diskBuffer;
+
   if(status==CLOSED)
   { // open new file
     neo_pixel_show(10, 10, 10);
@@ -453,25 +585,9 @@ status_t logger(int32_t * buffer,status_t status)
       file.seekSet(fpos);
 
       file.close();
-      //
-      uint32_t num_samples = num_bytes_written / (4 * NCH);
-      if(Serial)
-      { Serial.printf("\t%5d %8d %3d %2d %4d %6d\t%8x %8x %8x %8x %8x %8x %8x %8x\n", 
-                        loop_count, num_samples, data_count, missed_acq, mdt, vsens,
-                                            buffer[0],buffer[1],buffer[2],buffer[3],
-                                            buffer[4],buffer[5],buffer[6],buffer[7]);
-        if(missed_acq>0) 
-        { uint32_t * ptr=get_missed_list(); 
-          Serial.print("Missed "); Serial.print(missed_acq); Serial.print(": ");
-          //for(int ii=0; (ii<16) && (ii<missed_acq) ; ii++) {Serial.print(ptr[ii]); Serial.print(' ');} 
-          Serial.println();
-        }
-      }
-      data_count = 0;
-      loop_count = 0;
-      missed_acq = 0;
-      mdt=0;
-      reset_missed_list();
+      // 
+      memcpy(logBuffer,&buffer[1], 9*4);
+      printStatus(num_bytes_written,vsens);
       //
       // check for stopping or hibernation
       if(status == MUST_STOP)
