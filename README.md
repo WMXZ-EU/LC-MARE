@@ -1,2 +1,2 @@
 # LC-MARE
- low-cost marine acoustic recorder
+ Low-Cost Marine Acoustic REcorder. See detailed info in different folders
