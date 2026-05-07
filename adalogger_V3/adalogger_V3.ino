@@ -28,7 +28,7 @@
 #include "src/Menu.h"
 #include "src/Filing.h"
 #include "src/Adc.h"
-#include "src/mQueue.h"
+#include "src/Queue.h"
 
 #include "Wire.h"
 #include "src/I2C.h"
@@ -202,7 +202,7 @@ void loop() {
   }
   //
   // filing
-  int ndc=getDataCount();
+  int ndc=getQueueCount();
   if(ndc>0)
   { if(have_disk)
     { // write data to disk to clean up
@@ -213,12 +213,12 @@ void loop() {
       }
       else
       {
-        pullData(diskBuffer);
+        pullQueue(diskBuffer);
       }
     }
     else
     { // write some data every second to screen
-      pullData(diskBuffer);
+      pullQueue(diskBuffer);
 
       if(status < MUST_STOP)
       { 

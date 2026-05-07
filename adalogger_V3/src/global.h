@@ -37,7 +37,7 @@
 
   #define NBUF_I2S 1024
   #define MD 8
-  #define MAX_QUEUE (MD*5)
+  #define MAX_QUEUE (5)
   #define NDATA 1024
   #define BLOCK_SIZE 1024
   

@@ -27,7 +27,7 @@
 #include "mRTC.h"
 #include "Filing.h"
 #include "Adc.h"
-#include "mQueue.h"
+#include "Queue.h"
 
 uint16_t t_acq = T_ACQ;   // seconds
 uint16_t t_on  = T_ON;    // minutes
@@ -487,12 +487,13 @@ uint32_t diskBuffer[MD*NBUF_I2S];
 
 status_t logger(status_t status)
 {
-  if(getDataCount()<MD) return status;
+//  if(getQueueCount()<MD) return status;
 
+  pullQueue(diskBuffer);
+
+/*
   uint32_t *ptr=diskBuffer;
   uint32_t ndat=0;
-  pullData(ptr);
-
   for(int ii=1; ii<MD;ii++)
   { // accumulate datablocks to speed up uSD writing
     #if PROC==0
@@ -500,8 +501,9 @@ status_t logger(status_t status)
     #elif PROC==1
       ptr +=ptr[NBUF_I2S-1];
     #endif
-    pullData(ptr);
+    pullQueue(ptr);
   }
+
   #if PROC==1
     ptr += ptr[NBUF_I2S-1];
     ndat = ptr-diskBuffer;
@@ -509,6 +511,7 @@ status_t logger(status_t status)
     ndat = ((ndat+127)/128)*128;
     diskBuffer[MD*NBUF_I2S-1]=ndat;
   #endif
+*/
 
   int32_t * buffer=(int32_t*) diskBuffer;
 

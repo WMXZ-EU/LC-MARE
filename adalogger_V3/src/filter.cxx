@@ -57,9 +57,9 @@ void process_acq_init(void)
 void __not_in_flash_func(process_acq)(int32_t * out, int32_t *inp, int32_t nbuf)
 { Serial.print('.');
   for(int ii=0; ii<nbuf; ii+=BLOCK_SIZE)
-  { apply_filter(out, inp, 2, 4, BLOCK_SIZE, 128, 8, 4);
-    apply_filter(out, inp, 2, 4, 1024, 16, 10, 5);
-    //apply_filter(out, inp, 2, 4, 1024, 128, 10, 5);
-    //apply_filter(out, inp, 2, 4, 1024, 16, 10, 5);
+  { apply_filter(out  , inp,   2, 4, BLOCK_SIZE, 128, 8, 4);
+    apply_filter(out+1, inp,   2, 4, BLOCK_SIZE, 16,  8, 4);
+    apply_filter(out+2, inp+1, 2, 4, BLOCK_SIZE, 128, 8, 4);
+    apply_filter(out+3, inp+1, 2, 4, BLOCK_SIZE, 16,  8, 4);
   }
 }

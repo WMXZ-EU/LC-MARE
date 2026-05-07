@@ -21,7 +21,7 @@
  */
 #include "Arduino.h"
 #include "global.h"
-#include "mQueue.h"
+#include "Queue.h"
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
 #include "rp2040.h"
@@ -429,9 +429,10 @@
       acq_count++;
       //
       #if PROC==0
-        if(!pushData((uint32_t*)i2s_buffer[2])) missed_acq++;
+        if(!pushQueue((uint32_t*)i2s_buffer[2])) missed_acq++;
       #elif PROC==1
-        if(!pushData((uint32_t*)compressData(i2s_buffer[2]))) missed_acq++; 
+        //if(!pushQueue((uint32_t*)compressData(i2s_buffer[2]))) missed_acq++; 
+        if(!pushQueue_c((uint32_t*)compressData(i2s_buffer[2]),i2s_buffer[2][NBUF_I2S-1])) missed_acq++; 
       #endif
       
       return;

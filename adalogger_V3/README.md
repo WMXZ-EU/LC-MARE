@@ -31,9 +31,13 @@
   external RTC is RV2038
   integer compression (PROC = 1)
 
+## (main) differences to adalogger_V2
+  Using of queu to bridge miscroSD card latencies
+  compression (PROC=1) is carried out on acq core (core #1)
+
 ## UF2 file
  Direct link to uf2 file: 
- - https://github.com/WMXZ-EU/microPAM/blob/main/adalogger_V2/build/rp2040.rp2040.adafruit_feather_adalogger/adalogger_V2.ino.uf2
+ - https://github.com/WMXZ-EU/microPAM/blob/main/adalogger_V3/build/rp2040.rp2040.adafruit_feather_adalogger/adalogger_V3.ino.uf2
  
  ## Upgrade firmware
  - copy UF2 file (e.g. as above from Github) to local PC

@@ -20,51 +20,13 @@
  * THE SOFTWARE.
  */
  
-#include <stdint.h>
-#include <string.h>
+#ifndef QUEUE_H
+#define QUEUE_H
 
-#include "Arduino.h"
+  int queue_isBusy(void);
+  uint16_t getQueueCount ();
+  uint16_t pushQueue(uint32_t * src);
+  uint16_t pushQueue_c(uint32_t * src, int ndat);
+  uint16_t pullQueue(uint32_t * dst);
 
-#include "global.h"
-#include "mQueue.h"
-
-  #ifndef MAX_QUEUE
-    #define MAX_QUEUE 12      // Queue length
-  #endif
-
-  #define NBLOCK BLOCK_SIZE
-
-  #define INC(x) ((x+1)%MAX_QUEUE)
-
-  volatile int queue_busy=0;
-  uint32_t data_buffer[MAX_QUEUE][NBLOCK];
-  volatile int head=0;
-  volatile int tail=0;
-  
-  uint16_t __not_in_flash_func(getDataCount)(void) { int num = tail-head; return num<0 ? num+MAX_QUEUE : num; }
-
-  int __not_in_flash_func(queue_isBusy)(void) { return queue_busy; }
-
-  uint16_t __not_in_flash_func(pushData)(uint32_t *data)
-  {
-    if ( INC(tail) == head ) return 0;
-    //while(busy); 
-    queue_busy=1;
-    memcpy(data_buffer[tail],data,4*NBLOCK);
-
-    tail=INC(tail);
-    queue_busy=0;
-    return 1; // signal success.
-  }
-  
-  uint16_t __not_in_flash_func(pullData)(uint32_t *data)
-  {
-    if ( head==tail ) return 0;
-    //while(busy); 
-    queue_busy=1;
-    memcpy(data,data_buffer[head],4*NBLOCK);
-
-    head=INC(head);
-    queue_busy=0;
-    return 1;
-  }
+#endif
