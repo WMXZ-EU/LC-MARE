@@ -26,16 +26,19 @@ def load_wav(filepath):
     return load_microPAM(filepath)
 
 def spectrogram(xx, fs, nfft=1024,nw=512,ns=256):
-    nx=xx.shape[0]
+    nx,nc=xx.shape
     nfr=1+nfft//2
     offsets=np.arange(0,nx-nw,ns)
     ni=len(offsets)
-    X=np.zeros((nfr,ni),dtype='complex')
+    X=np.zeros((nfr,nc,ni),dtype='complex')
 
-    W=np.hanning(nw)
+    W=np.hanning(nw).reshape(nw,1)
+
     for ii,j1 in enumerate(offsets):
         j2=min(nx,j1+nw)
-        X[:,ii]= np.fft.rfft(xx[j1:j2]*W,nfft)
+        uu=xx[j1:j2,:]
+        U= np.fft.rfft(W*uu,nfft,axis=0)
+        X[:,:,ii] = U
     F=np.arange(nfr)*fs/nfft
     T=(ns+offsets)/fs
     return F,T,X
@@ -75,26 +78,25 @@ def detection(res2):
 
 def doProcessing(filepath,params):
     fs, data = load_wav(filepath)
-
     # preprocess
     if int(params['diff'])>0:
         xx=0*data
         xx[1:]=data[1:]-data[:-1]
     else:
         xx=data-data.mean()
+    xx=xx
 
     # spectrogram
     nfft = int(params["nfft"])
     nw   = int(params["rwin"]*nfft)       # window length
     ns   = int((1-params["over"])*nw)     # step size
     fq,tq,qq=spectrogram(xx,fs,nfft=nfft,nw=nw,ns=ns)
-
-    # accumulate 
+    qq=qq[:,0,:]
+    # accumulate
     na   = params["twin"]
     fmin = params['fmin']
     fmax = params['fmax']
     res2= analysis(fq,tq,qq,na,fmin,fmax)
-
     # detection
     res3= detection(res2)
 
@@ -559,7 +561,6 @@ class App(tk.Tk):
         else:
             # plot individual result
             fname = os.path.basename(path)
-            #print(fname)
 
             r = self.results[path]
 

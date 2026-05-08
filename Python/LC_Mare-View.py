@@ -41,21 +41,22 @@ if 0:
     data *= rescale
 
 import numpy as np
-data=np.diff(data,axis=0)
+#data=np.diff(data,axis=0)
 td = np.arange(data.shape[0])/fs
 print(fs,data.shape[0]/fs)
-
-if 0:
-    print('Playing')
-    import sounddevice as sd
-
-    sd.play(np.double(data)*2**8, fs)
-    sd.wait()
-    print('Done')
 
 # calibrate data
 cal=-80 # dB//1V/Pa         # 1 Pa generates about 10^-4 V (-80 dB) (-200 dB//uPa)
 data = data/10**(cal/20)
+
+if 1:
+    print('Playing')
+    import sounddevice as sd
+
+    sd.play(data/50, fs)
+    #sd.wait()
+    print('Done')
+
 
 from scipy.signal import spectrogram, welch
 nw=512
@@ -77,6 +78,8 @@ ext=[t[0],t[-1],f[0]/1000,f[-1]/1000]
 #
 img=axs[1].imshow(Q, aspect='auto',origin='lower', extent=ext,cmap='jet',clim=clim)
 plt.colorbar(img)
+plt.xlabel('Time [s]')
+plt.ylabel('Frequency [kHz]')
 plt.show(block=False)
 
 #
@@ -93,4 +96,6 @@ plt.ylabel('dB//1Pa$^2$/Hz')
 #plt.xlim(0,200)
 plt.grid(True)
 plt.xscale('log')
+plt.show(block=False)
+
 plt.show()

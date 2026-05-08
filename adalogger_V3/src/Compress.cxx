@@ -74,10 +74,10 @@ int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, i
   uint32_t nb=0;
   for(nb=2; nb<=24; nb++) if(amax < (1<<nb)) break;
   nb++;
+
   uint32_t mask = (1<<nb) -1;
 
   uint32_t *utmp = (uint32_t *) tempData;
-
   // mask input data
   for(int ii=nch; ii<NDATA; ii++) utmp[ii] &= mask;
 
@@ -121,7 +121,7 @@ int32_t *__not_in_flash_func(compressData)(int32_t *buffer)
   return buffer;
 }
 
-// below earlier version
+// below earlier version (for reference only; has different header)
 #if 0
 // temporary storage for processing
 int32_t tempData[NDATA];

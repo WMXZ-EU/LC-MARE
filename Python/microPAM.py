@@ -232,7 +232,7 @@ def load_microPAM(fname, iprt=False):
 
     # factor to scale from MSB to V
     scale = Vref / 10 ** ((preamp + gain) / 20)
-    print(preamp+gain,scale)
+    #print('gain',preamp+gain,'scale',scale)
 
     # check if microPAM compressed and decode if necessary
     if cmpr == 1:
