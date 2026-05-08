@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023/2024/2025, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,11 @@
 
   #define NBUF_I2S 1024
   #define MD 8
-  #define MAX_QUEUE (5)
+  #if defined(RP2350_PSRAM_CS)
+    #define MAX_QUEUE (225) // 4*225*8*1024 = 7200*1024 = 7 MB (8 MB PSRAM)
+  #else
+    #define MAX_QUEUE (5)
+  #endif
   #define NDATA 1024
   #define BLOCK_SIZE 1024
   
@@ -68,6 +72,7 @@
   // program states
   enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED};
   extern char status_text[][16];
+  
   // RP2040 specific
   #define MC 1 // use second core for acquisition 
 

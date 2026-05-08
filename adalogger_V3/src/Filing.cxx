@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023/2024/2025, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@
 #include "Filing.h"
 #include "Adc.h"
 #include "Queue.h"
+#include "Compress.h"
 
 uint16_t t_acq = T_ACQ;   // seconds
 uint16_t t_on  = T_ON;    // minutes
@@ -58,8 +59,8 @@ char INAM[40]={NAM_str}; // 'Name' (location id)
 // definitions
 static uint16_t have_sd =0;
 
-#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
-
+//#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+#if defined (ARDUINO_ARCH_RP2040)
   // for SDIO
   #if (USD_SDIO==1) && defined(HAS_BUILTIN_PIO_SDIO)
 
@@ -83,15 +84,15 @@ static uint16_t have_sd =0;
     // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
     #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
   #endif
-#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
-    #define _CS PIN_SPI0_SS
-
-    void spi_init()
-    { pinMode(_CS, OUTPUT);
-      digitalWrite(_CS,HIGH);
-    }
-    // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
-    #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI0)
+//#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
+//    #define _CS PIN_SPI0_SS
+//
+//    void spi_init()
+//    { pinMode(_CS, OUTPUT);
+//      digitalWrite(_CS,HIGH);
+//    }
+//    // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+//    #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
 #else
     void spi_init(void) {}
 
@@ -247,207 +248,22 @@ int write_disk(int32_t *buffer,int32_t nbuf)
 }
 
 #if PROC==0
-  // write to file
-  // Gloabal constants (see global.h)
-    // #define MBUF (8*6)               // for RP2040 (should be multiple 6, i.e of 2 and 3)
-    // #define NDATA 1024               // number of samples in single block
-    // #define NBUF_I2S  (MBUF/3*NDATA) // actual buffer length in samples for acquisition and filing (triple buffer)
-
+  // write all data to file
   int32_t storeData(int32_t *buffer)
   {
-      uint32_t nbuf=NBUF_I2S*4;
-      return write_disk(buffer,nbuf);
+      uint32_t nbuf=MD*NBUF_I2S;
+      return write_disk(buffer,4*nbuf);
   }
 
-#else  // compress and write to file
-  // Gloabal constants (see global.h)
-    // #define SHIFT (8+4)              // shift to right to remove unused bits
-    // #define MD (NBUF_I2S/NDATA)      // number blocks per disk buffer
-    // #define MBIT 32                  // number of bits in ICS
-
-    //static int32_t disk_buffer[NBUF_I2S];
+#else  
+  // write compressed data to file
+  int32_t storeData(int32_t *buffer)
+  { 
+    // last word in data buffer indicates size of good data
+    int32_t nbuf = buffer[MD*NBUF_I2S-1];
     //
-    // temporary storage for processing
-    int32_t tempData[NDATA];
-    uint32_t *utemp = (uint32_t *) tempData;
-
-    #if 0
-    int32_t storeData(int32_t *buffer)
-    { 
-      int32_t ndat=0;
-      //
-      // shift to right to remove trailing zeros and minimize noise
-      for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
-      //
-      //reuse input buffer also as output buffer;
-      uint32_t *outData  = (uint32_t *) buffer;
-      //
-      int nch=1;
-      int kk = 0;
-      for(int mm=0; mm<NBUF_I2S; mm+=NDATA)
-      { 
-
-        // copy data (differences) to temporatory storage and clean input/output buffer
-        tempData[0]=buffer[mm];
-        for(int ii=0; ii<NDATA; ii++)
-        { tempData[ii] = buffer[mm+ii]-buffer[mm+ii-nch];
-          outData[mm+ii-nch]=0;   // clears also input buffer
-        }
-        outData[mm+NDATA-nch]=0;
-
-        // find absolute maximum
-        uint32_t amax=0;
-        for(int ii=nch; ii<NDATA; ii++) 
-        { int32_t tmp;
-          tmp=tempData[ii];
-          if(tmp<0) tmp=-tmp;
-          if(tmp>amax) amax=tmp;
-        }
-
-        // estimate mask (allow only values > 2)
-        uint32_t nb=0;
-        for(nb=2; nb<=24; nb++) if(amax < (1<<nb)) break;
-        nb++;
-
-        uint32_t ncmp = (NDATA*nb) / MBIT;
-        uint32_t mask = (1<<nb) -1;
-
-        // mask input data
-        for(int ii=nch; ii<NDATA; ii++) utemp[ii] &= mask;
-
-        // pack data
-        outData[kk++]=0xA5A5A5A5;
-        outData[kk++]=nb;
-        outData[kk++]=ncmp;
-        for(int ii=0; ii<nch;ii++) outData[kk++]=tempData[ii];
-        //
-        int nx = MBIT;
-        for (int ii = nch; ii < NDATA; ii++)
-        {   nx -= nb;
-            if(nx > 0)
-            {   outData[kk] |= (utemp[ii] << nx);
-            }
-            else if(nx==0) 
-            {   outData[kk++] |= utemp[ii];
-                nx=MBIT;
-            } 
-            else    // nx is < 0
-            {   outData[kk++] |= (utemp[ii] >> (-nx));
-                nx += MBIT;
-                outData[kk] = (utemp[ii] << nx);
-            }
-        }
-        if (!(nx==MBIT)) kk++; // next output word
-        // advance to next block
-      }
-      //
-      // ceil to 512 block limit
-      uint32_t nbuf=((kk+127)/128)*512;
-      for (;kk<nbuf/4;kk++) buffer[kk]=0;
-      //
-      return write_disk(buffer,nbuf);
-    }
-  #else
-    int32_t __not_in_flash_func(encodeBlock)(uint32_t *uout, uint32_t *uinp,  int32_t ndata, int32_t nb, int32_t MB)
-    {   int nx = MB;
-        int kk = 0;
-        for (int ii = 0; ii < ndata; ii++)
-        {   nx -= nb;
-            if(nx > 0)
-            {   uout[kk] |= uinp[ii] << nx;
-            }
-            else if(nx==0) 
-            {   uout[kk++] |= uinp[ii];
-                nx=MB;
-            } 
-            else    // nx is < 0
-            {   uout[kk++] |= uinp[ii] >> (-nx);
-                nx += MB;
-                uout[kk] = uinp[ii] << nx;
-            }
-        }
-        return (nx==MB)? kk : kk+1;
-    }
-
-    int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, int nch)
-    {
-      // copy data (differences) to temporary storage and clean input/output buffer
-      for(int ii=0; ii<nch;ii++) tempData[ii]=inp[ii];
-      // differentiate along channels
-      for(int ii=nch; ii<ndat; ii++)
-      { tempData[ii] = inp[ii]-inp[ii-nch];
-      }
-      // clear input to to used as output
-      for(int ii=0;ii<ndat;ii++) inp[ii]=0;
-
-      // find absolute maximum
-      uint32_t amax=0;
-      for(int ii=nch; ii<ndat; ii++) 
-      { int32_t tmp;
-        tmp=tempData[ii];
-        if(tmp<0) tmp=-tmp;
-        if(tmp>amax) amax=tmp;
-      }
-
-      // estimate mask (allow only values > 2)
-      uint32_t nb=0;
-      for(nb=2; nb<=24; nb++) if(amax < (1<<nb)) break;
-      nb++;
-      uint32_t mask = (1<<nb) -1;
-
-      uint32_t *utmp = (uint32_t *) tempData;
-
-      // mask input data
-      for(int ii=nch; ii<NDATA; ii++) utmp[ii] &= mask;
-
-      out[0]=0xA5A5A5A5;
-      out[1]=millis();
-      out[2]=nb;
-      out[3]=0;
-      for(int ii=0; ii<nch;ii++) {out[4+ii]=tempData[ii]; tempData[ii]=0;}
-      int32_t nd = encodeBlock(&out[4+nch],utmp,ndat, nb,MBIT);
-
-      out[3]=nd;
-      //
-      out[NDATA-1]=4+nch+nd;
-      return 4+nch+nd;
-    }
-
-    int32_t *__not_in_flash_func(compressData)(int32_t *buffer)
-    {
-      int32_t ndat=NDATA;
-      int nch=NCH;
-      //
-      // shift to right to remove trailing zeros and minimize noise
-      for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
-      //
-      //reuse input buffer also as output buffer;
-      uint32_t *outData  = (uint32_t *) buffer;
-      //
-      int kk = 0;
-      for(int mm=0; mm<NBUF_I2S; mm+=ndat)
-      { 
-        kk += encodeData(&outData[kk],&buffer[mm],ndat, nch);
-      }
-      //
-      if (NBUF_I2S>ndat)
-      {
-        // ceil to 512 block limit
-        uint32_t nbuf=((kk+127)/128)*128;
-        for (;kk<nbuf;kk++) outData[kk]=0;
-        outData[NBUF_I2S-1]=nbuf;
-      }
-      return buffer;
-    }
-
-    int32_t storeData(int32_t *buffer)
-    { 
-      int32_t nbuf = buffer[MD*NBUF_I2S-1];
-      //
-      return write_disk(buffer,4*nbuf);
-    }
-  #endif
-
+    return write_disk(buffer,4*nbuf);
+  }
 #endif
 
 //---------------------------- Filing ----------------------------------
@@ -487,32 +303,7 @@ uint32_t diskBuffer[MD*NBUF_I2S];
 
 status_t logger(status_t status)
 {
-//  if(getQueueCount()<MD) return status;
-
   pullQueue(diskBuffer);
-
-/*
-  uint32_t *ptr=diskBuffer;
-  uint32_t ndat=0;
-  for(int ii=1; ii<MD;ii++)
-  { // accumulate datablocks to speed up uSD writing
-    #if PROC==0
-      ptr +=NBUF_I2S;
-    #elif PROC==1
-      ptr +=ptr[NBUF_I2S-1];
-    #endif
-    pullQueue(ptr);
-  }
-
-  #if PROC==1
-    ptr += ptr[NBUF_I2S-1];
-    ndat = ptr-diskBuffer;
-    for(int ii=ndat;ii<MD*NBUF_I2S; ii++) diskBuffer[ii]=0;
-    ndat = ((ndat+127)/128)*128;
-    diskBuffer[MD*NBUF_I2S-1]=ndat;
-  #endif
-*/
-
   int32_t * buffer=(int32_t*) diskBuffer;
 
   if(status==CLOSED)

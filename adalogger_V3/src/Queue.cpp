@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,9 +37,14 @@
   #define INC(x) ((x+1)%MAX_QUEUE)
 
   volatile int queue_busy=0;
-  uint32_t data_buffer[MAX_QUEUE][NBLOCK];
+  #if defined(RP2350_PSRAM_CS)
+    uint32_t data_buffer[MAX_QUEUE][NBLOCK] PSRAM;
+  #else
+    uint32_t data_buffer[MAX_QUEUE][NBLOCK];
+  #endif
   volatile int head=0;  // head of stored data (pushing data will increase head )
   volatile int tail=0;  // tail of stored data (pulling data will increase tail)
+
   enum QueueStatus_t  {queueOK, queueEmpty, queueFull};
   volatile QueueStatus_t queueStatus=queueEmpty;
 
@@ -47,8 +52,6 @@
   { if(queueStatus==queueEmpty) return 0;
     if(queueStatus==queueFull) return MAX_QUEUE;
     return (head-tail+MAX_QUEUE) % MAX_QUEUE;
-    //int num = head-tail; 
-    //return num<0 ? num+MAX_QUEUE : num; 
   }
 
   int __not_in_flash_func(queue_isBusy)(void) { return queue_busy; }
@@ -58,7 +61,7 @@
     if ( queueStatus == queueFull ) return 0; // full queue
 
     queue_busy=1;
-    memcpy(data_buffer[head],data,4*NBLOCK);
+    for(int ii=0; ii<NBLOCK;ii++) data_buffer[head][ii]=data[ii];
 
     head=INC(head);
     queueStatus = (head==tail)? queueFull: queueOK;
@@ -72,15 +75,16 @@
     if ( queueStatus == queueFull ) return 0; // full queue
 
     if(nbuf+ndat<NBLOCK) 
-    {
+    { 
       queue_busy=1;
-      memcpy(&data_buffer[head][nbuf],data,4*ndat);
+      for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
       nbuf += ndat;
       queue_busy=0;
       return 1; // signal success.
     }
     else  // buffer is filled
-    { for (int ii=nbuf; ii<NBLOCK;ii++) data_buffer[head][ii]=0; 
+    { 
+      for (int ii=nbuf; ii<NBLOCK;ii++) data_buffer[head][ii]=0; 
       data_buffer[head][NBLOCK-1]=nbuf;
       nbuf=0;
       head=INC(head);
@@ -88,7 +92,7 @@
       if ( queueStatus == queueFull ) return 1; // full queue but prevous filled
       //
       queue_busy=1;
-      memcpy(&data_buffer[head][0],data,4*ndat);
+      for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
       nbuf += ndat;
       queue_busy=0;
       return 1;
@@ -99,9 +103,9 @@
   uint16_t __not_in_flash_func(pullQueue)(uint32_t *data)
   {
     if ( queueStatus==queueEmpty) return 0; // empty queue
-    //while(busy); 
-    queue_busy=1;
-    memcpy(data,data_buffer[tail],4*NBLOCK);
+
+    queue_busy=1;    
+    for(int ii=0; ii<NBLOCK;ii++) data[ii]=data_buffer[head][ii];
 
     tail=INC(tail);
     queueStatus=(tail==head)? queueEmpty : queueOK;

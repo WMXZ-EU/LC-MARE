@@ -19,36 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef FILING_H
-#define FILING_H
+#ifndef COMPRESS_H
+#define COMPRESS_H
+  #include "Arduino.h"
 
-  typedef struct {
-      char    rId[4];               //4
-      unsigned int rLen;            //8
-      char    wId[4];               //12
-      char    fId[4];               //16
-      unsigned int    fLen;           //20
-      unsigned short nFormatTag;      //22
-      unsigned short nChannels;       //24
-      unsigned int nSamplesPerSec;    //28
-      unsigned int nAvgBytesPerSec;   //32
-      unsigned short nBlockAlign;     //36
-      unsigned short  nBitsPerSamples;//38
-      char    lId[4];                 //40
-      unsigned int  lLen;             //44
-      char    iId[4];                 //48
-      char    info[512-14*4];         // fill header to 512 bytes (504=48+546)
-      char    dId[4];                 //508
-      unsigned int    dLen;           //512
-  } HdrStruct;
-
-  uint16_t SD_init(void);
-  status_t logger(status_t status);
-  int32_t *compressData(int32_t *buffer);
-
-  int16_t loadConfigfromFile(void);
-  void storeConfigToFile(void);
-  void configLoad(void);
-  void configShow(void);
-
+  int32_t *__not_in_flash_func(compressData)(int32_t *buffer);
 #endif

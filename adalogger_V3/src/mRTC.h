@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023/2024/2025, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,9 @@
 #ifndef mRTC_H
 #define mRTC_H
 
-#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
-  #include "hardware/rtc.h"
-#else
+//#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+
+#ifndef HAS_RP2040_RTC
   typedef struct {
       int16_t year;    ///< 0..4095
       int8_t month;    ///< 1..12, 1 is January
@@ -34,6 +34,7 @@
       int8_t min;      ///< 0..59
       int8_t sec;      ///< 0..59
   } datetime_t;
+
   bool rtc_get_datetime(datetime_t *t);
   bool rtc_set_datetime(const datetime_t *t);
 #endif
@@ -48,11 +49,16 @@
 #define RTC_SDA   2
 #define RTC_SCL   3
 
+
 int16_t rtc_setup(void);
+
+void rtc_init(void);
 uint32_t rtc_get(void);
+void rtc_set(uint32_t tt);
+bool rtc_running(void);
 
 void time2date(uint32_t seconds, datetime_t *tm, uint16_t epoch);
-uint32_t date2time(datetime_t *tm, uint16_t epoch);
+uint32_t date2time(const datetime_t *tm, uint16_t epoch);
 
 void printDatetime(const char *str, datetime_t *t);
 

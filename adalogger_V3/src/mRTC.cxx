@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023/2024/2025, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -724,7 +724,7 @@ void XRTCsetAlarm(uint32_t secs)
     tm->month  = month;   // is already incremented
   }
 
-  uint32_t date2time(datetime_t *tm, uint16_t epoch)
+  uint32_t date2time(const datetime_t *tm, uint16_t epoch)
   {
     uint32_t seconds;
 
@@ -807,8 +807,47 @@ void XRTCsetAlarm(uint32_t secs)
     rtc_set_datetime(&tm);
   }
 
-#else
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
+  #include "pico/aon_timer.h"
+  #include "pico/util/datetime.h"
+  #include "pico/stdlib.h"
+
+  struct timespec ts= {0,0};
+  void rtc_init(void) 
+  {
+    aon_timer_start(&ts);
+  }
+
+  uint32_t rtc_get(void)
+  { struct timespec ts;
+    aon_timer_get_time(&ts);
+    return ts.tv_sec;
+  }
+
+  void rtc_set(uint32_t tt)
+  { struct timespec ts = {tt,0};
+    aon_timer_set_time(&ts);
+  }
+
+  bool rtc_running(void)
+  { return aon_timer_is_running();}
+
+  bool rtc_get_datetime(datetime_t *t)
+  {
+    time2date(rtc_get(), t, 2000);
+    return 1;
+  }
+
+  bool rtc_set_datetime(const datetime_t *t)
+  {
+    rtc_set(date2time(t,2000));
+    return 1;
+  }
+
+
+#else //for teensy
   void rtc_init(void) {}
+  bool rtc_is_running() ()
 
   bool rtc_get_datetime(datetime_t *t)
   {

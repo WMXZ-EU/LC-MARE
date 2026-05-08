@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023/2024/2025, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,8 @@
 #include "global.h"
 #include "Queue.h"
 
-#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+//#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+#if defined(ARDUINO_ARCH_RP2040)
 #include "rp2040.h"
 
 
@@ -534,8 +535,9 @@
       // CLK ADC = 0MHz
       clock_stop(clk_adc);
       clock_stop(clk_usb);
-      clock_stop(clk_rtc);
-
+      #if HAS_RP2040_RTC
+        clock_stop(clk_rtc);
+      #endif
           // CLK PERI = clk_sys. Used as reference clock for Peripherals. No dividers so just select and enable
       clock_configure(clk_peri,
                       0,
@@ -611,7 +613,9 @@
     pinMode(XRTC_INT_PIN,INPUT_PULLUP);
     gpio_set_input_enabled(XRTC_INT_PIN, true); // enable input gate
     sleep_run_from_xosc();
-    clock_stop(clk_rtc);
+    #if HAS_RP2040_RTC
+      clock_stop(clk_rtc);
+    #endif
     sleep_goto_dormant_until_pin(XRTC_INT_PIN);
     //
     // will resume action here

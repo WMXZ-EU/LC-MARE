@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023/2024/2025, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@
   #define T_REP     0   // minutes (for continuous recording set t_rep < t_acq)
 
   // definitions for acquisition and filing
-  #define FSAMP     192000
+  #define FSAMP     384000
   //
   #define PROC      1     // 0 Wav raw file; 1 compress 
 

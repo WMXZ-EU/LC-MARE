@@ -1,5 +1,5 @@
 /* microPAM 
- * Copyright (c) 2023/2024/2025, Walter Zimmer
+ * Copyright (c) 2023/2024/2025/2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,8 @@
 
 #include "Wire.h"
 #include "src/I2C.h"
+
+#include "pins_arduino.h"
 //-----------------------------------
 // implementation
 //-----------------------------------
@@ -81,7 +83,7 @@ void setup() {
 
   if(eepromLoad()==0)
   { // should load parameters from LFS or uSD (TBD)
-    loadConfigfromFile();
+    // loadConfigfromFile(); // does not work; is too early
   }
 
   //while(!Serial);
@@ -91,8 +93,8 @@ void setup() {
   neo_pixel_show(10, 10, 0);
 
   if (1)
-  for(int p=0;p<30;p++) // disable GIPOs
-  { if(p==17) continue; // neopixel
+  for(int p=0;p<PINS_COUNT;p++) // disable GIPOs
+  { if(p==PIN_NEOPIXEL) continue; // neopixel
     pinMode(p, INPUT); 
     gpio_set_input_enabled(p, false); 
   }
@@ -101,16 +103,17 @@ void setup() {
   // put it to some time so it is running
   // it will be synchronized to external rtc later
   if(1)
-  { datetime_t setTime = { 2026, 1, 1, 4, 0, 0, 0 };
+  { const datetime_t setTime = { 2026, 1, 1, 4, 0, 0, 0 };
     rtc_init();
-    rtc_set_datetime(&setTime); 
+    rtc_set_datetime( &setTime); 
     Serial.print("rtc running "); Serial.println(rtc_running());
+    //
     datetime_t t;
     rtcGetDatetime(&t);
     printDatetime("rtc",&t);
   }
 
-  #if 0
+  #if 0  // check time stamp
     // for testing rtc
     while(1)
     { // for testing
@@ -126,7 +129,7 @@ void setup() {
   xrtc=rtc_setup();
   Serial.print("xrtc "); Serial.println(xrtc);
 
-  #if 0
+  #if 0 // check times
     // sync is done in mRTC.cxx
     if(xrtc)
     {
@@ -156,28 +159,26 @@ void setup() {
   parameterPrint();
 
   #if MC==0
+    // have single core; start acquisition here
     i2s_setup();
     dma_setup();
   #else
+    // have dual core; release and wait for second core
     setup_ready=1;
     while(!setup1_ready) delay(10);
   #endif
   //
+  Serial.printf("PSRAM Size: %d\r\n", rp2040.getPSRAMSize());
+  Serial.printf("Queue Size: %d\r\n",  MAX_QUEUE*MD*NBUF_I2S*4);
+
   have_disk=SD_init();
   Serial.print("have disk: "); Serial.println(have_disk);
   if(have_disk) configShow();
   if(have_disk) status=DO_START;
   if(!have_disk)  neo_pixel_show(0, 0, 10); else neo_pixel_show(0, 0, 0);
 
-  if(0)
-  {
-    int p=17; // NeoPixel
-    pinMode(p, INPUT); 
-    gpio_set_input_enabled(p, false); 
-  }
-
   if(!Serial)
-  { //usb_stop();
+  { //usb_stop(); // may be useful to cut power consumption further but hinders development
   }
   Serial.print("status: ");Serial.println(status_text[status]);
 }
