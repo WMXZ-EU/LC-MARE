@@ -1,8 +1,9 @@
 # adalogger
- This directory contains the source code for RP2040 based Adalogger project that 
- can be found at https://www.micropam.com . The code is also the baseis of the LC-MARE project.
+This directory contains the V2 source code for the LC-MARE project. 
+Further documentation on this project, basic Analysis scripts and Hardware description may be found in the parent folder.
 
- The menu is minimized to start/end acquisition, correct external RTC and to print actual acquisition parameters. It is expected that the user adapts the acquisition parameters in config.h and recompiles the program.
+ The menu is minimized to start/end acquisition, correct external RTC and to print actual acquisition parameters. 
+ It is expected that the user adapts the acquisition parameters in config.h and recompiles the program.
 
 ## Menu
  The menu commands are 
@@ -33,7 +34,7 @@
 
 ## UF2 file
  Direct link to uf2 file: 
- - https://github.com/WMXZ-EU/microPAM/blob/main/adalogger_V2/build/rp2040.rp2040.adafruit_feather_adalogger/adalogger_V2.ino.uf2
+ - https://github.com/WMXZ-EU/LC-MARE/blob/main/adalogger_V2/build/rp2040.rp2040.adafruit_feather_adalogger/adalogger_V2.ino.uf2
  
  ## Upgrade firmware
  - copy UF2 file (e.g. as above from Github) to local PC
