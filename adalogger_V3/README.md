@@ -39,10 +39,10 @@
  Direct link to uf2 file: 
  
  For RP2040 Adalogger
- - https://github.com/WMXZ-EU/microPAM/blob/main/adalogger_V3/build/rp2040.rp2040.adafruit_feather_adalogger/adalogger_V3.ino.uf2
+ - https://github.com/WMXZ-EU/LC-MARE/blob/main/adalogger_V3/build/rp2040.rp2040.adafruit_feather_adalogger/adalogger_V3.ino.uf2
  
  For RP2350 Feather
- - https://github.com/WMXZ-EU/microPAM/blob/main/adalogger_V3/build/rp2040.rp2040.adafruit_feather_rp2350_hstx/adalogger_V3.ino.uf2
+ - https://github.com/WMXZ-EU/LC-MARE/blob/main/adalogger_V3/build/rp2040.rp2040.adafruit_feather_rp2350_hstx/adalogger_V3.ino.uf2
  
  ## Upgrade firmware
  - copy UF2 file (e.g. as above from Github) to local PC
