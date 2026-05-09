@@ -37,6 +37,8 @@
 
   bool rtc_get_datetime(datetime_t *t);
   bool rtc_set_datetime(const datetime_t *t);
+#else
+  #include "hardware/rtc.h"
 #endif
 
 #define USE_EXT_RTC 1

@@ -21,6 +21,12 @@
  */
 #ifndef CONFIG_H
 #define CONFIG_H
+//
+#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+  #define MCU RP2040
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
+  #define MCU RP22350
+#endif
   //------------------------------------
   // acquisition constants
   //------------------------------------
@@ -29,7 +35,11 @@
   #define T_REP     0   // minutes (for continuous recording set t_rep < t_acq)
 
   // definitions for acquisition and filing
-  #define FSAMP     384000
+  #if MCU==RP240
+    #define FSAMP     96000
+  #elif MCU==RP2350
+    #define FSAMP     384000
+  #endif
   //
   #define PROC      1     // 0 Wav raw file; 1 compress 
 

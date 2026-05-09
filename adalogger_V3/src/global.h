@@ -30,8 +30,13 @@
   #define WAIT      5     // seconds to wait for serial (0 do not wait)
 
   // definitions for acquisition and filing
-  #define NCHAN_I2S   2   // controls the I2S interface
-  #define NCH         2   // for wav header (Mono or stereo)
+  #if MCU==RP240
+    #define NCHAN_I2S   1   // controls the I2S interface
+    #define NCH         1   // for wav header (Mono or stereo)
+  #elif MCU==RP2350
+    #define NCHAN_I2S   2   // controls the I2S interface
+    #define NCH         2   // for wav header (Mono or stereo)
+  #endif
 
   #define MBIT      32    // number of bits in I2S
 
@@ -77,7 +82,13 @@
   #define MC 1 // use second core for acquisition 
 
   #define USE_SDIO  0
-  #define CLK_MULT 16 // times 12 MHz
+  #if FSAMP<=96000
+    #define CLK_MULT 4
+  #elif FSAMP<=192000
+    #define CLK_MULT 8
+  #else
+    #define CLK_MULT 12
+  #endif
   #define SD_MULT   6 // times 12 MHz
   
   // in filing.cxx
@@ -101,7 +112,7 @@
   extern char ISBJ[]; // 'subject' (Area)
   extern char INAM[]; // 'Name' (location id)
 
-#define MCU ADA_LOGGER
+//#define MCU ADA_LOGGER
 #define PREAMP CMOS
 #define ADC ADC_V2
 #define RTC RV_3028_PIMORONI
