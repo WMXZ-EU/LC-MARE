@@ -40,15 +40,16 @@
 
   #define MBIT      32    // number of bits in I2S
 
-  #define NBUF_I2S 1024
+  #define NBUF_I2S    1024  // Acquisition
+  #define NDATA       1024  // Compressing
+  #define BLOCK_SIZE  1024  // Queue
+
   #define MD 8
   #if defined(RP2350_PSRAM_CS)
-    #define MAX_QUEUE (225) // 4*225*8*1024 = 7200*1024 = 7 MB (8 MB PSRAM)
+    #define MAX_QUEUE (225) // 4*225*8*1024 = 7200*1024 or 7.2 MB (8 MB PSRAM)
   #else
-    #define MAX_QUEUE (5)
+    #define MAX_QUEUE (5)   // 4*5*8*1024 = 160*1024    or 160 kB
   #endif
-  #define NDATA 1024
-  #define BLOCK_SIZE 1024
   
   #if PROC==0
     #define SHIFT (0)
@@ -81,15 +82,17 @@
   // RP2040 specific
   #define MC 1 // use second core for acquisition 
 
-  #define USE_SDIO  0
+  // setting MCU clock speed according to sampling frequency
   #if FSAMP<=96000
-    #define CLK_MULT 4
+    #define CLK_MULT 4  // (48 MHz)
   #elif FSAMP<=192000
-    #define CLK_MULT 8
+    #define CLK_MULT 8  // (96 MHz)
   #else
-    #define CLK_MULT 12
+    #define CLK_MULT 12 // (144 MHz)
   #endif
-  #define SD_MULT   6 // times 12 MHz
+
+  #define SD_MULT   6   // (72 MHz) (is a littlt bit high, but seems to work)
+  #define USE_SDIO  0
   
   // in filing.cxx
   extern uint16_t t_acq;   // seconds (each file)
@@ -112,7 +115,6 @@
   extern char ISBJ[]; // 'subject' (Area)
   extern char INAM[]; // 'Name' (location id)
 
-//#define MCU ADA_LOGGER
 #define PREAMP CMOS
 #define ADC ADC_V2
 #define RTC RV_3028_PIMORONI
