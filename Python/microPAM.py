@@ -4,7 +4,6 @@
 import numpy as np
 from numba import jit
 
-
 #
 # utilities
 #--------------------------------------------------------
@@ -68,6 +67,7 @@ def saveData(fileName, hh, xx):
     yy[1] = nn + (yy.shape[0] - 2) * 4
     yy.tofile(fileName)
 
+'''
 #
 #--------------------------------------------------------
 @jit(nopython=True, cache=True)
@@ -157,37 +157,197 @@ def decodeData(xx, blklen):
     # decode integer-compressed data
     # find compressed blocks
     io = np.where(xx == 0xa5a5a5a5)[0]
+    # check version
+    if (blklen*xx[io[0]+1]) (32*xx[io[0]+2]):
+        vesr=2
+    elif (blklen*xx[io[0]+2]) (32*xx[io[0]+3]):
+        vers=3
+
     ncnt = len(io)
     data = np.zeros(ncnt * blklen, dtype='uint32')
-    ii=0
-    for ix in io:
-        nb = np.int32(xx[ix + 1])
-        nk = xx[ix + 2]
-        #
-        if (blklen * nb) == (nk * 32): # cross-check valid block
-            tmp0 = np.int32(xx[ix+3])
-            k0 = ix + 4
-            k1 = k0 + nk
-            n0 = ii * blklen
-            n1 = n0 + blklen
-            ii += 1
-            tmp = 0*data[n0:n1]
+    if vers==2:
+        ii=0
+        for ix in io:
+            nb = np.int32(xx[ix + 1])
+            nk = xx[ix + 2]
             #
-            decodeBlock(tmp, xx[k0:k1], blklen, nb, 32)
-            # mask
-            nb2 = np.int32(1 << nb)
-            msk = np.uint32(nb2 - 1)
-            tmp &= msk
-            # extend sign bit
-            nb1 = nb2 >> 1
-            sgn = (tmp & nb1) > 0
-            tmp[sgn] |= ~msk
-            # correct for offset
-            tmp = (tmp.astype('int32') + tmp0).astype('uint32')
-            data[n0:n1] = tmp.copy()
-    #
-    data=data[:n1] #in case there are 'fake' or ignored buffers
+            if (blklen * nb) == (nk * 32):  # cross-check valid block
+                tmp0 = np.int32(xx[ix+3])   # keep mean
+                k0 = ix + 4
+                k1 = k0 + nk
+                n0 = ii * blklen
+                n1 = n0 + blklen
+                ii += 1
+                tmp = 0*data[n0:n1]
+                #
+                decodeBlock(tmp, xx[k0:k1], blklen, nb, 32)
+                # mask
+                nb2 = np.int32(1 << nb)
+                msk = np.uint32(nb2 - 1)
+                tmp &= msk
+                # extend sign bit
+                nb1 = nb2 >> 1
+                sgn = (tmp & nb1) > 0
+                tmp[sgn] |= ~msk
+                # correct for offset
+                tmp = (tmp.astype('int32') + tmp0).astype('uint32')
+                data[n0:n1] = tmp.copy()
+        #
+        data=data[:n1] #in case there are 'fake' or ignored buffers
+    elif vers==3:
+        ii=0
+        for ix in io:
+            nb = np.int32(xx[ix + 2])
+            nk = xx[ix + 3]
+            if (blklen * nb) == (nk * 32):  # cross-check valid block
+                tmp0 = np.int32(xx[ix+4])   # keep fist value
+                k0 = ix + 5
+                k1 = k0 + nk
+                n0 = ii * blklen
+                n1 = n0 + blklen
+                ii += 1
+                tmp = 0*data[n0:n1]
+                decodeBlock(tmp, xx[k0:k1], blklen, nb, 32)
+                # mask
+                nb2 = np.int32(1 << nb)
+                msk = np.uint32(nb2 - 1)
+                tmp &= msk
+                # extend sign bit
+                nb1 = nb2 >> 1
+                sgn = (tmp & nb1) > 0
+                tmp[sgn] |= ~msk
+                #..... to be completed
     return data.astype('int32')
+'''
+'''#
+# utilities
+#--------------------------------------------------------
+def find_chunk(hh, key):
+    for ii in range(len(hh)):
+        try:
+            txt = hh[ii].tobytes().decode()
+        except:
+            continue
+        if txt == key:
+            break
+    if ii < len(hh)-1:
+        return ii
+    else:
+        return -1
+
+
+#--------------------------------------------------------
+def wavInfo(hh):
+    ii = find_chunk(hh, 'fmt ')
+    pcm = np.int32(hh[ii+2] & 0xffff)
+    nch = np.int32(hh[ii + 2] >>16)
+    fs = np.int32(hh[ii + 3])
+    nbits = np.int32(hh[ii + 5] >> 16)
+    return fs, nch, nbits, pcm
+
+
+#
+#--------------------------------------------------------
+def decodeInfo(x):
+    ii = find_chunk(x, 'INFO')
+    if ii < 0: return {}
+    if x[ii].tobytes().decode() != 'INFO':  return {}
+    ii += 1
+    info = {}
+    while ii < len(x):
+        key = x[ii].tobytes().decode()
+        nd = x[ii + 1] // 4
+        if nd == 0: break
+        txt = x[ii + 2:ii + 1 + nd].tobytes().decode().strip('\00')
+        info.update({key: txt})
+        ii += 1 + nd
+    return info
+
+'''#
+#--------------------------------------------------------
+@jit(nopython=True, cache=True)
+def decodeBlock(out, inp, nd, nb, NX):
+    # decode individual compressed block
+    # nd expected block word count
+    # nb compressed word size (number of bits)
+    # NX expected word size (number of bits, typically 32)
+    kk = 0
+    nx = NX
+    for ii in range(nd):
+        nx -= nb
+        if nx > 0:
+            out[ii] = inp[kk] >> nx
+        elif nx == 0:
+            out[ii] = inp[kk]
+            kk += 1
+            nx = NX
+        elif nx < 0:
+            out[ii] = inp[kk] << (-nx)
+            kk += 1
+            nx += NX
+            out[ii] |= (inp[kk] >> nx)
+    # mask
+    nb2 = np.int32(1 << nb)
+    msk = np.uint32(nb2 - 1)
+    out &= msk
+    # extend sign bit
+    nb1 = nb2 >> 1
+    sgn = (out & nb1) > 0
+    out[sgn] |= ~msk
+    return kk
+#
+#--------------------------------------------------------
+def decodeData(xx, blklen,nch):
+    # decompress data
+    io = np.where(xx == 0xa5a5a5a5)[0]
+    #check version
+    ix=io[0]
+    if (blklen*xx[ix+1])== (32*xx[ix + 2]):
+        vers=2
+    elif (blklen*xx[ix+2])== (32*xx[ix + 3]):
+        vers=3
+    ncnt = len(io)
+    data = np.zeros(ncnt * blklen, dtype='uint32')
+    if vers==2:
+        ii=0
+        for ix in io:
+            nb = np.int32(xx[ix + 1])
+            nk = xx[ix + 2]
+            if (nb<25) and ((blklen * nb) == (32*nk)): # cross-check for valid compressed block
+                k0 = ix + 3
+                k1 = k0 + nk
+                n0 = ii * blklen
+                n1 = n0 + blklen
+                ii += 1
+
+                tmp = 0*data[n0:n1]
+                tmpo= xx[k0].copy()
+                nkx=decodeBlock(tmp, xx[k0+1:k1+1], blklen, nb, 32)
+
+                tmp = (tmp.astype('int32')+tmpo.astype('int32')).astype('uint32')
+                data[n0:n1] = tmp.copy()
+        it=np.arange(len(io))
+    elif vers==3:
+        ii=0
+        for ix in io:
+            nb = np.int32(xx[ix + 2])
+            nk = xx[ix + 3]
+            if (nb<25) and ((blklen * nb) == (nk * 32)): # cross-check for valid compressed block
+                k0 = ix + 4
+                k1 = k0 + nk
+                n0 = ii * blklen
+                n1 = n0 + blklen
+                ii += 1
+
+                tmp = 0*data[n0:n1]
+                tmpo= xx[k0:k0+nch].copy()
+                nkx=decodeBlock(tmp, xx[k0+nch:k1+1], blklen, nb, 32)
+
+                tmp[:nch] = tmpo.astype('uint32')
+                tmp[nch:] = (tmp[nch:].astype('int32')+tmp[:-nch].astype('int32')).astype('uint32')
+                data[n0:n1] = tmp.copy()
+        it=np.int32(xx[io+1])
+    return it,data.reshape(-1,nch).astype('int32')
 
 
 #--------------------------------------------------------
@@ -237,7 +397,7 @@ def load_microPAM(fname, iprt=False):
     # check if microPAM compressed and decode if necessary
     if cmpr == 1:
         #print(blklen)
-        data = decodeData(xx, blklen)  # nblk data blocks form 1 disk block
+        it,data = decodeData(xx, blklen, nch)  # nblk data blocks form 1 disk block
         scale /= 2 ** (nbits - 1 - shift)  # //LSB -> // MSB
     else:
         if pcm==1:
@@ -287,3 +447,31 @@ def get_Voltage(fname):
 
 def dB(x,aa=10):
     return aa*np.log10(abs(x))
+
+import tkinter as tk
+from tkinter import filedialog
+
+def get_pamFileName():
+    try:
+        # Create a hidden root window
+        root = tk.Tk()
+        root.withdraw()  # Hide the main Tkinter window
+
+        # Ask the user to select a file
+        file_path = filedialog.askopenfilename(
+            title="Select a file",
+            filetypes=[("uPAM files", "*.bin *.wav")]
+        )
+
+        # Destroy the root window after selection
+        root.destroy()
+
+        if not file_path:
+            print("No file selected.")
+            return None
+
+        return file_path
+
+    except Exception as e:
+        print(f"Error loading file: {e}")
+        return None

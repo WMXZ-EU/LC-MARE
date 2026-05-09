@@ -1,36 +1,10 @@
 
-import tkinter as tk
-from tkinter import filedialog
+import sounddevice
 
-def get_fileName():
-    try:
-        # Create a hidden root window
-        root = tk.Tk()
-        root.withdraw()  # Hide the main Tkinter window
+from microPAM import get_pamFileName, load_microPAM, dB
 
-        # Ask the user to select a file
-        file_path = filedialog.askopenfilename(
-            title="Select a file",
-            filetypes=[("uPAM files", "*.bin *.wav")]
-        )
-
-        # Destroy the root window after selection
-        root.destroy()
-
-        if not file_path:
-            print("No file selected.")
-            return None
-
-        return file_path
-
-    except Exception as e:
-        print(f"Error loading file: {e}")
-        return None
-
-fname=get_fileName()
+fname=get_pamFileName()
 print(fname)
-
-from microPAM import load_microPAM, dB
 
 fs,data = load_microPAM(fname)
 if 0:
