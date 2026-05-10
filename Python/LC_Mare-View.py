@@ -1,6 +1,4 @@
 
-import sounddevice
-
 from microPAM import get_pamFileName, load_microPAM, dB
 
 fname=get_pamFileName()
@@ -8,9 +6,10 @@ print(fname)
 
 fs,data = load_microPAM(fname)
 if 0:
+    # relate other sensor to microPAM
     Vmax  =  12.277 # 24dBu ZOOM F3
     Sens  = -168    # SQ 26-08
-    Senso = -200    # reference sensitivity (microPAM code)
+    Senso = -206    # reference sensitivity (microPAM code)
     rescale = 10.0**((Senso-Sens)/20)/Vmax
     data *= rescale
 
@@ -20,8 +19,8 @@ td = np.arange(data.shape[0])/fs
 print(fs,data.shape[0]/fs)
 
 # calibrate data
-cal=-80 # dB//1V/Pa         # 1 Pa generates about 10^-4 V (-80 dB) (-200 dB//uPa)
-data = data/10**(cal/20)
+sens=-86 # dB//1V/Pa         # assume 1 Pa generates 50 E-6 V (10**(-86/20)) (sensitivity -206 dB//1V/uPa)
+data /= 10**(sens/20)
 
 if 0:
     print('Playing')
@@ -31,7 +30,8 @@ if 0:
     #sd.wait()
     print('Done')
 
-
+#
+# spectrogram
 from scipy.signal import spectrogram, welch
 nw=512
 
@@ -57,17 +57,18 @@ plt.ylabel('Frequency [kHz]')
 plt.show(block=False)
 
 #
-U=np.mean(q,axis=1)
+# average power spectral density
+nw=64*1024
+fw,qw=welch(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
+#
+qu=np.mean(q,axis=1)
 fu=f.copy()
 #
-nw=64*1024
-f,q=welch(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
-#
-plt.figure()
-plt.plot(f,dB(q))
-plt.plot(fu,dB(U))
+plt.figure(figsize=(10,7))
+plt.plot(fw,dB(qw))
+plt.plot(fu,dB(qu))
 plt.ylabel('dB//1Pa$^2$/Hz')
-#plt.xlim(0,200)
+plt.xlabel('Frequency [Hz]')
 plt.grid(True)
 plt.xscale('log')
 plt.show(block=False)
