@@ -23,7 +23,7 @@
 #define GLOBAL_H
 
 #include "../config.h"
-  #define Version "3.0.1" // 07-04-2026
+  #define Version "3.0.2" // 10-05-2026
   #define PreAmp  0                   // 0: CMOS; 1: FET; 2 Mark
   #define Program "Adalogger_V3a"
 
@@ -40,9 +40,8 @@
 
   #define MBIT      32    // number of bits in I2S
 
-  #define NBUF_I2S    1024  // Acquisition
-  #define NDATA       1024  // Compressing
-  #define BLOCK_SIZE  1024  // Queue
+  #define NBUF_I2S    1024  // ADC
+  #define NBUF_ACQ    1024  // Acquisition
 
   #define MD 8
   #if defined(RP2350_PSRAM_CS)

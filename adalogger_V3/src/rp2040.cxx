@@ -430,7 +430,7 @@
       acq_count++;
       //
       #if PROC==0
-        if(!pushQueue((uint32_t*)i2s_buffer[2])) missed_acq++;
+        if(!pushQueue_c((uint32_t*)i2s_buffer[2],NBUF_I2S)) missed_acq++;
       #elif PROC==1
         //if(!pushQueue((uint32_t*)compressData(i2s_buffer[2]))) missed_acq++; 
         if(!pushQueue_c((uint32_t*)compressData(i2s_buffer[2]),i2s_buffer[2][NBUF_I2S-1])) missed_acq++; 

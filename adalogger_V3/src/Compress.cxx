@@ -25,6 +25,7 @@
 #include "Compress.h"
 
 // temporary storage for processing
+#define NDATA NBUF_ACQ
 int32_t tempData[NDATA];
 uint32_t *utemp = (uint32_t *) tempData;
 
@@ -100,29 +101,28 @@ int32_t *__not_in_flash_func(compressData)(int32_t *buffer)
   int nch=NCH;
   //
   // shift to right to remove trailing zeros and minimize noise
-  for(int ii=0;ii<NBUF_I2S;ii++) buffer[ii]=buffer[ii]>>SHIFT;
+  for(int ii=0;ii<NDATA;ii++) buffer[ii]=buffer[ii]>>SHIFT;
   //
   //reuse input buffer also as output buffer;
   uint32_t *outData  = (uint32_t *) buffer;
   //
   int kk = 0;
-  for(int mm=0; mm<NBUF_I2S; mm+=ndat)
-  { 
-    kk += encodeData(&outData[kk],&buffer[mm],ndat, nch);
-  }
+  kk = encodeData(outData,buffer,ndat, nch); 
+  // kk point to next free buffer location
   //
-  if (NBUF_I2S>ndat)
+  if (kk < NDATA) // should be always the case
   {
-    // ceil to 512 block limit
+    // ceil to 512 block limit and indicate new length of buffer
     uint32_t nbuf=((kk+127)/128)*128;
     for (;kk<nbuf;kk++) outData[kk]=0;
-    outData[NBUF_I2S-1]=nbuf;
+    outData[NDATA-1]=nbuf;
   }
   return buffer;
 }
 
 // below earlier version (for reference only; has different header)
 #if 0
+/*
 // temporary storage for processing
 int32_t tempData[NDATA];
 uint32_t *utemp = (uint32_t *) tempData;
@@ -202,4 +202,5 @@ int32_t storeData(int32_t *buffer)
   //
   return write_disk(buffer,nbuf);
 }
+*/
 #endif

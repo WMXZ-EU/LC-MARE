@@ -179,7 +179,7 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
   sprintf(infotext,"%s; %4d; %4d; %4d; %4d; %4d; %6d; %3d; %3d; %4d; %3d; %4d; %4d; %4d; %4d.",
-                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NDATA, MD, 
+                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NBUF_ACQ, MD, 
                     h_rec[0],h_rec[1],h_rec[2],h_rec[3]);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //
@@ -380,7 +380,11 @@ status_t logger(status_t status)
 
       file.close();
       // 
-      memcpy(logBuffer,&buffer[1], 9*4);
+      #if PROC==0
+        memcpy(logBuffer,&buffer[0], 9*4);
+      #elif PROC==1
+        memcpy(logBuffer,&buffer[1], 9*4);
+      #endif
       printStatus(num_bytes_written,vsens);
       //
       // check for stopping or hibernation

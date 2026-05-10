@@ -6,7 +6,7 @@
 #include "global.h"
 
 #define MXBIT 15
-
+#define BLOCK_SIZE NBUF_ACQ
 int32_t cs[384];
 int32_t sn[384];
 

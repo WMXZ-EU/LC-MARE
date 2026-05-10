@@ -29,10 +29,10 @@
 #include "Queue.h"
 
   #ifndef MAX_QUEUE
-    #define MAX_QUEUE 12      // Queue length
+    #define MAX_QUEUE 12      // some Queue length
   #endif
 
-  #define NBLOCK MD*BLOCK_SIZE
+  #define NBLOCK (MD*NBUF_ACQ)
 
   #define INC(x) ((x+1)%MAX_QUEUE)
 
@@ -83,9 +83,12 @@
       return 1; // signal success.
     }
     else  // buffer is filled
-    { 
-      for (int ii=nbuf; ii<NBLOCK;ii++) data_buffer[head][ii]=0; 
-      data_buffer[head][NBLOCK-1]=nbuf;
+    {
+      if (ndat<NBUF_ACQ)
+      { // we are pushing compressed data, clean up rest and indicate data size 
+        for (int ii=nbuf; ii<NBLOCK;ii++) data_buffer[head][ii]=0; 
+        data_buffer[head][NBLOCK-1]=nbuf;
+      }
       nbuf=0;
       head=INC(head);
       queueStatus = (head==tail)? queueFull: queueOK;
@@ -97,7 +100,6 @@
       queue_busy=0;
       return 1;
     }
-
   }
   
   uint16_t __not_in_flash_func(pullQueue)(uint32_t *data)

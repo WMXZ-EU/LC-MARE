@@ -163,7 +163,7 @@ void setup() {
     i2s_setup();
     dma_setup();
   #else
-    // have dual core; release and wait for second core
+    // have dual core; release and wait for setup of second core 
     setup_ready=1;
     while(!setup1_ready) delay(10);
   #endif
@@ -188,10 +188,10 @@ void loop() {
   // put your main code here, to run repeatedly:
   //
   // management
-  status_t old_status=status;
+  //status_t old_status=status;
   status = menu(status);
   if(status==DO_START)
-  {  Serial.print("status: ");Serial.println(status_text[old_status]);
+  { //Serial.print("status: ");Serial.println(status_text[old_status]);
     adc_init();
     status=CLOSED;
     neo_pixel_show(0, 0, 0);
