@@ -297,23 +297,19 @@ def decodeBlock(out, inp, nd, nb, NX):
     return kk
 #
 #--------------------------------------------------------
-def decodeData(xx, blklen,nch):
+def decodeData(xx, blklen,nch, vers):
     # decompress data
     io = np.where(xx == 0xa5a5a5a5)[0]
-    #check version
-    ix=io[0]
-    if (blklen*xx[ix+1])== (32*xx[ix + 2]):
-        vers=2
-    elif (blklen*xx[ix+2])== (32*xx[ix + 3]):
-        vers=3
     ncnt = len(io)
     data = np.zeros(ncnt * blklen, dtype='uint32')
     if vers==2:
+        # uses (header: MAGIC, nb,nd,meanSample), de-meaned samples (single channel)
+        it=np.arange(len(io))
         ii=0
         for ix in io:
             nb = np.int32(xx[ix + 1])
             nk = xx[ix + 2]
-            if (nb<25) and ((blklen * nb) == (32*nk)): # cross-check for valid compressed block
+            if (nb<25) and ((blklen * nb) == (32 * nk)): # cross-check for valid compressed block
                 k0 = ix + 3
                 k1 = k0 + nk
                 n0 = ii * blklen
@@ -326,13 +322,14 @@ def decodeData(xx, blklen,nch):
 
                 tmp = (tmp.astype('int32')+tmpo.astype('int32')).astype('uint32')
                 data[n0:n1] = tmp.copy()
-        it=np.arange(len(io))
     elif vers==3:
+        # uses (header: MAGIC, millis(),nb,nd,firstSamples), sample differences (nch channels)
+        it=np.int32(xx[io+1])
         ii=0
         for ix in io:
             nb = np.int32(xx[ix + 2])
             nk = xx[ix + 3]
-            if (nb<25) and ((blklen * nb) == (nk * 32)): # cross-check for valid compressed block
+            if (nb<25) and ((blklen * nb) == (32 * nk)): # cross-check for valid compressed block
                 k0 = ix + 4
                 k1 = k0 + nk
                 n0 = ii * blklen
@@ -341,12 +338,13 @@ def decodeData(xx, blklen,nch):
 
                 tmp = 0*data[n0:n1]
                 tmpo= xx[k0:k0+nch].copy()
-                nkx=decodeBlock(tmp, xx[k0+nch:k1+1], blklen, nb, 32)
+                nkx=decodeBlock(tmp, xx[k0+nch:k1+nch], blklen, nb, 32)
 
-                tmp[:nch] = tmpo.astype('uint32')
-                tmp[nch:] = (tmp[nch:].astype('int32')+tmp[:-nch].astype('int32')).astype('uint32')
-                data[n0:n1] = tmp.copy()
-        it=np.int32(xx[io+1])
+                itmp=tmp.copy().astype('int32')
+                itmp[:nch]=tmpo
+                for jj in range(nch,blklen): itmp[jj] += itmp[jj-nch]
+                #
+                data[n0:n1] = itmp.copy().astype('uint32')
     return it,data.reshape(-1,nch).astype('int32')
 
 
@@ -356,8 +354,9 @@ def load_microPAM(fname, iprt=False):
     fs, nch, nbits, pcm = wavInfo(hh)
     if iprt: print(fname,'fs=',fs, 'nch=',nch, 'nbits=',nbits, 'pcm=',pcm)
 
+    vers=2
     ii = find_chunk(hh, 'LIST')
-    if ii < 0:
+    if ii < 0:  # cannot find list
         # plain wav file without LIST meta data
         cmpr = 0
         gain = 1
@@ -379,52 +378,52 @@ def load_microPAM(fname, iprt=False):
             cmpr = int(config[kx+7])
             blklen = int(config[kx+8])
             nblk = int(config[kx+9])
-            #print(cmpr, gain, shift, blklen)
+            if iprt==1: print(cmpr, gain, shift, blklen)
             #
             # have LC-MARE (very likely)
-            preamp = 20  # dB
-            Vref = 2.75  # V/MSB
+            preamp = 20*np.log10(21)  # dB
+            Vref   = 2.75  # V/MSB
         else:
             cmpr = 0
             gain = 0    # dB
             preamp = 0  # dB
             Vref = 1    # V/MSB
+        #
+        if 'ICMT' in info.keys():
+            comment = info['ICMT'][:-1].split(';')
+            if comment[0][:3]== 'Ver':
+                vers=int(comment[0][8:].split('.')[0])
 
     # factor to scale from MSB to V
     scale = Vref / 10 ** ((preamp + gain) / 20)
     #print('gain',preamp+gain,'scale',scale)
 
     # check if microPAM compressed and decode if necessary
-    if cmpr == 1:
-        #print(blklen)
-        it,data = decodeData(xx, blklen, nch)  # nblk data blocks form 1 disk block
-        scale /= 2 ** (nbits - 1 - shift)  # //LSB -> // MSB
-    else:
-        if pcm==1:
+    if pcm==1:
+        if cmpr == 1:
+            it,data = decodeData(xx, blklen, nch, vers)
+            scale *= 2 ** shift         # undo right shift
+        else:
             if nbits == 16:
                 data = np.frombuffer(xx, dtype='int16')
             else:
                 data = xx.astype('int32')
-            scale /= 2 ** (nbits - 1)  # //LSB -> // MSB
-        else:
-            data = np.frombuffer(xx, dtype='float32')
+        scale /= 2 ** (nbits - 1)  # //LSB -> // MSB
+    else:
+        data = np.frombuffer(xx, dtype='float32')
     #
     # convert to V
-    data = data * scale  # data is now  in V
+    data = data * scale             # data is now  in V
     data = data.reshape(-1,nch)
     return fs, data
 
 #
 #--------------------------------------------------------
-def load_LC_mare(fname):
-    #
-    #preamp = 20 # dB
-    #Vref = 2.75 # V/MSB
-    #scale=Vref/10**(preamp/20)
-    #print(scale, 'V/MSB')
-    return load_microPAM(fname)
+def load_LC_mare(fname,iptr=False):
+    return load_microPAM(fname,iptr)
 
-
+#
+#--------------------------------------------------------
 def get_Info(fname):
     hh, xx = loadData(fname)
     ii = find_chunk(hh, 'LIST')
@@ -432,7 +431,8 @@ def get_Info(fname):
     info = decodeInfo(hh[ii:ii + hh[ii + 1] // 4])
     return info
 
-
+#
+#--------------------------------------------------------
 def get_Voltage(fname):
     #get power supply voltage (microPAM)
     info = get_Info(fname)
@@ -445,9 +445,13 @@ def get_Voltage(fname):
     else:
         return 0
 
+#
+#--------------------------------------------------------
 def dB(x,aa=10):
     return aa*np.log10(abs(x))
 
+#
+#--------------------------------------------------------
 import tkinter as tk
 from tkinter import filedialog
 

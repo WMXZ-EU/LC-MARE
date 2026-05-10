@@ -88,17 +88,27 @@
       { // we are pushing compressed data, clean up rest and indicate data size 
         for (int ii=nbuf; ii<NBLOCK;ii++) data_buffer[head][ii]=0; 
         data_buffer[head][NBLOCK-1]=nbuf;
+        nbuf=0;
+        head=INC(head);
+        queueStatus = (head==tail)? queueFull: queueOK;
+        if ( queueStatus == queueFull ) return 1; // full queue but prevous filled
+        //
+        queue_busy=1;
+        for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
+        nbuf += ndat;
+        queue_busy=0;
+        return 1;
       }
-      nbuf=0;
-      head=INC(head);
-      queueStatus = (head==tail)? queueFull: queueOK;
-      if ( queueStatus == queueFull ) return 1; // full queue but prevous filled
-      //
-      queue_busy=1;
-      for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
-      nbuf += ndat;
-      queue_busy=0;
-      return 1;
+      else
+      { // have raw data
+        queue_busy=1;
+        for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
+        head=INC(head);
+        queueStatus = (head==tail)? queueFull: queueOK;
+        nbuf =0;
+        queue_busy=0;
+        return 1; // signal success.
+      }
     }
   }
   

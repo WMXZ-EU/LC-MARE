@@ -41,7 +41,7 @@
     #define FSAMP     384000
   #endif
   //
-  #define PROC      0     // 0 Wav raw file; 1 compress 
+  #define PROC      1     // 0 Wav raw file; 1 compress 
 
   //for filing meta data
   #define SRC_str "AS1"      //  Source

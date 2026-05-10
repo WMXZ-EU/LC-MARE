@@ -23,7 +23,7 @@ print(fs,data.shape[0]/fs)
 cal=-80 # dB//1V/Pa         # 1 Pa generates about 10^-4 V (-80 dB) (-200 dB//uPa)
 data = data/10**(cal/20)
 
-if 1:
+if 0:
     print('Playing')
     import sounddevice as sd
 

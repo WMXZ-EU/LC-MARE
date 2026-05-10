@@ -179,11 +179,11 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
   sprintf(infotext,"%s; %4d; %4d; %4d; %4d; %4d; %6d; %3d; %3d; %4d; %3d; %4d; %4d; %4d; %4d.",
-                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NBUF_ACQ, MD, 
-                    h_rec[0],h_rec[1],h_rec[2],h_rec[3]);
+                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC, NBUF_ACQ, MD,
+                    h_rec[0],h_rec[1],h_rec[2],h_rec[3],Version);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //
-  sprintf(infotext,"missed_acq: %d\0",missed_acq); 
+  sprintf(infotext,"Version: %s; missed_acq: %d\0",Version, missed_acq); 
   wptr=insertChunk(wptr,"ICMT",infotext);
   
   wav_hdr.dLen = nbytes;
@@ -238,12 +238,12 @@ extern uint32_t  acq_count;
 uint32_t mdt=0;   // keep max write time
 int write_disk(int32_t *buffer,int32_t nbuf)
 {
-    digitalWrite(LED_BUILTIN, HIGH);
+    //digitalWrite(LED_BUILTIN, HIGH);
     uint32_t to=millis();
     int ndat= file.write(buffer,nbuf);
     uint32_t dt=(millis()-to);
     if(dt>mdt) mdt=dt;
-    digitalWrite(LED_BUILTIN, LOW);
+    //digitalWrite(LED_BUILTIN, LOW);
     return ndat;
 }
 
