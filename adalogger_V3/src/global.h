@@ -29,13 +29,28 @@
 
   #define WAIT      5     // seconds to wait for serial (0 do not wait)
 
+  #if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+    #define MCU RP2040
+  #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
+    #define MCU RP22350
+  #endif
+
   // definitions for acquisition and filing
   #if MCU==RP240
     #define NCHAN_I2S   1   // controls the I2S interface
     #define NCH         1   // for wav header (Mono or stereo)
+    #if FSAMP>96000         // limit sampling frequency
+      #undef FSAMP
+      #define FSAMP 96000
+    #endif
+    //
   #elif MCU==RP2350
     #define NCHAN_I2S   2   // controls the I2S interface
     #define NCH         2   // for wav header (Mono or stereo)
+    #if FSAMP>384000        // limit sampling frequency
+      #undef FSAMP
+      #define FSAMP 384000
+    #endif
   #endif
 
   #define MBIT      32    // number of bits in I2S
@@ -43,7 +58,8 @@
   #define NBUF_I2S    1024  // ADC
   #define NBUF_ACQ    1024  // Acquisition
 
-  #define MD 8
+  #define MD 8        // multiplier for definition of disk block (also on queue)
+
   #if defined(RP2350_PSRAM_CS)
     #define MAX_QUEUE (225) // 4*225*8*1024 = 7200*1024 or 7.2 MB (8 MB PSRAM)
   #else
