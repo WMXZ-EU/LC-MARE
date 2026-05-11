@@ -1,0 +1,4 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "ScoutMakes Hall Sensor v1-eagle-import") (type "KiCad") (uri "${KIPRJMOD}/ScoutMakes Hall Sensor v1-eagle-import.kicad_sym") (options "") (descr ""))
+)
