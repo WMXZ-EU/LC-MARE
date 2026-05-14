@@ -21,6 +21,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include "pins_arduino.h"
 
 #include "src/global.h"
 #include "src/rp2040.h"
@@ -33,7 +34,6 @@
 #include "Wire.h"
 #include "src/I2C.h"
 
-#include "pins_arduino.h"
 //-----------------------------------
 // implementation
 //-----------------------------------
@@ -93,7 +93,7 @@ void setup() {
   neo_pixel_show(10, 10, 0);
 
   if (1)
-  for(int p=0;p<PINS_COUNT;p++) // disable GIPOs
+  for(int p=0;p<PINS_COUNT;p++) // disable GIPOs (to save power,hopefully)
   { if(p==PIN_NEOPIXEL) continue; // neopixel
     pinMode(p, INPUT); 
     gpio_set_input_enabled(p, false); 
@@ -114,7 +114,7 @@ void setup() {
   }
 
   #if 0  // check time stamp
-    // for testing rtc
+    // activate for testing rtc
     while(1)
     { // for testing
       delay(1000);

@@ -1,4 +1,4 @@
-# uncomment prev line and remove ' ' between % % save cell to file (is only in LC-Mare-UI.ipynb file)
+# uncomment prev line and remove ' ' between % % save cell to file (is only in LC-Mare-GUI.ipynb file)
 # LC-Mare-GUI
 # use this cell to test and develop GUI
 # to compile "pyinstaller LC-Mare-GUI.py --noconfirm"

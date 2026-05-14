@@ -23,9 +23,15 @@
 #define GLOBAL_H
 
 #include "../config.h"
-  #define Version "3.0.2" // 10-05-2026
-  #define PreAmp  0                   // 0: CMOS; 1: FET; 2 Mark
   #define Program "Adalogger_V3a"
+  #define Version "3.0.2" // 10-05-2026
+  #define PreAmp  0       // 0: CMOS; 1: FET; 2 Mark
+
+  // hardware (so far descriptive only)
+  #define PREAMP CMOS
+  #define ADC ADC_V2
+  #define RTC RV_3028_PIMORONI
+  #define BASE LC_MARE_09_2025
 
   #define WAIT      5     // seconds to wait for serial (0 do not wait)
 
@@ -88,7 +94,7 @@
   #endif
 
   //#define XRTC_INT_PIN A2   // DS3231 Feather Wing
-  #define XRTC_INT_PIN 15     // V2
+  #define XRTC_INT_PIN 15     // V2,V3
 
   // program states
   enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED};
@@ -107,7 +113,7 @@
   #endif
 
   #define SD_MULT   6   // (72 MHz) (is a littlt bit high, but seems to work)
-  #define USE_SDIO  0
+  #define USE_SDIO  0   // use spi to reduce power consumption 
   
   // in filing.cxx
   extern uint16_t t_acq;   // seconds (each file)
@@ -130,8 +136,4 @@
   extern char ISBJ[]; // 'subject' (Area)
   extern char INAM[]; // 'Name' (location id)
 
-#define PREAMP CMOS
-#define ADC ADC_V2
-#define RTC RV_3028_PIMORONI
-#define BASE LC_MARE_09_2025
 #endif

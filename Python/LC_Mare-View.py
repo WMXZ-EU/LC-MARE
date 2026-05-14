@@ -18,7 +18,7 @@ import numpy as np
 td = np.arange(data.shape[0])/fs
 print(fs,data.shape[0]/fs)
 
-# calibrate data
+# calibrate data (LC-Mare)
 sens=-86 # dB//1V/Pa         # assume 1 Pa generates 50 E-6 V (10**(-86/20)) (sensitivity -206 dB//1V/uPa)
 data /= 10**(sens/20)
 
