@@ -16,9 +16,11 @@ import serial.tools.list_ports
 
 def getComPort():
     s=serial.tools.list_ports.comports(True)
+    print(s)
     for ii in range(len(s)):
-        if (s[ii].vid==0x239a) & (s[ii].pid==0x815d): # adafruit adalogger rp2040
-            return s[ii].device
+        if (s[ii].vid==0x239a):
+            if (s[ii].pid==0x815d) | (s[ii].pid==0x814f): # adafruit adalogger rp2040 or feather rp2350
+                return s[ii].device
     return None
 
 class Window(tk.Frame):
@@ -52,15 +54,15 @@ class Window(tk.Frame):
         self.k_edit = self.mEntry("Project:",xo+ii*dxo-5,yo,10,85); ii+=1
         self.n_edit = self.mEntry("Location:",xo+ii*dxo+5,yo,10,100); ii+=1
 
-        xo=120
+        xo=140
         yo=170
         ii=0
-        self.fsamp_edit = self.mEntry("fsamp:",xo,yo+ii*40,6,80); ii+=1
-        self.proc_edit  = self.mEntry("proc:", xo,yo+ii*40,1,80); ii+=1
-        self.shift_edit = self.mEntry("shift:",xo,yo+ii*40,2,80); ii+=1
-        self.again_edit = self.mEntry("again:",xo,yo+ii*40,2,80); ii+=1
+        self.fsamp_edit = self.mEntry("fsamp (Hz):",xo,yo+ii*40,6,130); ii+=1
+        self.proc_edit  = self.mEntry("proc (0/1):", xo,yo+ii*40,1,130); ii+=1
+        self.shift_edit = self.mEntry("shift:",xo,yo+ii*40,2,130); ii+=1
+        self.again_edit = self.mEntry("again (dB):",xo,yo+ii*40,2,130); ii+=1
 
-        xo=350
+        xo=360
         yo=170
         ii=0
         self.t_acq_edit = self.mEntry("t_acq (s):",xo,yo+ii*40,5,110); ii+=1
@@ -230,10 +232,18 @@ class Window(tk.Frame):
                 ser.read_all()
                 #
                 # load now data from device
-                ser.write(b'?d\n')
+                ser.write(b'c\n')
                 txt1=ser.readline().decode('utf-8').rstrip()
-                ip1=txt1.find("=")
-                self.mcuClocklabel.configure(text=txt1[ip1+2:])
+                ser.readline().decode('utf-8').rstrip()
+                #
+                ser.write("\n".encode())
+                ser.readline().decode('utf-8').rstrip() # empty echo
+                ser.readline().decode('utf-8').rstrip() # text
+
+                #ser.write(b'?d\n')
+                #txt1=ser.readline().decode('utf-8').rstrip()
+                ip1=txt1.find("rtc")
+                self.mcuClocklabel.configure(text=txt1[ip1+4:])
                 #
                 self.mUpdate(ser,self.b_edit,"?n")
                 self.mUpdate(ser,self.k_edit,"?k")
@@ -294,16 +304,25 @@ class Window(tk.Frame):
                     self.mgetEntry(ser,'x',self.h_start_edit)
 
     def clickSyncButton(self):
-        date_time=datetime.now()
-        date_string=date_time.strftime("!d%Y-%m-%d %H:%M:%S\n")
         #
         com=getComPort()
         if com:
             print('sync',com)
-            with serial.Serial(com) as ser:
-                ser.write(date_string.encode())
-                ser.readline()
-                ser.readline()
+            with serial.Serial(com,timeout=1.0) as ser:
+                ser.read_all()
+                ser.write(b'c\n')
+                print(ser.readline().decode('utf-8').rstrip())
+                print(ser.readline().decode('utf-8').rstrip())
+                #
+                date_time=datetime.now()
+                txt=date_time.strftime("%Y-%m-%d %H:%M:%S\n")
+                #
+                ser.write(txt.encode())
+                print(ser.readline().decode('utf-8').rstrip()) # echo
+                print(ser.readline().decode('utf-8').rstrip()) # date vector
+                print(ser.readline().decode('utf-8').rstrip()) # text
+                print(ser.readline().decode('utf-8').rstrip()) # new time
+
 
     def update_clock(self):
         now = time.strftime("%Y-%m-%d %H:%M:%S")
