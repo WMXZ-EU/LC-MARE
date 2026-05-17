@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "PiicoDev Real Time Clock RV3028") (type "KiCad") (uri "${KIPRJMOD}/PiicoDev Real Time Clock RV3028.pretty") (options "") (descr ""))
+)
