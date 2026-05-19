@@ -708,7 +708,7 @@ void XRTCsetAlarm(uint32_t secs)
 
     days -= LEAP_YEAR(year) ? 366 : 365;
     days = time - days; // now time is days in this year, starting at 0
-    Serial.print(days); Serial.print(" ");
+    //Serial.print(days); Serial.print(" ");
 
     month=0;
     uint16_t monthLength=0;

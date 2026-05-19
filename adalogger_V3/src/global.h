@@ -35,14 +35,17 @@
 
   #define WAIT      5     // seconds to wait for serial (0 do not wait)
 
+  #define RP_2040 1
+  #define RP_2350 2
+  #define RP_2354 3
   #if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
-    #define MCU RP2040
+    #define MCU RP_2040
   #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
-    #define MCU RP22350
+    #define MCU RP_2350
   #endif
 
   // definitions for acquisition and filing
-  #if MCU==RP240
+  #if MCU==RP_2040
     #define NCHAN_I2S   1   // controls the I2S interface
     #define NCH         1   // for wav header (Mono or stereo)
     #if FSAMP>96000         // limit sampling frequency
@@ -50,7 +53,7 @@
       #define FSAMP 96000
     #endif
     //
-  #elif MCU==RP2350
+  #elif MCU==RP_2350
     #define NCHAN_I2S   2   // controls the I2S interface
     #define NCH         2   // for wav header (Mono or stereo)
     #if FSAMP>384000        // limit sampling frequency

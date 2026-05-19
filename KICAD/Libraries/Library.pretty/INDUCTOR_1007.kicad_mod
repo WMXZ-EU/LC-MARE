@@ -1,0 +1,232 @@
+(footprint "INDUCTOR_1007"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Inductor - 1007 (2518 Metric)\n\nL: 2.5mm x W: 1.8mm x H: 1.8mm")
+	(property "Reference" "REF**"
+		(at -1.8109 0.3121 180)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "b7c6fc89-6355-4739-899b-74a2957d9f8f")
+		(effects
+			(font
+				(size 0.692831 0.692831)
+				(thickness 0.119969)
+			)
+			(justify right top)
+		)
+	)
+	(property "Value" "DFE252012F-3R3M=P2"
+		(at -1.224 1.84 180)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "118dad04-03db-4583-ab7b-f9593a1e54d6")
+		(effects
+			(font
+				(size 0.369824 0.369824)
+				(thickness 0.036576)
+			)
+			(justify right top)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "aa88d9d6-51af-402e-b908-c7b520c23a7a")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "4072f42e-1330-4b5e-82ca-e6d0d98c1e3b")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(sheetname "/")
+	(sheetfile "KICAD4.kicad_sch")
+	(attr dnp)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -0.3175 -0.916)
+		(end 0.3175 -0.916)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "9e44f073-992c-4526-be83-520ebe8efa44")
+	)
+	(fp_line
+		(start -0.3175 0.916)
+		(end -0.3175 -0.916)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "31c39dc5-e11c-4762-b1bb-c84e5d0fca1e")
+	)
+	(fp_line
+		(start 0.3175 -0.916)
+		(end 0.3175 0.916)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "848131cb-df6f-4bec-8240-df5791ecddf5")
+	)
+	(fp_line
+		(start 0.3175 0.916)
+		(end -0.3175 0.916)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "a6eeeda6-11c5-4c02-a746-2a3466ed3908")
+	)
+	(fp_line
+		(start -1.25 -0.9)
+		(end -0.75 -0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "ed552afb-6802-483c-a737-12d9c22ecea1")
+	)
+	(fp_line
+		(start -1.25 0.9)
+		(end -1.25 -0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "99fbcca7-5cf4-4470-8d7a-eb86084d3121")
+	)
+	(fp_line
+		(start -1.25 0.9)
+		(end -0.75 0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "51147b16-e43b-479c-8763-03508c544b8b")
+	)
+	(fp_line
+		(start -0.75 -0.9)
+		(end 0.75 -0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "c8df2619-4d36-4183-827d-238cb84d23dc")
+	)
+	(fp_line
+		(start -0.75 0.9)
+		(end -0.75 -0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "b14a3276-cd6b-4bbf-b300-38c6d9008d0a")
+	)
+	(fp_line
+		(start -0.75 0.9)
+		(end 0.75 0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a9b55b31-50af-47ba-a300-0eb31a666e49")
+	)
+	(fp_line
+		(start 0.75 -0.9)
+		(end 1.25 -0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "4606b5ce-6e59-458c-ae3c-d2eecdec5308")
+	)
+	(fp_line
+		(start 0.75 0.9)
+		(end 0.75 -0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "6a397a8a-608f-4d15-884e-80352aca7b45")
+	)
+	(fp_line
+		(start 0.75 0.9)
+		(end 1.25 0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "1ed7efdf-7a05-48cd-853a-f01999c6a8fb")
+	)
+	(fp_line
+		(start 1.25 0.9)
+		(end 1.25 -0.9)
+		(stroke
+			(width 0.2032)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "b713109e-8336-4629-acff-c34aae83d5d2")
+	)
+	(pad "P$1" smd rect
+		(at -1 0)
+		(size 0.8 2)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.0508)
+		(solder_paste_margin 0)
+		(thermal_bridge_angle 0)
+		(uuid "019bc953-ad34-443b-91ff-883ee557681b")
+	)
+	(pad "P$2" smd rect
+		(at 1 0)
+		(size 0.8 2)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.0508)
+		(solder_paste_margin 0)
+		(thermal_bridge_angle 0)
+		(uuid "84cb3028-7828-4294-ae2b-c196b5787172")
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/3d/DFE252012F-3R3M_P2.step"
+		(offset
+			(xyz 0 -0.5 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

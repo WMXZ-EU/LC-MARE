@@ -1,0 +1,344 @@
+(footprint "BAT_1376164-1"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at -1.905 -4.445 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "9f3ea95c-10d1-4427-a3ab-1fd4483b12af")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Battery_Cell"
+		(at 3.175 4.445 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "03a28f5d-512c-496f-9f71-e1e698bf2b85")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "12fc78be-9e82-4ecb-9aa6-266e28848745")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Single-cell battery"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "4d89a422-5c3e-4518-97d3-b2bd923c3f08")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(sheetname "/")
+	(sheetfile "KICAD4.kicad_sch")
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -5.7 -2.3)
+		(end -5.7 -1.3)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "6edca22a-d3a0-497b-9025-03aa1cc74bbb")
+	)
+	(fp_line
+		(start -5.2 -1.8)
+		(end -6.2 -1.8)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "af57a394-3b5b-468d-9134-5f6c3f7cedd0")
+	)
+	(fp_line
+		(start -4.8635 -3.4135)
+		(end 4.8635 -3.4135)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "c9c6cd02-00af-4edf-880a-d0c9ac1d846d")
+	)
+	(fp_line
+		(start -4.8635 -1.1635)
+		(end -4.8635 -3.4135)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0776377b-4aba-41f4-9b4c-aceb46d41c89")
+	)
+	(fp_line
+		(start -4.8635 3.4135)
+		(end -4.8635 1.1635)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "82ccecf1-1fea-4a97-9cb1-ccf3e8a36962")
+	)
+	(fp_line
+		(start 4.8635 -3.4135)
+		(end 4.8635 -1.1635)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "7254c72e-a46d-4365-8930-ae1fd630b747")
+	)
+	(fp_line
+		(start 4.8635 1.1635)
+		(end 4.8635 3.4135)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "8fbe7b84-365d-4a7c-9c26-1f6736f38b9b")
+	)
+	(fp_line
+		(start 4.8635 3.4135)
+		(end -4.8635 3.4135)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "28540cea-070b-4aa3-a1c8-851a65343b4f")
+	)
+	(fp_line
+		(start -5.85 -1.15)
+		(end -5.05 -1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "05d1fc61-c3ba-405b-b626-dd4f292429f5")
+	)
+	(fp_line
+		(start -5.85 1.15)
+		(end -5.85 -1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "d40fe424-f024-4e94-ab5c-2e0e866ecfeb")
+	)
+	(fp_line
+		(start -5.05 -3.65)
+		(end 5.05 -3.65)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "a2dabbfb-b44f-4f41-823d-930255c6a9c6")
+	)
+	(fp_line
+		(start -5.05 -1.15)
+		(end -5.05 -3.65)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "86d37e07-069c-48b7-9d05-e6e8879cc2d4")
+	)
+	(fp_line
+		(start -5.05 1.15)
+		(end -5.85 1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "4273deaa-4e68-43a3-aaa4-847eb32cf19c")
+	)
+	(fp_line
+		(start -5.05 3.65)
+		(end -5.05 1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "6a8950b8-2d82-4ba8-902f-08b0e4625557")
+	)
+	(fp_line
+		(start 5.05 -3.65)
+		(end 5.05 -1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "d7f0ae1a-62c4-4bc8-9e70-bb7673db1c58")
+	)
+	(fp_line
+		(start 5.05 -1.15)
+		(end 5.85 -1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "4fc358cb-e1d3-4682-a56f-b088048fe154")
+	)
+	(fp_line
+		(start 5.08 1.15)
+		(end 5.08 3.65)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "661e7038-82bb-45ab-91a6-f76bc4542c85")
+	)
+	(fp_line
+		(start 5.08 3.65)
+		(end -5.05 3.65)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "d166f91e-e99d-46eb-8b98-b4239ef4179a")
+	)
+	(fp_line
+		(start 5.85 -1.15)
+		(end 5.85 1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "5c3e79f6-e51f-452f-9461-9d9b5f2e6490")
+	)
+	(fp_line
+		(start 5.85 1.15)
+		(end 5.08 1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "0dfff5ad-6246-4e57-9729-d8a27a5ea93d")
+	)
+	(fp_line
+		(start -4.8 -3.35)
+		(end 4.8 -3.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "18e5cd80-ca08-4d05-9e53-b103ae6e20d4")
+	)
+	(fp_line
+		(start -4.8 3.35)
+		(end -4.8 -3.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "f05e66c7-1e4a-4830-a17a-2d8fb945b487")
+	)
+	(fp_line
+		(start -3.95 -2.3)
+		(end -3.95 -1.3)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "9711e956-5ddb-4230-aa86-f63d50f63255")
+	)
+	(fp_line
+		(start -3.45 -1.8)
+		(end -4.45 -1.8)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "42d600ff-822d-4986-a5ae-ce353013e483")
+	)
+	(fp_line
+		(start 4.8 -3.35)
+		(end 4.8 3.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "3b81cf99-6fb7-4a1a-9dac-943dcb121b1a")
+	)
+	(fp_line
+		(start 4.8 3.35)
+		(end -4.8 3.35)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "8807e8aa-bf76-4e5e-b9dc-7144565b01ed")
+	)
+	(pad "1" smd rect
+		(at -4.975 0)
+		(size 1.25 1.8)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "9fce8a41-7f4d-4fce-80a5-47f7100e2e90")
+	)
+	(pad "2" smd rect
+		(at 4.975 0)
+		(size 1.25 1.8)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "4b2d4672-8e1c-473b-9315-54499747d0c8")
+	)
+	(embedded_fonts no)
+	(model "C:/Users/wzimm/Documents/GitHub/LC-MARE/KICAD/Libraries/3D/1376164-1.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 0 0)
+		)
+	)
+)

@@ -95,6 +95,9 @@ void setup() {
   if (1)
   for(int p=0;p<PINS_COUNT;p++) // disable GIPOs (to save power,hopefully)
   { if(p==PIN_NEOPIXEL) continue; // neopixel
+    #if MCU==RP_2350
+      if(p==RP2350_PSRAM_CS) continue; // psram
+    #endif
     pinMode(p, INPUT); 
     gpio_set_input_enabled(p, false); 
   }
@@ -143,6 +146,7 @@ void setup() {
 
   if(alarm!=0xffffffff)
   { delay(0.1);
+    Serial.print("alarm "); Serial.println(alarm);
     uint32_t tt = rtc_get();
     if(xrtc && (tt<alarm))  // only hibernate if xrtc exists
     { neo_pixel_show(0, 0, 0);

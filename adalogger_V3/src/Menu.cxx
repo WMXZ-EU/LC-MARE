@@ -43,6 +43,8 @@ void parameterPrint(void)
   Serial.print("Version    "); Serial.println(Version);
   getUID();
   Serial.print("UID        "); Serial.println(uid_strng);
+  Serial.printf("PSRAM Size: %d\r\n", rp2040.getPSRAMSize());
+  Serial.printf("Queue Size: %d\r\n",  MAX_QUEUE*MD*NBUF_I2S*4);
   Serial.print("eeprom (w) "); Serial.print(eeprom); Serial.println();
   Serial.print("t_acq  (a) "); Serial.print(t_acq);  Serial.println(" sec");
   Serial.print("t_on   (o) "); Serial.print(t_on);   Serial.println(" min");
@@ -66,18 +68,18 @@ static char * menuGetLine(void)
   int count;
   count = Serial.readBytesUntil('\n',buffer,40);
   buffer[count]=0;
-  Serial.println(buffer);
+  Serial.print("> "); Serial.println(buffer);
   return buffer;
 }
 static int menuGetInt16(uint16_t *val)
 { char *buffer=menuGetLine();
-  int tmp;
+  int tmp=0;
   sscanf(buffer,"%d",&tmp); *val=(uint16_t) tmp;
   return 1;
 }
 static int menuGetInt32(uint32_t *val)
 { char *buffer=menuGetLine();
-  int tmp;
+  int tmp=0;
   sscanf(buffer,"%d",&tmp); *val=(uint32_t) tmp;
   return 1;
 }

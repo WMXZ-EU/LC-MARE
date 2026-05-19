@@ -1,0 +1,71 @@
+(footprint "TESTPOINT_ROUND_1.5MM_NO"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "e1ec8897-8205-4ee5-b9f5-f53876c8a2d3")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+			(justify right top)
+		)
+	)
+	(property "Value" "TESTPOINTROUND1.5MMNO"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "839f23dc-7082-4fa8-a6e0-b5e641f515a1")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+			(justify right top)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "158832e4-d9ff-4da7-b11d-d03d4d29e3a0")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ef16484b-8825-4cca-b0b0-84e04f7b243d")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(sheetname "/")
+	(sheetfile "KICAD4.kicad_sch")
+	(attr exclude_from_bom dnp)
+	(duplicate_pad_numbers_are_jumpers no)
+	(pad "P$1" smd roundrect
+		(at 0 0 180)
+		(size 1.5 1.5)
+		(layers "F.Cu" "F.Mask")
+		(roundrect_rratio 0.5)
+		(solder_mask_margin 0.0508)
+		(solder_paste_margin 0)
+		(thermal_bridge_angle 0)
+		(uuid "25a7b10b-4bd5-45bd-914e-51510814f133")
+	)
+	(embedded_fonts no)
+)

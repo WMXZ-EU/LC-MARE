@@ -64,13 +64,22 @@ static uint16_t have_sd =0;
   // for SDIO
   #if (USD_SDIO==1) && defined(HAS_BUILTIN_PIO_SDIO)
 
-    void spi_init(void) {}
-
     // Note: fourth paramter of SdioConfig is the PIO clkDiv with default 1.00.
     #define SD_CONFIG SdioConfig(PIN_SD_CLK, PIN_SD_CMD_MOSI, PIN_SD_DAT0_MISO)
 
+    void spi_init(void) {}
+
   #else // for SPI
-    #define _CS PIN_SPI1_SS
+    #if MCU==RP_2040
+      // for SPI
+      #define _CS 23
+      // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+      #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
+    #else
+      #define _CS 25 
+      // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+      #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12))
+    #endif
 
     void spi_init()
     { pinMode(_CS, OUTPUT);
@@ -81,8 +90,6 @@ static uint16_t have_sd =0;
       //SPI1.setTX(PIN_SPI1_MOSI);
       //SPI1.setSCK(PIN_SPI1_CLK);
     }
-    // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
-    #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
   #endif
 //#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
 //    #define _CS PIN_SPI0_SS
