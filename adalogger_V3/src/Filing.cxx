@@ -75,7 +75,7 @@ static uint16_t have_sd =0;
       #define _CS 23
       // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
       #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
-    #else
+    #elif MCU==RP_2350
       #define _CS 25 
       // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
       #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12))
@@ -85,21 +85,8 @@ static uint16_t have_sd =0;
     { pinMode(_CS, OUTPUT);
       digitalWrite(_CS,HIGH);
       //
-      //SPI1.setCS(PIN_SPI1_SS);
-      //SPI1.setRX(PIN_SPI1_MISO);
-      //SPI1.setTX(PIN_SPI1_MOSI);
-      //SPI1.setSCK(PIN_SPI1_CLK);
     }
   #endif
-//#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2350_HSTX)
-//    #define _CS PIN_SPI0_SS
-//
-//    void spi_init()
-//    { pinMode(_CS, OUTPUT);
-//      digitalWrite(_CS,HIGH);
-//    }
-//    // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
-//    #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
 #else
     void spi_init(void) {}
 

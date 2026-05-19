@@ -82,17 +82,19 @@ int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, i
   // mask input data
   for(int ii=nch; ii<NDATA; ii++) utmp[ii] &= mask;
 
-  out[0]=0xA5A5A5A5;
-  out[1]=millis();
-  out[2]=nb;
-  out[3]=0;
-  for(int ii=0; ii<nch;ii++) {out[4+ii]=tempData[ii]; tempData[ii]=0;}
-  int32_t nd = encodeBlock(&out[4+nch],utmp,ndat, nb,MBIT);
+  int kk=0;
+  out[kk++]=0xA5A5A5A5;
+  out[kk++]=millis();     // is missing in V2
+  out[kk++]=nb;
+  out[kk++]=0;
+  for(int ii=0; ii<nch;ii++) {out[kk+ii]=tempData[ii]; tempData[ii]=0;}
+  int32_t nd = encodeBlock(&out[kk+nch],utmp,ndat, nb,MBIT);
 
-  out[3]=nd;
+  out[kk-1]=nd;
   //
-  out[NDATA-1]=4+nch+nd;
-  return 4+nch+nd;
+  kk +=(nch+nd);
+  out[NDATA-1]=kk;
+  return kk;
 }
 
 int32_t *__not_in_flash_func(compressData)(int32_t *buffer)

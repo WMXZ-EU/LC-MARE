@@ -148,13 +148,13 @@ void setup() {
   { delay(0.1);
     Serial.print("alarm "); Serial.println(alarm);
     uint32_t tt = rtc_get();
-    if(xrtc && (tt<alarm))  // only hibernate if xrtc exists
+    if(xrtc && (tt<alarm))  // only hibernate if xrtc exists and alarm in future
     { neo_pixel_show(0, 0, 0);
       hibernate_until(alarm);
     }
     else
     { // clean-up initial alarm value
-      // as there is no external rtc or we passed alarm time
+      // as there is no external rtc or we have alarm time in the past
       eepromUpdateAlarm(0xffffffff);
     }
   }
@@ -172,8 +172,6 @@ void setup() {
     while(!setup1_ready) delay(10);
   #endif
   //
-  Serial.printf("PSRAM Size: %d\r\n", rp2040.getPSRAMSize());
-  Serial.printf("Queue Size: %d\r\n",  MAX_QUEUE*MD*NBUF_I2S*4);
 
   have_disk=SD_init();
   Serial.print("have disk: "); Serial.println(have_disk);
