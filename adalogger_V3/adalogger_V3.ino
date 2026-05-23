@@ -47,15 +47,47 @@ uint16_t setup_ready=0;
 uint16_t setup1_ready=0;
 char status_text[6][16]={"DO_START\0", "CLOSED\0", "RECORDING\0", "MUST_STOP\0", "JUST_STOPPED\0", "STOPPED\0"};
 
+// some testing modes
+#define TEST_HIBERNATE 0
+#define TEST_I2C 0
+#define TEST_RTC 0
+#define TEST_XRTC 0
+
 void setup() {
   // put your setup code here, to run once:
   // reduce MCU clock
   set_sys_clock_khz(CLK_MULT*12000, true);
 
-  neo_pixel_init();
-  neo_pixel_show(10, 0, 0);
+  #if TEST_HIBERNATE==1 // test hibernates
+  { 
 
-  #if 0
+    while(!Serial);
+    pinMode(LED_BUILTIN,OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+    i2s_setup();
+    dma_setup();
+    uint32_t xrtc=rtc_setup();
+    datetime_t tm;
+    uint32_t tt;
+    while(1)
+    {
+      for(int ii=0;ii<10;ii++)
+      { Serial.println(ii);
+        delay(1000);
+      }
+      XRTCgetDatetime(&tm);
+      tt= date2time(&tm, 2000);
+      Serial.println(tt);
+
+      digitalWrite(LED_BUILTIN, LOW);
+      tt= (tt/60 +1)*60;
+      Serial.println(tt);
+      hibernate_until(tt); // wakes up to to the last full minute less than tt
+    }
+  }
+  #endif
+
+  #if TEST_I2C==1
   // test i2c connections
     {
       while(!Serial);
@@ -81,20 +113,22 @@ void setup() {
     }  
   #endif
 
-  if(eepromLoad()==0)
-  { // should load parameters from LFS or uSD (TBD)
-    // loadConfigfromFile(); // does not work; is too early
+  neo_pixel_init();
+  neo_pixel_show(10, 0, 0);
+
+  // check if not XRTC wake-up
+  pinMode(XRTC_INT_PIN,INPUT_PULLUP);
+  if(!digitalRead(XRTC_INT_PIN))  
+  { status=DO_START;
+    while(millis()<(WAIT*1000)) if(Serial) { Serial.print(millis());break;}
   }
-
-  //while(!Serial);
-  while(millis()<(WAIT*1000)) if(Serial) { Serial.print(millis());break;}
   if(Serial) Serial.println("\n***********\nAdalogger\n***********\n");
-
   neo_pixel_show(10, 10, 0);
 
   if (1)
   for(int p=0;p<PINS_COUNT;p++) // disable GIPOs (to save power,hopefully)
   { if(p==PIN_NEOPIXEL) continue; // neopixel
+    if(p==XRTC_INT_PIN) continue;
     #if MCU==RP_2350
       if(p==RP2350_PSRAM_CS) continue; // psram
     #endif
@@ -116,7 +150,7 @@ void setup() {
     printDatetime("rtc",&t);
   }
 
-  #if 0  // check time stamp
+  #if test_RTC==1  // check time stamp
     // activate for testing rtc
     while(1)
     { // for testing
@@ -132,7 +166,7 @@ void setup() {
   xrtc=rtc_setup();
   Serial.print("xrtc "); Serial.println(xrtc);
 
-  #if 0 // check times
+  #if TEST_XRTC==1 // check times
     // sync is done in mRTC.cxx
     if(xrtc)
     {
@@ -144,23 +178,28 @@ void setup() {
     }
   #endif
 
-  if(alarm!=0xffffffff)
-  { delay(0.1);
-    Serial.print("alarm "); Serial.println(alarm);
-    uint32_t tt = rtc_get();
-    if(xrtc && (tt<alarm))  // only hibernate if xrtc exists and alarm in future
-    { neo_pixel_show(0, 0, 0);
-      hibernate_until(alarm);
-    }
-    else
-    { // clean-up initial alarm value
-      // as there is no external rtc or we have alarm time in the past
-      eepromUpdateAlarm(0xffffffff);
-    }
+  have_disk=SD_init();
+  Serial.print("have disk: "); Serial.println(have_disk);
+
+  Serial.println("\nConfiguration Parameters");
+  configShow();
+
+  Serial.print("Start Time: ");Serial.println(startTime);
+  datetime_t tm;
+  decodeTimestamp(&tm,startTime);
+  uint32_t to;
+  to=date2time(&tm,2000);
+  uint32_t tt = rtc_get();
+  Serial.println(tt);
+  Serial.println(to);
+  if(tt<to)
+  {
+    neo_pixel_show(0, 0, 0);
+    hibernate_until(to);
   }
 
-  Serial.println("Parameter Print");
-  parameterPrint();
+  //if(have_disk) status=DO_START;
+  if(!have_disk)  neo_pixel_show(0, 0, 10); else neo_pixel_show(0, 0, 0);
 
   #if MC==0
     // have single core; start acquisition here
@@ -172,12 +211,6 @@ void setup() {
     while(!setup1_ready) delay(10);
   #endif
   //
-
-  have_disk=SD_init();
-  Serial.print("have disk: "); Serial.println(have_disk);
-  if(have_disk) configShow();
-  if(have_disk) status=DO_START;
-  if(!have_disk)  neo_pixel_show(0, 0, 10); else neo_pixel_show(0, 0, 0);
 
   if(!Serial)
   { //usb_stop(); // may be useful to cut power consumption further but hinders development
@@ -202,6 +235,10 @@ void loop() {
   { adc_exit();
     status=STOPPED;
     neo_pixel_show(0, 10, 0);
+  }
+  if(status==MUST_HIBERNATE)
+  { // 
+
   }
   //
   // filing

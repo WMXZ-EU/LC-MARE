@@ -28,14 +28,25 @@
 #include "Adc.h"
 #include "Filing.h"
 
-void eepromUpdate();
-void eepromList();
-static uint16_t eeprom=0;
+//void eepromUpdate();
+//void eepromList();
+//static uint16_t eeprom=0;
 
 uint32_t alarm=0xffffffff;
-void eepromWrite32(byte a, uint32_t v);
-void eepromCommit();
-#define EE_ALARM 11
+////void eepromWrite32(byte a, uint32_t v);
+//void eepromCommit();
+//#define EE_ALARM (1+10*2)
+
+void parameterPrint0(void)
+{
+    Serial.print("t_acq  (a) "); Serial.print(t_acq);  Serial.println(" sec");
+    Serial.print("t_on   (o) "); Serial.print(t_on);   Serial.println(" min");
+    Serial.print("t_rep  (r) "); Serial.print(t_rep);  Serial.println(" min");
+    Serial.print("fsamp  (f) "); Serial.print(fsamp);  Serial.println(" Hz");
+    Serial.print("again  (g) "); Serial.print(again);  Serial.println(" dB");
+    Serial.print("Processing "); Serial.println(PROC);
+    Serial.print("Voltage "); Serial.println(analogRead(A1));
+}
 
 void parameterPrint(void)
 { Serial.println("\n====================");
@@ -45,19 +56,9 @@ void parameterPrint(void)
   Serial.print("UID        "); Serial.println(uid_strng);
   Serial.printf("PSRAM Size: %d\r\n", rp2040.getPSRAMSize());
   Serial.printf("Queue Size: %d\r\n",  MAX_QUEUE*MD*NBUF_I2S*4);
-  Serial.print("eeprom (w) "); Serial.print(eeprom); Serial.println();
-  Serial.print("t_acq  (a) "); Serial.print(t_acq);  Serial.println(" sec");
-  Serial.print("t_on   (o) "); Serial.print(t_on);   Serial.println(" min");
-  Serial.print("t_rep  (r) "); Serial.print(t_rep);  Serial.println(" min");
-  Serial.print("fsamp  (f) "); Serial.print(fsamp);  Serial.println(" Hz");
-  Serial.print("again  (g) "); Serial.print(again);  Serial.println(" dB");
-  Serial.print("Processing "); Serial.println(PROC);
-  Serial.print("Voltage "); Serial.println(analogRead(A1));
-
-  eepromList();
-
-  configShow();
-}
+  //
+  parameterPrint0();
+} 
 
 // User Interface
 static char * menuGetLine(void)
@@ -135,13 +136,27 @@ status_t menu(status_t status)
           alarm /= 3600;
           alarm = (alarm+h_off)*3600;
           Serial.print(" ("); Serial.print(alarm-rtc_get()); Serial.println(" sec)");
-          eepromWrite32(EE_ALARM, alarm);
-          eepromCommit();
           hibernate_until(alarm);
         }
         else
         {
-          reboot();
+          doReboot();
+        }
+      }
+      else if(ch=='y')  //exit and sleep until next minute
+      { uint16_t m_off; 
+        menuGetInt16(&m_off);
+        if(m_off>0)
+        { Serial.print(" hibernating "); Serial.print(m_off); Serial.print(" minutes");
+          alarm = rtc_get();
+          alarm /= 60;
+          alarm = (alarm+m_off)*60;
+          Serial.print(" ("); Serial.print(alarm-rtc_get()); Serial.println(" sec)");
+          hibernate_until(alarm);
+        }
+        else
+        {
+          doReboot();
         }
       }
       else if(ch=='?')  // get parameter
@@ -172,7 +187,7 @@ status_t menu(status_t status)
             Serial.print("p = "); Serial.println(PROC);
             break;
           case 'w':
-            Serial.print("w = "); Serial.println(eeprom);
+            //Serial.print("w = "); Serial.println(eeprom);
             break;
           case 'd':
             datetime_t t;
@@ -225,8 +240,9 @@ status_t menu(status_t status)
             setAGain((int8_t)again&0xff);
             break;
           case 'w':
-            menuGetInt16((uint16_t*)&eeprom);
-            eepromUpdate();
+            menuGetLine();
+            //menuGetInt16((uint16_t*)&eeprom);
+            //eepromUpdate();
             break;
           case 'u':
             menuGetLine();
@@ -299,17 +315,22 @@ status_t menu(status_t status)
 }
 
 /**********************Parameters***********************/
+#if 0
 #include <EEPROM.h>
 
 void eepromInit() { EEPROM.begin(256);}
 void eepromCommit() {  EEPROM.commit();}
 
-void eepromWrite(byte a, uint32_t v)
+void eepromWrite8(byte a, uint32_t v)
+{
+    EEPROM.write(a,v&0xff);
+}
+void eepromWrite16(byte a, uint32_t v)
 {
     EEPROM.write(a,v&0xff);
     EEPROM.write(a+1,(v>>8) &0xff);
 }
-uint16_t eepromRead(byte a)
+uint16_t eepromRead16(byte a)
 { uint16_t v;
     v = EEPROM.read(a);
     v |= EEPROM.read(a+1)<<8;
@@ -334,11 +355,11 @@ uint32_t eepromRead32(byte a)
 
 void eepromUpdate() 
 { 
-  eepromWrite(1,t_acq);
-  eepromWrite(3,t_on);
-  eepromWrite(5,t_rep);
-  eepromWrite(7,fsamp/1000);
-  eepromWrite(9,again);
+  eepromWrite16(1,t_acq);
+  eepromWrite16(3,t_on);
+  eepromWrite16(5,t_rep);
+  eepromWrite16(7,fsamp/1000);
+  eepromWrite16(9,again);
   EEPROM.write(0,eeprom&0xff);
   EEPROM.commit();
 }
@@ -350,7 +371,7 @@ void eepromUpdateAlarm(uint32_t alarm)
 }
 
 void eepromList(void)
-{  for(int ii=0;ii<16;ii++) {Serial.print(EEPROM.read(ii)); Serial.print(' ');} Serial.println();
+{  for(int ii=0;ii<32;ii++) {Serial.print(EEPROM.read(ii)); Serial.print(' ');} Serial.println();
 }
 
 uint16_t eepromLoad(void)
@@ -362,12 +383,13 @@ uint16_t eepromLoad(void)
   eeprom=EEPROM.read(0);
   if(eeprom==1)
   { 
-    t_acq = eepromRead(1);
-    t_on  = eepromRead(3);
-    t_rep = eepromRead(5);
-    fsamp = eepromRead(7)*1000;
-    again = eepromRead(9);
+    t_acq = eepromRead16(1);
+    t_on  = eepromRead16(3);
+    t_rep = eepromRead16(5);
+    fsamp = eepromRead16(7)*1000;
+    again = eepromRead16(9);
     return 1;
   }
   return 0;
 }
+#endif

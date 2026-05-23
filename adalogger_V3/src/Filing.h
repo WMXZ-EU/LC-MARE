@@ -49,6 +49,6 @@
   int16_t loadConfigfromFile(void);
   void storeConfigToFile(void);
   void configLoad(void);
-  void configShow(void);
+  int configShow(void);
 
 #endif

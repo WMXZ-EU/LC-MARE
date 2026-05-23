@@ -562,14 +562,14 @@ void XRTCclearAlarm(void)
 	clearAlarmInterruptFlag();  
 }
 
-void eepromUpdateAlarm(uint32_t alarm);
+//void eepromUpdateAlarm(uint32_t alarm);
 void XRTCsetAlarm(uint32_t secs)
 { uint8_t min,hour,date;
   datetime_t tm;
   time2date(secs, &tm, 2000);
   Serial.printf("%d %d %d %d %d\n",tm.year,tm.month,tm.day,tm.hour,tm.min);
   enableAlarmInterrupt(tm.min, tm.hour, tm.day, false, 0, false); 
-  eepromUpdateAlarm(secs);
+  //eepromUpdateAlarm(secs);
 } 
 
 

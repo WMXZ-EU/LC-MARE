@@ -22,7 +22,7 @@
 #ifndef mRTC_H
 #define mRTC_H
 
-//#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
+//#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER
 
 #ifndef HAS_RP2040_RTC
   typedef struct {

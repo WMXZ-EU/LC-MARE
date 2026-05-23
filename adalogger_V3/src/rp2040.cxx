@@ -22,6 +22,7 @@
 #include "Arduino.h"
 #include "global.h"
 #include "Queue.h"
+#include "mRTC.h"
 
 //#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
 #if defined(ARDUINO_ARCH_RP2040)
@@ -416,6 +417,11 @@
       //process_acq_init();
   }
   
+  void dma_exit(void)
+  {
+    irq_set_enabled(DMA_IRQ_0, false);
+  }
+
   static void __not_in_flash_func(dma_irq)(void)
   { static int32_t val=0;
 
@@ -453,14 +459,15 @@
 */
 
   extern void SD_stop(void);
-
+//  extern volatile int32_t stop_acq;
   void stopSystem(void)
   {
     //
-    SD_stop();
-    //adc_exit();
+ //   stop_acq=1;
     //
-    //stopUSB();
+    SD_stop();
+    delay(100);
+    //while(stop_acq==1);
   }
 
   #include "pico/stdlib.h"
@@ -474,6 +481,9 @@
   #include "hardware/xosc.h"
   #include "hardware/structs/rosc.h"
 
+  #if MCU != RP_2040
+      #include "hardware/powman.h"
+  #endif
 
   void usb_stop(void)
   {
@@ -535,6 +545,9 @@
       // CLK ADC = 0MHz
       clock_stop(clk_adc);
       clock_stop(clk_usb);
+      #if MCU==RP_2350
+          clock_stop(clk_hstx);
+      #endif      
       #if HAS_RP2040_RTC
         clock_stop(clk_rtc);
       #endif
@@ -561,12 +574,21 @@
       gpio_set_input_enabled(gpio_pin, true);
       gpio_set_dormant_irq_enabled(gpio_pin, event, true);
 
+      // disable systick now so that no milisecond interrupts will occur
+      //systick_hw->csr &= ~1;
+      // we will get out of sleep when an interrupt occurs.
+  
       xosc_dormant();
       // Execution stops here until woken up
 
       // Clear the irq so we can go back to dormant mode again if we want
       gpio_acknowledge_irq(gpio_pin, event);
       gpio_set_input_enabled(gpio_pin, false);
+
+      //systick_hw->csr |= 1; // enable systick again, hope we survived this
+      // we don't actually know the time duration during which we were dormant.
+      // so, the absolute value ofmillis() will be messed up.
+
   }
 
   // To be called after waking up from sleep/dormant mode to restore system clocks properly
@@ -581,11 +603,18 @@
 
       // Restore all clocks
       clocks_init();
+
+      #if MCU==RP_2350
+          // make powerman use xosc again
+          uint64_t restore_ms = powman_timer_get_ms();
+          powman_timer_set_1khz_tick_source_xosc();
+          powman_timer_set_ms(restore_ms);
+      #endif
   }
 
-  void reboot(void){ rp2040.restart(); }
+  void doReboot(void){ rp2040.restart(); }
 
-  void reset()
+  void doReset()
   {
     #define AIRCR_Register (*((volatile uint32_t*)(PPB_BASE + 0x0ED0C)))
     AIRCR_Register = 0x5FA0004;    
@@ -604,14 +633,12 @@
   void goDormant(void) 
   {
     // 'switch-off' all I/O pins
-    for(int p=0;p<30;p++)
-    if(p != XRTC_INT_PIN)
+    for(int p=0;p<PINS_COUNT;p++)
+    //if(p != XRTC_INT_PIN)
     { pinMode(p, INPUT); // best performance!
       gpio_set_input_enabled(p, false); // disable input gate
     }
-    // set-up RTC-wakeup pin
-    pinMode(XRTC_INT_PIN,INPUT_PULLUP);
-    gpio_set_input_enabled(XRTC_INT_PIN, true); // enable input gate
+
     sleep_run_from_xosc();
     #if HAS_RP2040_RTC
       clock_stop(clk_rtc);
@@ -620,10 +647,8 @@
     //
     // will resume action here
     sleep_power_up();
-    delay(100);
-
     // simply restart program to facilitate setup
-    reboot();
+    doReboot();
   }
 
 /*
@@ -651,9 +676,26 @@ uint32_t estAlarmTime(uint32_t secs) { return (secs<alarm)? alarm: secs; } // wi
   }
 */
 
+  const char *t_fmt="%4d-%02d-%02d_%02d:%02d:%02d";
+  void encodeTimestamp(char *txt, datetime_t *tm)
+  { sprintf(txt,t_fmt,tm->year,tm->month,tm->day,tm->hour,tm->min,tm->sec);
+  }
+  void decodeTimestamp(datetime_t*tm,  char *txt)
+  { uint32_t vals[6];
+    sscanf(txt,t_fmt,&vals[0],&vals[1],&vals[2],&vals[3],&vals[4],&vals[5]);
+    tm->year=vals[0];tm->month=vals[1];tm->day=vals[2];
+    tm->hour=vals[3];tm->min=vals[4];tm->sec=vals[5];
+  }
+
+  extern char startTime[];
   void hibernate_until(uint32_t secs)
-  { stopSystem();
-    XRTCsetAlarm(secs);
+  { XRTCsetAlarm(secs);
+    //
+    datetime_t tm;
+    time2date(secs, &tm, 2000);
+    encodeTimestamp(startTime,&tm);
+    //
+    stopSystem();
     delay(100);
     goDormant();
   }

@@ -42,6 +42,7 @@ char IART[40]={ART_str}; // 'Artist' (creator)
 char IPRD[40]={PRD_str}; // 'Product' (Activity)
 char ISBJ[40]={SBJ_str}; // 'subject' (Area)
 char INAM[40]={NAM_str}; // 'Name' (location id)
+char startTime[40]={"2000-01-01 00:00:00"}; // Start Time
 
 // microSD card
 #if SDFAT_FILE_TYPE != 3
@@ -70,13 +71,11 @@ static uint16_t have_sd =0;
     void spi_init(void) {}
 
   #else // for SPI
+    #define _CS SD_CS
     #if MCU==RP_2040
-      // for SPI
-      #define _CS 23
       // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
       #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12), (SpiPort_t *) &SPI1)
     #elif MCU==RP_2350
-      #define _CS 25 
       // Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
       #define SD_CONFIG SdSpiConfig(_CS, SHARED_SPI, SD_SCK_MHZ(SD_MULT*12))
     #endif
@@ -232,12 +231,12 @@ extern uint32_t  acq_count;
 uint32_t mdt=0;   // keep max write time
 int write_disk(int32_t *buffer,int32_t nbuf)
 {
-    //digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, HIGH);
     uint32_t to=millis();
     int ndat= file.write(buffer,nbuf);
     uint32_t dt=(millis()-to);
     if(dt>mdt) mdt=dt;
-    //digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, LOW);
     return ndat;
 }
 
@@ -412,12 +411,14 @@ status_t logger(status_t status)
         //
         if(t_rep>t_on)                      // if forseen  check for duty cycle
         { uint32_t ttm=tt/60;
-          //Serial.printf("%d %d %d %d\n",t_acq,t_rep,ttm,(ttm % t_rep));
+          Serial.printf("%d %d %d %d %d\n",t_acq,t_rep,ttm,(ttm % t_rep),t_on);
 
           uint32_t dt2 = (ttm % t_rep);
           if(dt2>=t_on) 
           {
+            adc_exit();
             uint32_t alarm=((ttm/t_rep)+1)*t_rep*60;
+            Serial.printf("alarm %d %d %d %d\n",dt2,ttm,tt,alarm);
             hibernate_until(alarm);
           }
         }
@@ -429,60 +430,50 @@ status_t logger(status_t status)
 }
 
 /*************************Configuration file ****************************************/
-static char configText[20*80]={0};  // maximal 20 lines of 80 characters each
-static int configIndex[20]={0};     // maximal 20 parameters (actual 11 entries)
-/*
-# configuration file
-# should end with '#' or ';' comment may follow
-#
-!a 60			# file size (sec)
-!o 1			# on time (min)
-!r 0			# repetition interval (min)
-!f 192		# sampling frequency (kHz)
-!g 0			# analog gain (dB)
-!s AS1-208		# (ISRC) source with sensitivity
-!c WMXZ		# (ICMS) commissioning organization 
-!n wmxz		# (IART) name of operator (creator)
-!p Development	# (IPRD) project 
-!e Home		# (ISBJ) area 
-!l B01		# (INAM) location id 
-*/
+#include "Menu.h"
+#define CONFIG_FILE "/config.txt"
+static char configText[20*80]={0};  // maximal 30 lines of 80 characters each
+static int configIndex[20]={0};     // maximal 30 parameters (actual 11 entries)
+//
 void storeConfigToFile(void)
 {
-    FsFile file = sd.open("config.txt",(O_RDWR | O_CREAT)); 
+    FsFile file = sd.open(CONFIG_FILE,(O_RDWR | O_CREAT)); 
     if(file) 
     { file.printf("# configuration file\n");
       file.printf("# should end with '#' or ';' comment may follow\n");
       file.printf("#\n");
-      file.printf("!a %d  # file size (sec)",t_acq);
-      file.printf("!o %d  # on time (min)",t_on);
-      file.printf("!r %d  # repetition interval (min)",t_rep);
-      file.printf("!f %d	# sampling frequency (kHz)",fsamp/1000);
-      file.printf("!g %d	# analog gain (dB)",again);
-      file.printf("!s %s	# (ISRC) source with sensitivity",ISRC);
-      file.printf("!c %s	# (ICMS) commissioning organization ",ICMS);
-      file.printf("!n %s	# (IART) name of operator (creator)",IART);
-      file.printf("!p %s	# (IPRD) project ",IPRD);
-      file.printf("!e %s	# (ISBJ) area ",ISBJ);
-      file.printf("!l %s	# (INAM) location id ",INAM);
-      file.printf("!1 %d	# h_rec[0] ",h_rec[0]);
-      file.printf("!2 %d	# h_rec[1] ",h_rec[1]);
-      file.printf("!3 %d	# h_rec[2] ",h_rec[2]);
-      file.printf("!4 %d	# h_rec[3] ",h_rec[3]);
+      file.printf("!a %d  # file size (sec)\n",t_acq);
+      file.printf("!o %d  # on time (min)\n",t_on);
+      file.printf("!r %d  # repetition interval (min)\n",t_rep);
+      file.printf("!f %d	# sampling frequency (kHz)\n",fsamp/1000);
+      file.printf("!g %d	# analog gain (dB)\n",again);
+      file.printf("!s %s	# (ISRC) source with sensitivity\n",ISRC);
+      file.printf("!c %s	# (ICMS) commissioning organization\n",ICMS);
+      file.printf("!n %s	# (IART) name of operator (creator)\n",IART);
+      file.printf("!p %s	# (IPRD) project\n",IPRD);
+      file.printf("!e %s	# (ISBJ) area\n",ISBJ);
+      file.printf("!l %s	# (INAM) location id\n",INAM);
+      file.printf("!1 %d	# h_rec[0]\n",h_rec[0]);
+      file.printf("!2 %d	# h_rec[1]\n",h_rec[1]);
+      file.printf("!3 %d	# h_rec[2]\n",h_rec[2]);
+      file.printf("!4 %d	# h_rec[3]\n",h_rec[3]);
+      file.printf("!x %s  # start time yyyy-mm-dd_hh:mm:ss\n",startTime);
       file.close(); 
     }
 }
+
+inline uint16_t scan16(char *txt) {uint32_t tmp;  sscanf(txt,"%d",&tmp); return (uint16_t) tmp;}
 
 int16_t loadConfigfromFile(void)
 {
   const int nmax=sizeof(configText);
     // load file into memmory
-    int ii=0;
-    FsFile file = sd.open("config.txt"); 
+    int imax=0;
+    FsFile file = sd.open(CONFIG_FILE); 
     if(file) 
-    { while (file.available() && (ii<nmax)) 
+    { while (file.available() && (imax<nmax)) 
       {
-        configText[ii++]=file.read();
+        configText[imax++]=file.read();
       }
       file.close(); 
     }
@@ -491,36 +482,40 @@ int16_t loadConfigfromFile(void)
     //
     // find menu entries
     int jj=0;
-    for(int ii=0;ii<nmax;ii++) {if(configText[ii]=='!') configIndex[jj++]=ii;}
+    for(int ii=0;ii<imax;ii++) {if(configText[ii]=='!') configIndex[jj++]=ii;}
+    int jmax=jj;
     // decode menu entries
-    for(int ii=0;ii<jj;ii++){ 
+    for(int ii=0;ii<jmax;ii++)
+    { 
       int i1=configIndex[ii]+1;
-      int i2=i1;
-      while(i2<nmax) {if((configText[i2]=='#')||(configText[i2]==';')) break; i2++;}
+      int i2=i1+1;
+      while(i2<i1+80) {if((configText[i2]=='#')||(configText[i2]==';')) break; i2++;}
       configText[i2]=0;
-      char *txt=&configText[configIndex[ii]];
-
-      char *txt2=txt+2;
-        switch(txt[1])
-        {
-          case 'a': sscanf(txt2,"%d",&t_acq); break;
-          case 'o': sscanf(txt2,"%d",&t_on); break;
-          case 'r': sscanf(txt2,"%d",&t_rep); break;
-          case 'f': sscanf(txt2,"%d",&fsamp); fsamp *=1000; acqModifyFrequency(fsamp); break;
-          case 'g': sscanf(txt2,"%d",&again); setAGain((int8_t)again&0xff); break;
-          case 's': sscanf(txt2,"%s",&ISRC[0]); break; // source (AS1-200)
-          case 'c': sscanf(txt2,"%s",&ICMS[0]); break; // commissioning organisation (WMXZ)
-          case 'n': sscanf(txt2,"%s",&IART[0]); break; // name of operator (creator) (WMXZ)
-          case 'p': sscanf(txt2,"%s",&IPRD[0]); break; // project (Development)
-          case 'e': sscanf(txt2,"%s",&ISBJ[0]); break; // area (atHome)
-          case 'l': sscanf(txt2,"%s",&INAM[0]); break; // location id (B01)
-          case '1': sscanf(txt2,"%d",&h_rec[0]); break; // h_rec[0]
-          case '2': sscanf(txt2,"%d",&h_rec[1]); break; // h_rec[1]
-          case '3': sscanf(txt2,"%d",&h_rec[2]); break; // h_rec[2]
-          case '4': sscanf(txt2,"%d",&h_rec[3]); break; // h_rec[3]
+      char *txt=&configText[i1];
+      char *txt2=&txt[2];
+      
+        switch(txt[0])
+        { case 'a': t_acq=scan16(txt2);  break;
+          case 'o': t_on =scan16(txt2);  break;
+          case 'r': t_rep=scan16(txt2);  break;
+          case 'f': fsamp=scan16(txt2);
+                    fsamp *=1000; acqModifyFrequency(fsamp); break;
+          case 'g': again=scan16(txt2);
+                    setAGain((int8_t)again&0xff);  break;
+          case 's': sscanf(txt2,"%s",&ISRC[0]);    break; // source (AS1-200)
+          case 'c': sscanf(txt2,"%s",&ICMS[0]);    break; // commissioning organisation (WMXZ)
+          case 'n': sscanf(txt2,"%s",&IART[0]);    break; // name of operator (creator) (WMXZ)
+          case 'p': sscanf(txt2,"%s",&IPRD[0]);    break; // project (Development)
+          case 'e': sscanf(txt2,"%s",&ISBJ[0]);    break; // area (atHome)
+          case 'l': sscanf(txt2,"%s",&INAM[0]);    break; // location id (B01)
+          case '1': h_rec[0]=scan16(txt2);  break; // h_rec[0]
+          case '2': h_rec[1]=scan16(txt2);  break; // h_rec[1]
+          case '3': h_rec[2]=scan16(txt2);  break; // h_rec[2]
+          case '4': h_rec[3]=scan16(txt2);  break; // h_rec[3]
+          case 'x': sscanf(txt2,"%s",&startTime[0]); break; // startTime
         }
     }
-  return ii;
+  return jmax;
 }
 
 void configLoad(void)
@@ -528,11 +523,12 @@ void configLoad(void)
   Serial.println(loadConfigfromFile());
 }
 
-void configShow(void)
+int configShow(void)
 {
   if(loadConfigfromFile()>0)
   {
     Serial.println("config Loaded");
+    parameterPrint0();
     Serial.print("ISRC "); Serial.println(ISRC);
     Serial.print("ICMS "); Serial.println(ICMS);
     Serial.print("IART "); Serial.println(IART);
@@ -541,5 +537,7 @@ void configShow(void)
     Serial.print("INAM "); Serial.println(INAM);
 
     wavInfoInit();
+    return 1;
   }
+  return 0;
 }

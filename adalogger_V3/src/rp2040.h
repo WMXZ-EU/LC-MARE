@@ -21,14 +21,17 @@
  */
 #ifndef RP2040_H
 #define RP2040_H
+#include "mRTC.h"
 
   void usb_stop(void);
-  void reboot(void);
+  void doReboot(void);
   void sleep_power_up(void);
 
   // I2S
   void i2s_setup(void);
+  void i2s_stop(void);
   void dma_setup(void);
+  void dma_exit(void);
   void acqModifyFrequency(uint32_t fsamp);
 
   extern uint32_t missed_acq;
@@ -38,6 +41,9 @@
   void do_hibernate(void) ;
   void hibernate_init(void) ;
   void hibernate_until(uint32_t secs) ;
+
+  void encodeTimestamp(char *txt, datetime_t *tm);
+  void decodeTimestamp(datetime_t*tm,  char *txt);
 
   extern char uid_strng[]; 
   void getUID(void); 

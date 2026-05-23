@@ -97,10 +97,16 @@
   #endif
 
   //#define XRTC_INT_PIN A2   // DS3231 Feather Wing
-  #define XRTC_INT_PIN 15     // V2,V3
+  #if MCU==RP_2040
+    #define SD_CS 23
+    #define XRTC_INT_PIN 15
+  #elif MCU==RP_2350
+    #define SD_CS 25 
+    #define XRTC_INT_PIN 29
+  #endif
 
   // program states
-  enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED};
+  enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED, MUST_HIBERNATE};
   extern char status_text[][16];
   
   // RP2040 specific
@@ -138,5 +144,7 @@
   extern char IPRD[]; // 'Product' (Activity)
   extern char ISBJ[]; // 'subject' (Area)
   extern char INAM[]; // 'Name' (location id)
+
+  extern char startTime[]; // start Time (yyyy-mm-dd hh:mm:ss)
 
 #endif

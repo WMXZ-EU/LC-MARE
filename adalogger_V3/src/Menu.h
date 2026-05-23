@@ -22,12 +22,17 @@
  #ifndef MENU_H
 #define MENU_H
 #include "global.h"
-  uint16_t eepromLoad(void);
+  void parameterPrint0(void);
   void parameterPrint(void);
   status_t menu(status_t status);
 
-  void eepromWrite(byte a, uint32_t v);
+  /*
+  uint16_t eepromLoad(void);
+  void eepromWrite8(byte a, uint32_t v);
+  void eepromWrite16(byte a, uint32_t v);
+  void eepromWrite32(byte a, uint32_t v);
   void eepromUpdateAlarm(uint32_t alarm) ;
   //void eepromWrite32(byte a, uint32_t v);
   //void eepromCommit();
+  */
 #endif
