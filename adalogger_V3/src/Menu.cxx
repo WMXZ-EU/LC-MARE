@@ -276,6 +276,26 @@ status_t menu(status_t status)
           case '4':
             menuGetInt16((uint16_t*)&h_rec[3]);
             break;
+          case 'x':
+            menuGetString(&startTime[0]);
+            Serial.print("Start Time: ");Serial.println(startTime);
+            datetime_t tm;
+            decodeTimestamp(&tm,startTime);
+            uint32_t to;
+            to=date2time(&tm,2000);
+            uint32_t tt = rtc_get();
+            Serial.println(tt);
+            Serial.println(to);
+            if(tt<to)
+            {
+              neo_pixel_show(0, 0, 0);
+              hibernate_until(to);
+            }
+            else
+            {
+              doReboot();
+            }
+            break;
         }
       }
       else if(ch=='c')  // check and correct RTC time

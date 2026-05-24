@@ -60,11 +60,11 @@ def loadData(fileName):
 #------------------------------------------------------
 def saveData(fileName, hh, xx):
     # save 'wav' style file (i.e. data with RIFF header)
-    yy = np.concatenate((hh, xx)).astype('uint32')
+    yy = np.concatenate((hh, xx[:,0])).astype('uint32')
     nn = xx.shape[0] * 4
     ii = find_chunk(hh, 'data')
     yy[ii + 1] = nn
-    yy[1] = nn + (yy.shape[0] - 2) * 4
+    yy[1] = (yy.shape[0] - 2) * 4
     yy.tofile(fileName)
 
 '''
@@ -347,12 +347,9 @@ def decodeData(xx, blklen,nch, vers):
                 data[n0:n1] = itmp.copy().astype('uint32')
     return it,data.reshape(-1,nch).astype('int32')
 
-
 #--------------------------------------------------------
-def load_microPAM(fname, iprt=False):
-    hh, xx = loadData(fname)
+def convertData(hh,xx,fname,iprt=False):
     fs, nch, nbits, pcm = wavInfo(hh)
-    if iprt: print(fname,'fs=',fs, 'nch=',nch, 'nbits=',nbits, 'pcm=',pcm)
 
     vers=2
     ii = find_chunk(hh, 'LIST')
@@ -378,7 +375,7 @@ def load_microPAM(fname, iprt=False):
             cmpr = int(config[kx+7])
             blklen = int(config[kx+8])
             nblk = int(config[kx+9])
-            if iprt==1: print(cmpr, gain, shift, blklen)
+            if iprt: print(cmpr, gain, shift, blklen)
             #
             # have LC-MARE (very likely)
             preamp = 20*np.log10(21)  # dB
@@ -412,6 +409,13 @@ def load_microPAM(fname, iprt=False):
     else:
         data = np.frombuffer(xx, dtype='float32')
     #
+    return data,fs,nch,scale
+
+#--------------------------------------------------------
+def load_microPAM(fname, iprt=False):
+    hh, xx = loadData(fname)
+    data,fs,nch,scale=convertData(hh,xx,fname,iprt)
+
     # convert to V
     data = data * scale             # data is now  in V
     data = data.reshape(-1,nch)
