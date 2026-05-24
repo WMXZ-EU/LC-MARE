@@ -1,7 +1,6 @@
 # convert from *.bin to *.wav 
 import sys
 from os.path import basename
-import numpy as np
 from microPAM import get_pamFileName,loadData,convertData,saveData
 
 if len(sys.argv)==1:
