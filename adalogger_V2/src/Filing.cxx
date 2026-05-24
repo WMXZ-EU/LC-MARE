@@ -89,10 +89,10 @@ char * insertChunk(char *ptr, const char *id, char *txt)
 {
   memcpy(ptr,id,4); ptr+=4;
     int leno=strlen(txt);
-    int len = (1+(leno+3)/4)*4;
+    int len = ((leno+3)/4)*4;
     *(uint32_t *) ptr = len; ptr+=4;
     memcpy(ptr,txt,leno); ptr+=leno; 
-    for(int ii=leno; ii<(len-4); ii++) *ptr++=0;
+    for(int ii=leno; ii<len; ii++) *ptr++=0;
     return ptr;
 }
 
