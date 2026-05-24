@@ -2,7 +2,7 @@
 import sys
 from os.path import basename
 import numpy as np
-from microPAM import get_pamFileName,loadData,convertData
+from microPAM import get_pamFileName,loadData,convertData,saveData
 
 if len(sys.argv)==1:
     print("\nusage: python LC_Mare-Bin2Wav.py dest")
@@ -12,9 +12,11 @@ out_folder=sys.argv[1]
 
 fname=get_pamFileName()
 dest = out_folder+'/'+basename(fname)[:-3]+'wav'
-
+#
 hh,xx=loadData(fname)
 data,fs,nch,scale=convertData(hh,xx,fname)
-
-from scipy.io.wavfile import write
-write(dest,fs,data.astype('int32'))
+print(fname,'fs=',fs,'nch=',nch)
+saveData(dest,hh,data)
+#
+#from scipy.io.wavfile import write
+#write(dest,fs,data.astype('int32').reshape(-1,nch))

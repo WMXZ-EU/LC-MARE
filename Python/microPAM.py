@@ -43,9 +43,9 @@ def decodeInfo(x):
         key = x[ii].tobytes().decode()
         nd = x[ii + 1] // 4
         if nd == 0: break
-        txt = x[ii + 2:ii + 1 + nd].tobytes().decode().strip('\00')
+        txt = x[ii + 2:ii + 2 + nd].tobytes().decode().strip('\00')
         info.update({key: txt})
-        ii += 1 + nd
+        ii += 2 + nd
     return info
 
 #
@@ -60,9 +60,10 @@ def loadData(fileName):
 #------------------------------------------------------
 def saveData(fileName, hh, xx):
     # save 'wav' style file (i.e. data with RIFF header)
-    yy = np.concatenate((hh, xx[:,0])).astype('uint32')
+    yy = np.concatenate((hh, xx)).astype('uint32') # audacity does not like LIST
+    #yy = np.concatenate((hh[:9], hh[126:128], xx[:,0])).astype('uint32')
     nn = xx.shape[0] * 4
-    ii = find_chunk(hh, 'data')
+    ii = find_chunk(yy, 'data')
     yy[ii + 1] = nn
     yy[1] = (yy.shape[0] - 2) * 4
     yy.tofile(fileName)
@@ -345,7 +346,7 @@ def decodeData(xx, blklen,nch, vers):
                 for jj in range(nch,blklen): itmp[jj] += itmp[jj-nch]
                 #
                 data[n0:n1] = itmp.copy().astype('uint32')
-    return it,data.reshape(-1,nch).astype('int32')
+    return it,data.astype('int32')
 
 #--------------------------------------------------------
 def convertData(hh,xx,fname,iprt=False):
@@ -361,7 +362,7 @@ def convertData(hh,xx,fname,iprt=False):
         Vref = 1  # V/MSB
     else:
         # there is an LIST field (decode and check if microPAM)
-        info = decodeInfo(hh[ii:ii + hh[ii + 1] // 4])
+        info = decodeInfo(hh[ii:ii+ hh[ii + 1] // 4])
         #for key, value in info.items():  print(f"{key}: {value}")
 
         if 'IKEY' in info.keys():
@@ -432,7 +433,7 @@ def get_Info(fname):
     hh, xx = loadData(fname)
     ii = find_chunk(hh, 'LIST')
     if ii < 0: return {}
-    info = decodeInfo(hh[ii:ii + hh[ii + 1] // 4])
+    info = decodeInfo(hh[ii:ii +1 + hh[ii + 1] // 4])
     return info
 
 #
