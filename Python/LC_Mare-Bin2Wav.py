@@ -8,14 +8,20 @@ if len(sys.argv)==1:
     print("where dest is '.' or any folder name (without trailing '/')")
     exit(1)
 out_folder=sys.argv[1]
+meta=None
+if len(sys.argv)==3:
+    meta=sys.argv[2]
 
 fname=get_pamFileName()
+if fname==None: exit()
 dest = out_folder+'/'+basename(fname)[:-3]+'wav'
 #
 hh,xx=loadData(fname)
 data,fs,nch,scale=convertData(hh,xx,fname)
+
 print(fname,'fs=',fs,'nch=',nch)
-saveData(dest,hh,data)
-#
-#from scipy.io.wavfile import write
-#write(dest,fs,data.astype('int32').reshape(-1,nch))
+if meta=='meta':
+    saveData(dest,hh,data)
+else:
+    from scipy.io.wavfile import write
+    write(dest,fs,data.astype('int32').reshape(-1,nch))

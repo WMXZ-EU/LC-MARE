@@ -29,23 +29,38 @@ def wavInfo(hh):
     fs = hh[ii + 3]
     nbits = hh[ii + 5] >> 16
     return fs, nch, nbits, pcm
-
-
+#
+#--------------------------------------------------------
+def correctInfo(x):
+    # correct pre May-26 error in meta data
+    key_list=['ISFT','IGNR','ISRC','ICMS','IART','IPRD','ISBJ','INAM','ICRD','IKEY','ICMT']
+    i1=find_chunk(x,'ISFT')
+    i2=find_chunk(x,'IGNR')
+    if(x[i1+1]>(i2-i1-2)*4):
+        for key in key_list:
+            ii=find_chunk(x,key)
+            x[ii+1] -= 4
 #
 #--------------------------------------------------------
 def decodeInfo(x):
     ii = find_chunk(x, 'INFO')
     if ii < 0: return {}
-    if x[ii].tobytes().decode() != 'INFO':  return {}
-    ii += 1
-    info = {}
-    while ii < len(x):
-        key = x[ii].tobytes().decode()
-        nd = x[ii + 1] // 4
-        if nd == 0: break
-        txt = x[ii + 2:ii + 2 + nd].tobytes().decode().strip('\00')
-        info.update({key: txt})
-        ii += 2 + nd
+    if x[ii].tobytes().decode() != 'INFO':  
+        return {}
+    else:
+        # we have info chunk
+        # check and correct pre May-26 error in meta data
+        correctInfo(x)
+        ii += 1
+        info = {}
+        while ii < len(x):
+            key = x[ii].tobytes().decode()
+            nd = x[ii + 1] // 4
+            #print(ii,key,nd)
+            if nd == 0: break
+            txt = x[ii + 2:ii + 2 + nd].tobytes().decode().strip('\00')
+            info.update({key: txt})
+            ii += 2 + nd
     return info
 
 #
@@ -346,14 +361,15 @@ def decodeData(xx, blklen,nch, vers):
                 for jj in range(nch,blklen): itmp[jj] += itmp[jj-nch]
                 #
                 data[n0:n1] = itmp.copy().astype('uint32')
-    return it,data.astype('int32')
+    return it,data[:ii*blklen].astype('int32')
 
 #--------------------------------------------------------
 def convertData(hh,xx,fname,iprt=False):
     fs, nch, nbits, pcm = wavInfo(hh)
-
+    if iprt: print(fs,nch,nbits,pcm)
     vers=2
     ii = find_chunk(hh, 'LIST')
+    #
     if ii < 0:  # cannot find list
         # plain wav file without LIST meta data
         cmpr = 0
@@ -363,7 +379,8 @@ def convertData(hh,xx,fname,iprt=False):
     else:
         # there is an LIST field (decode and check if microPAM)
         info = decodeInfo(hh[ii:ii+ hh[ii + 1] // 4])
-        #for key, value in info.items():  print(f"{key}: {value}")
+        if iprt: 
+            for key, value in info.items():  print(f"{key}: {value}")
 
         if 'IKEY' in info.keys():
             config = info['IKEY'][:-1].split(';')  # last character is '.'
@@ -397,15 +414,17 @@ def convertData(hh,xx,fname,iprt=False):
     #print('gain',preamp+gain,'scale',scale)
 
     # check if microPAM compressed and decode if necessary
+    #print(pcm,cmpr,nbits,xx.shape)
     if pcm==1:
-        if cmpr == 1:
+        if (cmpr == 1) & (fname[-3:]=='bin'):
             it,data = decodeData(xx, blklen, nch, vers)
-            scale *= 2 ** shift         # undo right shift
+            data =data* 2 ** shift         # undo right shift
         else:
             if nbits == 16:
                 data = np.frombuffer(xx, dtype='int16')
             else:
-                data = xx.astype('int32')
+                data = np.frombuffer(xx, dtype='int32')
+        #
         scale /= 2 ** (nbits - 1)  # //LSB -> // MSB
     else:
         data = np.frombuffer(xx, dtype='float32')
@@ -416,10 +435,12 @@ def convertData(hh,xx,fname,iprt=False):
 def load_microPAM(fname, iprt=False):
     hh, xx = loadData(fname)
     data,fs,nch,scale=convertData(hh,xx,fname,iprt)
+    #print(fs,nch,scale,data.shape)
 
     # convert to V
     data = data * scale             # data is now  in V
     data = data.reshape(-1,nch)
+    #print(data.shape)
     return fs, data
 
 #
