@@ -39,7 +39,7 @@ class Window(tk.Frame):
 
         label2 = tk.Label(text="MCU:",font=("Helvetica", 18))
         label2.place(x=240,y=50)
-        self.mcuClocklabel = tk.Label(text="", fg="Black", font=("Helvetica", 18))
+        self.mcuClocklabel = tk.Entry(text="", fg="Black", font=("Helvetica", 18))
         self.mcuClocklabel.place(x=320,y=50)
 
         xo=100
@@ -75,7 +75,7 @@ class Window(tk.Frame):
         self.h_3_edit = self.mEntry("h_3 (h):",xo,yo+ii*40,2,90); ii+=1
         self.h_4_edit = self.mEntry("h_4 (h):",xo,yo+ii*40,2,90); ii+=1
         yo += 30
-        self.h_start_edit = self.mEntry("h_start (h):",xo-320,yo+ii*40,3,130);
+        self.h_start_edit = self.mEntry("start Time :",xo-320,yo+ii*40,18,130);
 
         # temporary disabling input
         self.shift_edit.configure(state="disabled")
@@ -92,8 +92,8 @@ class Window(tk.Frame):
         tk.Button(self, text="Save", command=self.clickSaveButton, font=("Helvetica", 18)).place(x=xm, y=ym+ii*dym); ii+=1
 
         self.restartButton = tk.Button(self, text="Reboot", command=self.clickRestartButton, font=("Helvetica", 18))
-        self.restartButton.place(x=300, y=ym+ii*dym)
-        self.mputEntry(self.h_start_edit,'0')
+        self.restartButton.place(x=500, y=ym+ii*dym)
+        self.mputEntry(self.h_start_edit,time.strftime("%Y-%m-%d_%H:%M:%S"))
         #
 
         s=serial.tools.list_ports.comports(True)
@@ -112,6 +112,7 @@ class Window(tk.Frame):
             self.startButton.place(x=700, y=10)
             self.task_is_running=0
             #
+        if 0:
             self.monitorButton=tk.Button(self, text="Monitor", command=self.clickMonitor, font=("Helvetica", 18))
             self.monitorButton.place(x=800, y=10)
             self.monitor_is_running=0
@@ -120,12 +121,21 @@ class Window(tk.Frame):
         self.master.destroy() 
 
     def run_task(self):
+        delay=100
         ser = self.ser
-        if ser.in_waiting>0:
-            self.scrolledText.insert(tk.END,ser.read_all().decode('utf-8'))
-            self.scrolledText.see(tk.END)
+        try:
+            if ser.in_waiting>0:
+                self.scrolledText.insert(tk.END,ser.read_all().decode('utf-8'))
+                self.scrolledText.see(tk.END)
+        except Exception as e:
+            com=getComPort()
+            if com:
+                self.ser=serial.Serial(com,timeout=0.1)
+            else:
+                delay=1000
+
         if self.task_is_running:
-            self.after(100,self.run_task)
+            self.after(delay,self.run_task)
 
     def clickRun(self):
         if self.startButton["text"]=="Start":
@@ -232,18 +242,19 @@ class Window(tk.Frame):
                 ser.read_all()
                 #
                 # load now data from device
-                ser.write(b'c\n')
-                txt1=ser.readline().decode('utf-8').rstrip()
-                ser.readline().decode('utf-8').rstrip()
-                #
-                ser.write("\n".encode())
-                ser.readline().decode('utf-8').rstrip() # empty echo
-                ser.readline().decode('utf-8').rstrip() # text
+                #ser.write(b'c\n')
+                #txt1=ser.readline().decode('utf-8').rstrip()
+                #ser.readline().decode('utf-8').rstrip()
+                ##
+                #ser.write("\n".encode())
+                #ser.readline().decode('utf-8').rstrip() # empty echo
+                #ser.readline().decode('utf-8').rstrip() # text
 
                 #ser.write(b'?d\n')
                 #txt1=ser.readline().decode('utf-8').rstrip()
-                ip1=txt1.find("rtc")
-                self.mcuClocklabel.configure(text=txt1[ip1+4:])
+                #ip1=txt1.find("rtc")
+                #self.mcuClocklabel.configure(text=txt1[ip1+4:])
+                self.mUpdate(ser,self.mcuClocklabel,"?d")
                 #
                 self.mUpdate(ser,self.b_edit,"?n")
                 self.mUpdate(ser,self.k_edit,"?k")
@@ -287,21 +298,18 @@ class Window(tk.Frame):
                 self.mgetEntry(ser,'!3',self.h_3_edit)
                 self.mgetEntry(ser,'!4',self.h_4_edit)
         #        #
+                self.mgetEntry(ser,'!x',self.h_start_edit)
                 ser.read_all()
 
     def clickRestartButton(self):
-        have_delay=self.h_start_edit.get()=='0'
-        print(have_delay)
+        print(self.h_start_edit)
         #
         com=getComPort()
         if com:
             print('restart',com)
             with serial.Serial(com) as ser:
                 ser.read_all()
-                if have_delay:
-                    ser.write("x\n".encode())
-                else:
-                    self.mgetEntry(ser,'x',self.h_start_edit)
+                ser.write(b'b\n') 
 
     def clickSyncButton(self):
         #

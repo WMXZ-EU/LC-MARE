@@ -187,12 +187,12 @@ void setup() {
   Serial.print("Start Time: ");Serial.println(startTime);
   datetime_t tm;
   decodeTimestamp(&tm,startTime);
-  uint32_t to;
+  uint32_t to=0;
   to=date2time(&tm,2000);
   uint32_t tt = rtc_get();
   Serial.println(tt);
   Serial.println(to);
-  if(tt<to)
+  if((tt<to) & (to<tt+365*24*3600))
   {
     neo_pixel_show(0, 0, 0);
     hibernate_until(to);

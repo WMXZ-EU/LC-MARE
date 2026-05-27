@@ -43,6 +43,7 @@
   } HdrStruct;
 
   uint16_t SD_init(void);
+  void SD_stop(void);
   status_t logger(status_t status);
   int32_t *compressData(int32_t *buffer);
 

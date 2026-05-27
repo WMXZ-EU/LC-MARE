@@ -159,6 +159,11 @@ status_t menu(status_t status)
           doReboot();
         }
       }
+      else if(ch=='b')
+      {
+          SD_stop();
+          doReboot();
+      }
       else if(ch=='?')  // get parameter
       {
         while(!Serial.available()) delay(10);
@@ -278,6 +283,7 @@ status_t menu(status_t status)
             break;
           case 'x':
             menuGetString(&startTime[0]);
+            /*
             Serial.print("Start Time: ");Serial.println(startTime);
             datetime_t tm;
             decodeTimestamp(&tm,startTime);
@@ -295,6 +301,7 @@ status_t menu(status_t status)
             {
               doReboot();
             }
+            */
             break;
         }
       }

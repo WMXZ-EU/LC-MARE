@@ -220,10 +220,12 @@ uint16_t SD_init(void)
 }
 
 void SD_stop(void)
-{ storeConfigToFile();
-  //https://github.com/greiman/SdFat/issues/401
-  if(have_sd)
-    sd.card()->syncDevice();
+{ if(have_sd)
+  {
+    storeConfigToFile();
+    //https://github.com/greiman/SdFat/issues/401
+    sd.card()->syncDevice();  
+  }
 }
 
 //---------------------------- Disk interface -------------------------------------------
