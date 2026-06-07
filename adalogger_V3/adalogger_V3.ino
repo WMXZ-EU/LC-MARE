@@ -199,7 +199,12 @@ void setup() {
   }
 
   //if(have_disk) status=DO_START;
-  if(!have_disk)  neo_pixel_show(0, 0, 10); else neo_pixel_show(0, 0, 0);
+  if(!have_disk)  neo_pixel_show(0, 0, 10); 
+  else 
+  {
+    neo_pixel_show(0, 0, 0);
+    status=DO_START;
+  }
 
   #if MC==0
     // have single core; start acquisition here
