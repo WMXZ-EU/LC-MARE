@@ -23,6 +23,7 @@
 #define CONFIG_H
 //
 
+  #define START_FLAG 0
   //------------------------------------
   // acquisition constants
   //------------------------------------

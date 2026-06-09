@@ -72,7 +72,7 @@
   uint16_t __not_in_flash_func(pushQueue_c)(uint32_t *data, int ndat)
   { static uint32_t nbuf=0;
     
-    if ( queueStatus == queueFull ) return 0; // full queue
+    //if ( queueStatus == queueFull ) return 0; // full queue
 
     if(nbuf+ndat<NBLOCK) 
     { 
@@ -82,45 +82,57 @@
       queue_busy=0;
       return 1; // signal success.
     }
-    else  // buffer is filled
+    else  // buffer is nearly filled
     {
       if (ndat<NBUF_ACQ)
       { // we are pushing compressed data, clean up rest and indicate data size 
+        queue_busy=1;
         for (int ii=nbuf; ii<NBLOCK;ii++) data_buffer[head][ii]=0; 
         data_buffer[head][NBLOCK-1]=nbuf;
         nbuf=0;
         head=INC(head);
         queueStatus = (head==tail)? queueFull: queueOK;
-        if ( queueStatus == queueFull ) return 1; // full queue but prevous filled
-        //
-        queue_busy=1;
-        for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
-        nbuf += ndat;
+        if ( queueStatus == queueOK ) 
+        {  
+          for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
+          nbuf += ndat;
+          queue_busy=0;
+          return 1;
+        }
         queue_busy=0;
-        return 1;
+        return 0;
+        //
       }
       else
       { // have raw data
         queue_busy=1;
-        for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
-        head=INC(head);
-        queueStatus = (head==tail)? queueFull: queueOK;
-        nbuf =0;
+        if(queueStatus=queueOK)
+        {
+          for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
+          head=INC(head);
+          nbuf =0;
+          queueStatus = (head==tail)? queueFull: queueOK;
+          queue_busy=0;
+          return 1; // signal success.
+        }
         queue_busy=0;
-        return 1; // signal success.
+        return 0;
       }
     }
   }
   
   uint16_t __not_in_flash_func(pullQueue)(uint32_t *data)
   {
-    if ( queueStatus==queueEmpty) return 0; // empty queue
-
     queue_busy=1;    
-    for(int ii=0; ii<NBLOCK;ii++) data[ii]=data_buffer[head][ii];
 
-    tail=INC(tail);
     queueStatus=(tail==head)? queueEmpty : queueOK;
+    if(queueStatus==queueOK)
+    {
+      for(int ii=0; ii<NBLOCK;ii++) data[ii]=data_buffer[tail][ii];
+      tail=INC(tail);
+      queue_busy=0;
+      return 1;
+    }
     queue_busy=0;
-    return 1;
+    return 0;
   }

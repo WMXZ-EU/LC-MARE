@@ -4,7 +4,7 @@ from microPAM import get_pamFileName, load_microPAM, dB
 fname=get_pamFileName()
 print(fname)
 
-fs,data = load_microPAM(fname)
+fs,data,it = load_microPAM(fname)
 if 0:
     # relate other sensor to microPAM
     Vmax  =  12.277 # 24dBu ZOOM F3
@@ -44,6 +44,7 @@ import matplotlib.pyplot as plt
 fig,axs=plt.subplots(2,1,figsize=(10,7),sharex=True, layout='constrained')
 
 axs[0].plot(td,data)
+axs[0].grid(True)
 axs[0].set_ylabel('Pressure [Pa]')
 
 qmax=np.max(Q)
@@ -73,4 +74,8 @@ plt.grid(True)
 plt.xscale('log')
 plt.show(block=False)
 
+#plt.figure()
+#plt.plot(np.diff(it))
+
+#print(it[:15])
 plt.show()

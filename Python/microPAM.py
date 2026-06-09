@@ -415,6 +415,7 @@ def convertData(hh,xx,fname,iprt=False):
 
     # check if microPAM compressed and decode if necessary
     #print(pcm,cmpr,nbits,xx.shape)
+    it=None
     if pcm==1:
         if (cmpr == 1) & (fname[-3:]=='bin'):
             it,data = decodeData(xx, blklen, nch, vers)
@@ -429,19 +430,19 @@ def convertData(hh,xx,fname,iprt=False):
     else:
         data = np.frombuffer(xx, dtype='float32')
     #
-    return data,fs,nch,scale
+    return data,fs,nch,scale,it
 
 #--------------------------------------------------------
 def load_microPAM(fname, iprt=False):
     hh, xx = loadData(fname)
-    data,fs,nch,scale=convertData(hh,xx,fname,iprt)
+    data,fs,nch,scale,it=convertData(hh,xx,fname,iprt)
     #print(fs,nch,scale,data.shape)
 
     # convert to V
     data = data * scale             # data is now  in V
     data = data.reshape(-1,nch)
     #print(data.shape)
-    return fs, data
+    return fs, data, it
 
 #
 #--------------------------------------------------------

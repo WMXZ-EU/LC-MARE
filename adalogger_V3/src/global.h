@@ -121,7 +121,7 @@
     #define CLK_MULT 12 // (144 MHz)
   #endif
 
-  #define SD_MULT   6   // (72 MHz) (is a littlt bit high, but seems to work)
+  #define SD_MULT   6   // (72 MHz) (is a little bit high, but seems to work)
   #define USE_SDIO  0   // use spi to reduce power consumption 
   
   // in filing.cxx
