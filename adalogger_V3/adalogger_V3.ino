@@ -120,7 +120,10 @@ void setup() {
   pinMode(XRTC_INT_PIN,INPUT_PULLUP);
   if(!digitalRead(XRTC_INT_PIN))  
   { status=DO_START;
-    while(millis()<(WAIT*1000)) if(Serial) { Serial.print(millis());break;}
+  }
+  else
+  { while(millis()<(WAIT*1000)) if(Serial) break;
+    Serial.print(millis());
   }
   if(Serial) Serial.println("\n***********\nAdalogger\n***********\n");
   neo_pixel_show(10, 10, 0);
