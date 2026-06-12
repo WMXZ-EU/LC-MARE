@@ -24,7 +24,7 @@ hardware desigh files for
 ### Python
 contains python based setup and analysis scripts
 
-Of importance is a GUI (LC_Mare.py) that provides access to basic operations, like inpecting LC_mare files, visualizing time series and spectra, to configure the firmware, to convert compressed to wav files, and to upload latest firmware
+Of importance is a GUI (LC_Mare.py) that provides access to basic operations, like inspecting LC_mare file parameters, visualizing time series and spectra, to configure the firmware, to convert compressed to wav files, and to upload latest firmware
 
 An compiled version (.exe) with supporting libraries may be found in
 
