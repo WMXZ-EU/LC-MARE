@@ -13,10 +13,8 @@ To create venv
 Activate
 > .venv/Scripts/Activate
 
-To install serial
-> pip install pyserial
-> pip install scipy matplotlib numba
-> pip install sounddevice
+To install required modules
+> pip install pyserial scipy matplotlib numba sounddevice
 
 To run LC-MARE GUI from console:
 > python LC-Mare.py
