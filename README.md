@@ -3,6 +3,7 @@ Low-Cost Marine Acoustic REcorder. See detailed info in different folders
  
 Actual preferred Firmware verson is adalogger_V3
 
+
 ## Content
 ### 3D-models
 contains some stl files for 3D printing
@@ -22,3 +23,9 @@ hardware desigh files for
 - Libraries (for KICAD)
 ### Python
 contains python based setup and analysis scripts
+
+Of importance is a GUI LC_Mare.py that provides access to basic operations, like inpecting LC_mare files, visualizing time series and spectra, to configure the firmware, to convert compressed to wav files, and to upload latest firmware
+
+An .exe file with supporting libraries may be founf in
+
+https://github.com/WMXZ-EU/LC-MARE/releases/download/1.0.0/LC_Mare.zip
