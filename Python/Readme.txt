@@ -15,14 +15,12 @@ Activate
 
 To install serial
 > pip install pyserial
+> pip install scipy matplotlib numba
+> pip install sounddevice
 
 To run LC-MARE GUI from console:
-> python LC-Mare-GUI.py
-
-For other programs
-> pip install scipy matplotlib numba
+> python LC-Mare.py
 
 ## Programs
 - microPAM.py: module to be imported into scripts
-- LC-Mare-GUI.py: GUI to setup LC-Mare firmware (adalogger_V3)
-- LC_Mare-View.py: 
+- LC-Mare.py: GUI to address some basic operations
