@@ -106,7 +106,7 @@
       else
       { // have raw data
         queue_busy=1;
-        if(queueStatus=queueOK)
+        if(queueStatus == queueOK)
         {
           for(int ii=0; ii<ndat;ii++) data_buffer[head][nbuf+ii]=data[ii];
           head=INC(head);
