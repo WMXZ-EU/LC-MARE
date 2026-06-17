@@ -101,7 +101,7 @@
     uint32_t again = AGAIN ;                      // 0:42
     volatile int32_t dgain = DGAIN;               // (-200:54)/2
 
-		const  uint8_t chanMask[2] = {0b0110<<4, 0b0110<<4};
+    const  uint8_t chanMask[2] = {0b0110<<4, 0b0110<<4};
     const  uint8_t chmap[2][4] = {{3,0,1,2}, {3,0,1,2}};
 
     #define I2C_ADDRESS1 0x4C // 0-0

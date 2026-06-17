@@ -573,7 +573,6 @@
     }
   }
 
-  char startTime[80];
   void hibernate_until(uint32_t secs)
   { setAlarm(secs);
     //

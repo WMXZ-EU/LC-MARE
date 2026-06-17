@@ -10,8 +10,12 @@
   
   void setAlarm(uint32_t secs);
   void goDormant(void) ;
+   void doReboot(void);
 
+  uint32_t getPSRAMSize(void);
   void set_MCU_clock(int32_t mcu_factor);
+
+  extern char uid_strng[];
   void getUID(void);
 
   void stopSystem(void);
@@ -35,10 +39,11 @@
     bool rtc_running(void) ;
     bool rtc_get_datetime(datetime_t *t) ;
     bool rtc_set_datetime(const datetime_t *t) ;
-    uint32_t rtc_get(void) ;
-    void rtc_set(uint32_t tt) ;
   #else
     #include "hardware/rtc.h"
   #endif
+
+    uint32_t rtc_get(void) ;
+    void rtc_set(uint32_t tt) ;
 
 #endif

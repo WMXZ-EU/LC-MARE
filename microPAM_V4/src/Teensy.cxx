@@ -8,6 +8,8 @@
   #include "process.h"
 
     /*******************************************************************************/
+  uint32_t getPSRAMSize(void) {return 0;}
+
 
     // use usb host 5V power (has 100uF capacitor)
     void usbPowerInit()
@@ -245,13 +247,10 @@
 
   void dma_exit(void){}
 
-  void doReset()
-  {
-     *(uint32_t *)0xE000ED0C =  0x5FA0004;
-  }
 
     /*---------------hibernate -------------------*/
-   
+   void doReset(void)  { *(uint32_t *)0xE000ED0C =  0x5FA0004; }
+   void reboot(void) { *(uint32_t *)0xE000ED0C =  0x5FA0004;}
     void powerDown(void)
     {
       SNVS_LPCR |= (1 << 6); // turn off power
@@ -357,4 +356,6 @@
     return 1;
   }
 
+  char uid_strng[10]; 
+  void getUID(void) { sprintf(uid_strng,"%08lX",(HW_OCOTP_MAC0 & 0xFFFFFFFF)); }
 #endif

@@ -12,45 +12,43 @@
 #include "src/rtc.h"
 #include "src/process.h"
 
-/*********************************main*********************************************************/
+/********************************* basics *******************************************************/
+//  enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED, MUST_HIBERNATE};
+char status_text[7][16]=
+  {"DO_START\0", "CLOSED\0", "RECORDING\0", "MUST_STOP\0", "JUST_STOPPED\0", "STOPPED\0", "MUST_HIBERNATE\0"};
+
 uint32_t fsamp=FSAMP;
-uint16_t release_core1=0;
-#define MCU_SPEED 12
 
 uint32_t outdata[NBLOCK];
 
+/********************************* main *********************************************************/
 void setup() {
   // put your setup code here, to run once:
-
-  //set_MCU_clock(MCU_SPEED);
 
   while(millis()<5000) if(Serial) break;
   if(Serial)
   { Serial.println("\n*** micoPAM ***");
     Serial.print("millis: "); Serial.println(millis());
   }
+  
+  getUID();
+  Serial.print("uid ");Serial.println(uid_strng);
 
   lowPowerInit();
 
   rtc_setup();
   //
   queue.reset();
-  #if MCU==T_4_1
-    acqInit(fsamp);
-    acqStart();
-  #else
-    release_core1=1;
-    while(release_core1) delay(10); // allow USB to respond
-  #endif
+  //
+  acqInit(fsamp);
+  acqStart();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   static uint32_t cnt;
-  if(queue.available())
+  if(queue.pull(outdata))
   {
-    queue.pull(outdata);
-
     static uint32_t to=0;
     if(millis()>to+1000)
     { to=millis();
@@ -72,17 +70,19 @@ void loop() {
   asm("wfi");
 }
 
+#if 1
 void setup1(void)
 {
-  while(!release_core1) delay(100); //wait until acq is needed
-    acqInit(fsamp);
-    acqStart();
-  release_core1=0;
 }
 void loop1(void)
 {
+  if(queue.available())
+  {
+    //queue.pull(outdata);
+  }  
   asm("wfi");
 }
+#endif
 
 /*
 rp2040: single preamp

@@ -2,6 +2,8 @@
 #define GLOBAL_H
 
   #include "../config.h"
+  #define Program "microPAM_V4"
+  #define Version "4.0.0" // 17-06-2026
 
   #define T_4_1   0
   #define RP_2040 1
@@ -75,5 +77,16 @@
   #define XRTC_SDA   2
   #define XRTC_SCL   3
 
-#include <cstdint>
+  // program states
+  enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED, MUST_HIBERNATE};
+  extern char status_text[][16];
+
+  #define MCU_SPEED 2
+
+  #include <cstdint>
+
+  // in rp2040.cxx
+  extern uint32_t fsamp;  // sampling frequency (kHz)
+  // in Adc.cxx
+
 #endif

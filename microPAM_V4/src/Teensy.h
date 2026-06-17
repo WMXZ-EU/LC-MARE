@@ -18,6 +18,9 @@
     void rtc_set(uint32_t tt) ;
 
   void set_MCU_clock(int32_t mcu_factor);
+  uint32_t getPSRAMSize(void);
+
+  extern char uid_strng[];
   void getUID(void);
 
   void lowPowerInit(void);
@@ -36,4 +39,6 @@
   
   void setAlarm(uint32_t secs);
   void goDormant(void) ;
+  void doReboot(void);
+
 #endif

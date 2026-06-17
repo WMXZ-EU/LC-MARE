@@ -419,6 +419,7 @@
       encodeTimestamp(startTime,&tm);
   }
 
+  uint32_t getPSRAMSize(void) {return rp2040.getPSRAMSize(); }
 
   /************************************ UID **********************************************/
   #include "pico/unique_id.h"

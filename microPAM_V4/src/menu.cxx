@@ -1,0 +1,285 @@
+#include <Arduino.h>
+#include "global.h"
+#include "acq.h"
+#include "rtc.h"
+#include "filing.h"
+
+
+void parameterPrint0(void)
+{
+    Serial.print("t_acq  (a) "); Serial.print(t_acq);  Serial.println(" sec");
+    Serial.print("t_on   (o) "); Serial.print(t_on);   Serial.println(" min");
+    Serial.print("t_rep  (r) "); Serial.print(t_rep);  Serial.println(" min");
+    Serial.print("fsamp  (f) "); Serial.print(fsamp);  Serial.println(" Hz");
+    Serial.print("again  (g) "); Serial.print(again);  Serial.println(" dB");
+    Serial.print("Processing "); Serial.println(PROC);
+    Serial.print("Voltage "); Serial.println(analogRead(A1));
+}
+
+void parameterPrint(void)
+{ Serial.println("\n====================");
+  Serial.println(Program);
+  Serial.print("Version    "); Serial.println(Version);
+  Serial.print("UID        "); Serial.println(uid_strng);
+  //Serial.printf("PSRAM Size: %d\r\n", rp2040.getPSRAMSize());
+  //Serial.printf("Queue Size: %d\r\n",  MAX_QUEUE*MD*NBUF_I2S*4);
+  //
+  parameterPrint0();
+} 
+
+// User Interface
+static char * menuGetLine(void)
+{
+  static char buffer[40];
+  while(!Serial.available()) continue;
+  Serial.setTimeout(5000);
+  int count;
+  count = Serial.readBytesUntil('\n',buffer,40);
+  buffer[count]=0;
+  Serial.print("> "); Serial.println(buffer);
+  return buffer;
+}
+static int menuGetInt16(uint16_t *val)
+{ char *buffer=menuGetLine();
+  int tmp=0;
+  sscanf(buffer,"%d",&tmp); *val=(uint16_t) tmp;
+  return 1;
+}
+static int menuGetInt32(uint32_t *val)
+{ char *buffer=menuGetLine();
+  int tmp=0;
+  sscanf(buffer,"%d",&tmp); *val=(uint32_t) tmp;
+  return 1;
+}
+static uint16_t menuGetTime(datetime_t *t)
+{
+  char *buffer=menuGetLine();
+  int v1,v2,v3,v4,v5,v6;
+  char c1,c2,c3,c4,c5;
+
+  if(strlen(buffer)<19) return 0;
+  //
+  sscanf(buffer,"%d%c%d%c%d%c%d%c%d%c%d",
+                &v1,&c1, &v2,&c2, &v3,&c3, &v4,&c4, &v5,&c5, &v6);
+  t->year =v1;
+  t->month=v2;
+  t->day  =v3;
+  t->hour =v4;
+  t->min  =v5;
+  t->sec  =v6;
+  return 1;
+}
+
+static int menuGetString(char *val)
+{ strcpy(val,menuGetLine());
+  return 1;
+}
+
+status_t menu(status_t status)
+{
+  if(Serial)
+  {
+    if(Serial.available())
+    {
+      char ch;
+      ch=Serial.read();
+      if(ch=='s') // start acquisition
+      { Serial.println("start");
+        status=DO_START;
+      }
+      else if(ch=='e')  // stop aquisition
+      { Serial.print("stop ");
+        status=MUST_STOP;
+      }
+      else if(ch=='p')  // print parameters
+      {  parameterPrint();
+      }
+      else if(ch=='x')  //exit and sleep until next hour
+      { uint16_t h_off; 
+        menuGetInt16(&h_off);
+        if(h_off>0)
+        { Serial.print(" hibernating "); Serial.print(h_off); Serial.print(" hours");
+          uint32_t alarm = rtc_get();
+          alarm /= 3600;
+          alarm = (alarm+h_off)*3600;
+          Serial.print(" ("); Serial.print(alarm-rtc_get()); Serial.println(" sec)");
+          hibernate_until(alarm);
+        }
+        else
+        {
+          doReboot();
+        }
+      }
+      else if(ch=='y')  //exit and sleep until next minute
+      { uint16_t m_off; 
+        menuGetInt16(&m_off);
+        if(m_off>0)
+        { Serial.print(" hibernating "); Serial.print(m_off); Serial.print(" minutes");
+          uint32_t alarm = rtc_get();
+          alarm /= 60;
+          alarm = (alarm+m_off)*60;
+          Serial.print(" ("); Serial.print(alarm-rtc_get()); Serial.println(" sec)");
+          hibernate_until(alarm);
+        }
+        else
+        {
+          doReboot();
+        }
+      }
+      else if(ch=='b')
+      {
+          //SD_stop();
+          doReboot();
+      }
+      else if(ch=='?')  // get parameter
+      {
+        while(!Serial.available()) delay(10);
+        ch=Serial.read();
+        switch(ch)
+        {
+          case 'a':
+            Serial.print("a = "); Serial.println(t_acq); 
+            break;
+          case 'o':
+            Serial.print("o = "); Serial.println(t_on);
+            break;
+          case 'r':
+            Serial.print("r = "); Serial.println(t_rep);
+            break;
+          case 'f':
+            Serial.print("f = "); Serial.println(fsamp);
+            break;
+          case 'g':
+            Serial.print("g = "); Serial.println(again);
+            break;
+          case 'u':
+            Serial.print("u = "); Serial.println(uid_strng);
+            break;
+          case 'p':
+            Serial.print("p = "); Serial.println(PROC);
+            break;
+          case 'w':
+            //Serial.print("w = "); Serial.println(eeprom);
+            break;
+          case 'd':
+            datetime_t t;
+            XRTCgetDatetime(&t);    
+            printDatetime("d =",&t);
+            break;
+          case 'n':
+             Serial.print("n = "); Serial.println(&IART[0]);
+            break;
+          case 'k':
+            Serial.print("k = "); Serial.println(&IPRD[0]);
+            break;
+          case 'l':
+            Serial.print("l = "); Serial.println(&INAM[0]);
+            break;
+          case '1':
+            Serial.print("1 = "); Serial.println(h_rec[0]);
+            break;
+          case '2':
+            Serial.print("2 = "); Serial.println(h_rec[1]);
+            break;
+          case '3':
+            Serial.print("3 = "); Serial.println(h_rec[2]);
+            break;
+          case '4':
+            Serial.print("4 = "); Serial.println(h_rec[3]);
+            break;
+        }
+      }
+      else if(ch=='!')  // modify parameters
+      {
+        while(!Serial.available()) delay(10);
+        ch=Serial.read();
+        switch(ch)
+        { case 'a':
+            menuGetInt16((uint16_t*)&t_acq); 
+            break;
+          case 'o':
+            menuGetInt16((uint16_t*)&t_on);
+            break;
+          case 'r':
+            menuGetInt16((uint16_t*)&t_rep);
+            break;
+          case 'f':
+            menuGetInt32((uint32_t*)&fsamp);
+            acqModifyFrequency(fsamp);
+            break;    
+          case 'g':
+            menuGetInt16((uint16_t*)&again);
+            setAGain((int8_t)again&0xff);
+            break;
+          case 'w':
+            menuGetLine();
+            break;
+          case 'u':
+            menuGetLine();
+            break;
+          case 'p':
+            menuGetLine();
+            break;
+          case 'n':
+            menuGetString(&IART[0]);
+            break;
+          case 'k':
+            menuGetString(&IPRD[0]);
+            break;
+          case 'l':
+            menuGetString(&INAM[0]);
+            break;
+          case 'd':
+            datetime_t t;
+            menuGetTime(&t);
+            XRTCsetDatetime(&t);
+            break;
+          case '1':
+            menuGetInt16((uint16_t*)&h_rec[0]);
+            break;
+          case '2':
+            menuGetInt16((uint16_t*)&h_rec[1]);
+            break;
+          case '3':
+            menuGetInt16((uint16_t*)&h_rec[2]);
+            break;
+          case '4':
+            menuGetInt16((uint16_t*)&h_rec[3]);
+            break;
+          case 'x':
+            menuGetString(&startTime[0]);
+            break;
+        }
+      }
+      else if(ch=='c')  // check and correct RTC time
+      {
+        if(status==STOPPED) // only if we are stopped
+        {
+          while(Serial.available()) {volatile char c = Serial.read(); (void) c;}
+          // print time stamp
+          datetime_t t;
+          rtcGetDatetime(&t);
+          printDatetime("rtc",&t);
+
+          Serial.println("If correct press return, otherwise enter correct date and time");
+
+          // correct RTC time is required
+          if(menuGetTime(&t))
+          {
+            XRTCsetDatetime(&t);  
+            delay(10);
+            // write also to local rtc
+            rtcSetDatetime(&t);  
+            Serial.println("Corrected time is");
+            printDatetime("rtc",&t);
+          }
+          else
+          {
+            Serial.println("Time has not been corrected");
+          }
+        }
+      }
+    }
+  }
+  return status;
+}
