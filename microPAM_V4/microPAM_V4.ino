@@ -17,6 +17,8 @@ uint32_t fsamp=FSAMP;
 uint16_t release_core1=0;
 #define MCU_SPEED 12
 
+uint32_t outdata[NBLOCK];
+
 void setup() {
   // put your setup code here, to run once:
 
@@ -41,8 +43,6 @@ void setup() {
     while(release_core1) delay(10); // allow USB to respond
   #endif
 }
-
-uint32_t outdata[NBLOCK];
 
 void loop() {
   // put your main code here, to run repeatedly:
