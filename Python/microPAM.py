@@ -338,7 +338,7 @@ def decodeData(xx, blklen,nch, vers):
 
                 tmp = (tmp.astype('int32')+tmpo.astype('int32')).astype('uint32')
                 data[n0:n1] = tmp.copy()
-    elif vers==3:
+    elif vers>=3:
         # uses (header: MAGIC, millis(),nb,nd,firstSamples), sample differences (nch channels)
         it=np.int32(xx[io+1])
         ii=0

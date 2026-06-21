@@ -91,7 +91,7 @@
 
   void time2date(uint32_t seconds, datetime_t *tm, uint16_t epoch)
   {
-    uint32_t days, year, month, dotw;
+    uint32_t days, year, month, dotw=4;
 
     uint32_t time = seconds;
    //Retrieve hours, minutes and seconds
@@ -547,6 +547,17 @@
   int16_t rtc_setup(void)
   {
     rtc_init(); // hardware (MCU) rtc
+    if(0)
+    {
+      const datetime_t setTime = { 2026, 1, 1, 4, 0, 0, 0 };
+      rtc_set_datetime( &setTime); 
+    }
+    //
+    datetime_t t;
+    rtcGetDatetime(&t);
+    printDatetime("rtc",&t);
+
+    //
     haveExtRTC=initXRTC(XRTC_SDA, XRTC_SCL); // external rtc clock (XRTC==NONE return 0)
     Serial.print("extClock "); Serial.println(haveExtRTC);
     delay(10);

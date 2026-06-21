@@ -2,14 +2,19 @@
 #include "global.h"
 
 #if MCU==T_4_1
+  #include <CrashReport.h>
   #include "teensy.h"
-  #include "acq.h"
+  #include "adc.h"
   #include "rtc.h"
   #include "process.h"
 
     /*******************************************************************************/
   uint32_t getPSRAMSize(void) {return 0;}
 
+  void printCrashReport(void)
+  {   // Teensy has a crash report
+      if(CrashReport) Serial.print(CrashReport);
+  }
 
     // use usb host 5V power (has 100uF capacitor)
     void usbPowerInit()
@@ -38,7 +43,7 @@
   extern "C" uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
   void set_MCU_clock(int32_t mcu_factor)
   {
-    set_arm_clock(mcu_factor*12000000);
+    set_arm_clock(mcu_factor*12'000'000);
   }
 
   void lowPowerInit(void)
@@ -55,13 +60,10 @@
 /************************************ADC***************************************************/
 
   #define MSYNC   1
-
-  #define MBIT      32      // number of bits / sample from ADC
   #define MDIV       1      // MCLK divider (MCLK = 2*MDIV*BCLK)
 
-  #define NCH NCHAN_I2S
-
   void process(int32_t * buffer);
+  static uint16_t acq_isrunning=0;
 
   PROGMEM
   void set_audioClock(int nfact, int32_t nmult, uint32_t ndiv) // sets PLL4
@@ -85,8 +87,9 @@
   }
 
   void setAudioFrequency(int fs)
-  {
-    int ovr = 2*MDIV*(NCHAN_I2S*32);
+  { if(!acq_isrunning) return; // change frequency only when i2s is running
+    //
+    int ovr = 2*MDIV*(NCHAN_I2S*MBIT);
     Serial.print("ovr: "); Serial.println(ovr);
 
     // PLL between 27*24 = 648MHz und 54*24=1296MHz
@@ -131,7 +134,8 @@
     if (I2S1_RCSR & I2S_RCSR_RE) return;
     //PLL:
     int fs = fsamp;
-  
+
+    acq_isrunning=1;
     setAudioFrequency(fs);
 
     CORE_PIN23_CONFIG = 3;  //1:MCLK
@@ -155,7 +159,7 @@
   }
 
   /******************************************************************************************/
-  #include "DMAChannel.h"
+  #include <DMAChannel.h>
 
   static DMAChannel dma;
   DMAMEM  __attribute__((aligned(32))) static  uint32_t i2s_buffer[2*NBUF_I2S];
@@ -250,7 +254,7 @@
 
     /*---------------hibernate -------------------*/
    void doReset(void)  { *(uint32_t *)0xE000ED0C =  0x5FA0004; }
-   void reboot(void) { *(uint32_t *)0xE000ED0C =  0x5FA0004;}
+   void doReboot(void) { *(uint32_t *)0xE000ED0C =  0x5FA0004;}
     void powerDown(void)
     {
       SNVS_LPCR |= (1 << 6); // turn off power
@@ -358,4 +362,6 @@
 
   char uid_strng[10]; 
   void getUID(void) { sprintf(uid_strng,"%08lX",(HW_OCOTP_MAC0 & 0xFFFFFFFF)); }
+
+  void neo_pixel_show(uint16_t r, uint16_t g, uint16_t b) {}
 #endif

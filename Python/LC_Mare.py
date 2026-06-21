@@ -73,6 +73,17 @@ def getDevPid():
                 return 'rp2350'
     return None
 
+def openSerial():
+    com = getComPort()
+    try:
+        ser=serial.Serial(com, timeout=0.1)
+    except Exception as e:
+        print(e)
+        print("please close the serial port")
+        return None
+    else:
+        return ser
+
 #======================================================================================
 class WelcomeFrame(ttk.Frame):
 
@@ -135,7 +146,7 @@ class ViewFrame(ttk.Frame):
         if fname == None: return
         print(fname)
 
-        self.fs, self.data, it = load_microPAM(fname)
+        self.fs, self.data, it = load_microPAM(fname,True)
         self.plot_view(self.fs,self.data)
 
     def plot_view(self,fs,data):
@@ -267,9 +278,9 @@ class ConfigFrame(ttk.Frame):
         self.mputEntry(self.h_start_edit,time.strftime("%Y-%m-%d_%H:%M:%S"))
         #
 
-        s=serial.tools.list_ports.comports(True)
-        if len(s)>0:
-            with serial.Serial(s[0].device) as ser:
+        ser=openSerial()
+        if ser:
+            with ser:
                 ser.reset_input_buffer()
                 ser.reset_output_buffer()
 
@@ -283,10 +294,6 @@ class ConfigFrame(ttk.Frame):
             self.startButton.place(x=700, y=10)
             self.task_is_running=0
             #
-        if 0:
-            self.monitorButton=tk.Button(self, text="Monitor", command=self.clickMonitor, font=("Helvetica", 18))
-            self.monitorButton.place(x=800, y=10)
-            self.monitor_is_running=0
 
     '''def clickExitButton(self):
         return
@@ -316,18 +323,15 @@ class ConfigFrame(ttk.Frame):
             print('Start')
             self.startButton.config(text="Stop")
             #
-            com=getComPort()
-            if com:
-                print('start',com)
-                self.ser=serial.Serial(com,timeout=0.1)
-                if self.ser:
-                    self.ser.reset_input_buffer()
-                    self.ser.read_all()
-                    # start acquisition
-                    self.task_is_running=1
-                    self.ser.write(b's\n')
-                    #
-                    self.after(100,self.run_task)
+            self.ser=openSerial()
+            if self.ser:
+                self.ser.reset_input_buffer()
+                self.ser.read_all()
+                # start acquisition
+                self.task_is_running = 1
+                self.ser.write(b's\n')
+                #
+                self.after(100, self.run_task)
         else:
             print('Stop')
             self.startButton.config(text="Start")
@@ -342,29 +346,7 @@ class ConfigFrame(ttk.Frame):
                     self.scrolledText.insert(tk.END,txt)
                     self.scrolledText.see(tk.END)
                 self.task_is_running = 0
-    '''
-    def monitor_task(self):
-        ser = self.ser
-        try:
-            if self.monitor_is_running:
-                if ser.in_waiting>0:
-                    self.scrolledText.insert(tk.END,ser.read_all().decode('utf-8'))
-                    self.scrolledText.see(tk.END)
-                self.after(100,self.monitor_task)
-        except Exception as e:
-            self.monitor_is_running=0
-
-    def clickMonitor(self):
-        if self.monitor_is_running==1:
-            self.monitor_is_running=0
-        else:
-            self.monitor_is_running=1
-            com=getComPort()
-            if com:
-                self.ser=serial.Serial(com,timeout=0.1)
-                if self.ser:
-                    self.after(100,self.monitor_task)
-    '''
+#
     def mEntry(self,txt,x,y,w,dx):
         label = tk.Label(self,text=txt,font=("Helvetica", 18))
         label.place(x=x-dx,y=y)
@@ -410,10 +392,9 @@ class ConfigFrame(ttk.Frame):
     '''
     def clickLoadButton(self):
 
-        com=getComPort()
-        if com:
-            print('load',com)
-            with serial.Serial(com) as ser:
+        ser=openSerial()
+        if ser:
+            with ser:
                 ser.reset_input_buffer()
                 ser.read_all()
                 #
@@ -440,67 +421,54 @@ class ConfigFrame(ttk.Frame):
 
     def clickSaveButton(self):
         #
-        com=getComPort()
-        if com:
-            print('save',com)
-            with serial.Serial(com) as ser:
-        #        ser.read_all()
-                self.mgetEntry(ser,'!n',self.b_edit)
-                self.mgetEntry(ser,'!k',self.k_edit)
-                self.mgetEntry(ser,'!l',self.n_edit)
+        ser=openSerial()
+        if ser:
+            with ser:
+                #        ser.read_all()
+                self.mgetEntry(ser, '!n', self.b_edit)
+                self.mgetEntry(ser, '!k', self.k_edit)
+                self.mgetEntry(ser, '!l', self.n_edit)
                 #
-                self.mgetEntry(ser,'!a',self.t_acq_edit)
-                self.mgetEntry(ser,'!o',self.t_on_edit)
-                self.mgetEntry(ser,'!r',self.t_rep_edit)
+                self.mgetEntry(ser, '!a', self.t_acq_edit)
+                self.mgetEntry(ser, '!o', self.t_on_edit)
+                self.mgetEntry(ser, '!r', self.t_rep_edit)
                 #
-                self.mgetEntry(ser,'!f',self.fsamp_edit)
-                self.mgetEntry(ser,'!g',self.again_edit)
+                self.mgetEntry(ser, '!f', self.fsamp_edit)
+                self.mgetEntry(ser, '!g', self.again_edit)
                 #
-                self.mgetEntry(ser,'!1',self.h_1_edit)
-                self.mgetEntry(ser,'!2',self.h_2_edit)
-                self.mgetEntry(ser,'!3',self.h_3_edit)
-                self.mgetEntry(ser,'!4',self.h_4_edit)
-        #        #
-                self.mgetEntry(ser,'!x',self.h_start_edit)
+                self.mgetEntry(ser, '!1', self.h_1_edit)
+                self.mgetEntry(ser, '!2', self.h_2_edit)
+                self.mgetEntry(ser, '!3', self.h_3_edit)
+                self.mgetEntry(ser, '!4', self.h_4_edit)
+                #        #
+                self.mgetEntry(ser, '!x', self.h_start_edit)
                 ser.read_all()
 
     def clickRestartButton(self):
         print(self.h_start_edit)
         #
-        com=getComPort()
-        if com:
-            print('restart',com)
-            ser=serial.Serial(com)
+        ser=openSerial()
+        if ser:
             ser.read_all()
-            ser.write(b'b\n') # com wull be killed, so cannot close it
-            '''
-            try:
-                with serial.Serial(com) as ser:
-                    ser.read_all()
-                    ser.write(b'b\n')
-            except:
-                pass
-            '''
+            ser.write(b'b\n')  # seial line will be killed, so cannot close it (no with)
+
     def clickSyncButton(self):
         #
-        com=getComPort()
-        if com:
-            print('sync',com)
-            with serial.Serial(com,timeout=1.0) as ser:
-                ser.read_all()
-                ser.write(b'c\n')
-                print(ser.readline().decode('utf-8').rstrip())
-                print(ser.readline().decode('utf-8').rstrip())
-                #
-                date_time=datetime.now()
-                txt=date_time.strftime("%Y-%m-%d %H:%M:%S\n")
-                #
-                ser.write(txt.encode())
-                print(ser.readline().decode('utf-8').rstrip()) # echo
-                print(ser.readline().decode('utf-8').rstrip()) # date vector
-                print(ser.readline().decode('utf-8').rstrip()) # text
-                print(ser.readline().decode('utf-8').rstrip()) # new time
-
+        ser=openSerial()
+        if ser:
+            ser.read_all()
+            ser.write(b'c\n')
+            print(ser.readline().decode('utf-8').rstrip())
+            print(ser.readline().decode('utf-8').rstrip())
+            #
+            date_time = datetime.now()
+            txt = date_time.strftime("%Y-%m-%d %H:%M:%S\n")
+            #
+            ser.write(txt.encode())
+            print(ser.readline().decode('utf-8').rstrip())  # echo
+            print(ser.readline().decode('utf-8').rstrip())  # date vector
+            print(ser.readline().decode('utf-8').rstrip())  # text
+            print(ser.readline().decode('utf-8').rstrip())  # new time
 
     def update_clock(self):
         now = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -542,8 +510,7 @@ class UploadFrame(ttk.Frame):
         #
         # set MCU into boot mode
         try:
-            if comPort:
-                serial.Serial(comPort,1200)
+           serial.Serial(comPort,1200)
         except serial.SerialException as e:
             #print(e)
             pass

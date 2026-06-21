@@ -20,6 +20,8 @@
   void set_MCU_clock(int32_t mcu_factor);
   uint32_t getPSRAMSize(void);
 
+  void printCrashReport(void);
+
   extern char uid_strng[];
   void getUID(void);
 
@@ -40,5 +42,7 @@
   void setAlarm(uint32_t secs);
   void goDormant(void) ;
   void doReboot(void);
+
+ void neo_pixel_show(uint16_t r, uint16_t g, uint16_t b);
 
 #endif

@@ -15,4 +15,11 @@ extern char ISBJ[]; // 'subject' (Area)
 extern char INAM[]; // 'Name' (location id)
 
 extern char startTime[]; // Start Time
+
+uint16_t SD_init(void);
+void SD_stop(void); 
+
+status_t logger(status_t status);
+void storeConfigToFile(void);
+int configShow(void);
 #endif

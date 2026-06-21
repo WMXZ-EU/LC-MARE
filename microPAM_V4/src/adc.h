@@ -1,5 +1,5 @@
-#ifndef ACQ_H
-#define ACQ_H
+#ifndef ADC_H
+#define ADC_H
 
   void adc_init(void);
   void adc_exit(void);

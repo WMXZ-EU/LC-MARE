@@ -16,7 +16,11 @@ class Queue
 
 extern Queue queue;
 
-void process(int32_t * buffer);
+extern uint32_t diskBuffer[];
+void process(int32_t *buffer);
+
+void dsp_init(void);
+void dsp_apply(int32_t *buffer);
 
 extern uint32_t acq_missed;
 extern uint32_t acq_count;

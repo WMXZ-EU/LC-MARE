@@ -4,14 +4,13 @@
 
 /******************************Compress************************************************************/
 // temporary storage for processing
-#define NDATA NBUF
-#define MBIT 32
+#define NDATA NBUF_I2S
 #define NCH NCHAN_ACQ
 
 int32_t tempData[NDATA];
 uint32_t *utemp = (uint32_t *) tempData;
 
-int32_t encodeBlock(uint32_t *uout, uint32_t *uinp,  int32_t ndata, int32_t nb, int32_t MB)
+int32_t __not_in_flash_func(encodeBlock)(uint32_t *uout, uint32_t *uinp,  int32_t ndata, int32_t nb, int32_t MB)
 {   int nx = MB;
     int kk = 0;
     for (int ii = 0; ii < ndata; ii++)
@@ -32,7 +31,7 @@ int32_t encodeBlock(uint32_t *uout, uint32_t *uinp,  int32_t ndata, int32_t nb, 
     return (nx==MB)? kk : kk+1;
 }
 
-int32_t encodeData(uint32_t *out, int32_t *inp, int ndat, int nch)
+int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, int nch)
 {
   // copy data (differences) to temporary storage and clean input/output buffer
   for(int ii=0; ii<nch;ii++) tempData[ii]=inp[ii];
@@ -78,7 +77,7 @@ int32_t encodeData(uint32_t *out, int32_t *inp, int ndat, int nch)
   return kk;
 }
 
-int32_t *compressData(int32_t *buffer)
+int32_t *__not_in_flash_func(compressData)(int32_t *buffer)
 {
   int32_t ndat=NDATA;
   int nch=NCH;
@@ -104,14 +103,15 @@ int32_t *compressData(int32_t *buffer)
 }
 
 /***************************Queue*****************************************************************/
+#define NBLOCK NBUF_DISK
 #if MCU==T_4_1
-  #if MAX_QUEUE >10
+  #if MAX_QUEUE > 5
     EXTMEM uint32_t queue_buffer[MAX_QUEUE][NBLOCK];
   #else
-    uint32_t queue_buffer[MAX_QUEUE][NBLOCK];
+    DMAMEM uint32_t queue_buffer[MAX_QUEUE][NBLOCK];
   #endif
 #else
-  #if MAX_QUEUE >5
+  #if MAX_QUEUE > 5
     uint32_t queue_buffer[MAX_QUEUE][NBLOCK]  PSRAM ;
   #else
     uint32_t queue_buffer[MAX_QUEUE][NBLOCK];
@@ -130,7 +130,7 @@ int32_t *compressData(int32_t *buffer)
     cnt=0;
   }
 
-  int Queue::push(uint32_t *data, int ndat)
+  int __not_in_flash_func(Queue::push)(uint32_t *data, int ndat)
   { while(busy);
     busy=1;
     if((cnt+ndat)<=NBLOCK)
@@ -157,7 +157,7 @@ int32_t *compressData(int32_t *buffer)
     }
   }
 
-  int Queue::pull(uint32_t *data)
+  int __not_in_flash_func(Queue::pull)(uint32_t *data)
   { while(busy);
     busy=1;
     if(tail==head) 
@@ -170,7 +170,7 @@ int32_t *compressData(int32_t *buffer)
     return 1;
   }
 
-  int Queue::available(void)
+  int __not_in_flash_func(Queue::available)(void)
   {
     return ((head+MAX_QUEUE-tail)%MAX_QUEUE) >0;
   }
@@ -178,21 +178,126 @@ int32_t *compressData(int32_t *buffer)
 Queue queue;
 
 /******************************Processing*************************************************/
+#define NBUF_ACQ NBUF_I2S 	// NOTE: if different need to extract data from I2S buffer
+
 uint32_t acq_missed=0;
 uint32_t acq_count=0;
 uint32_t proc_time=0;
 
-void process(int32_t * buffer)
+void __not_in_flash_func(process)(int32_t * buffer)
 { acq_count++;
   
   uint32_t to=micros();
   //
-  #if PROC==0
-    if(!queue.push((uint32_t*)buffer,NBUF_I2S)) acq_missed++;
+  #if PROC_MODE==0
+    if(!queue.push((uint32_t*)buffer,NBUF_ACQ)) acq_missed++;
+  #elif PROC_MODE==1
+    if(!queue.push((uint32_t*)compressData(buffer),buffer[NBUF_ACQ-1])) acq_missed++;
   #else
-    if(!queue.push((uint32_t*)compressData(buffer),buffer[NBUF_I2S-1])) acq_missed++;
+    dsp_apply(buffer);
+    if(!queue.push((uint32_t*)compressData(buffer),buffer[NBUF_ACQ-1])) acq_missed++;
   #endif
   //
   uint32_t dt=micros()-to;
   if (dt>proc_time) proc_time=dt;
 }
+
+#if (MCU==T_4_1)
+  #include "DSP/cmsis.h"
+
+  #define NSAMP (NBUF_ACQ/NCH)  // number of samples per buffer
+  #define NFFT (2*NSAMP)        // will result in NSAMP complex spectral values
+
+  arm_rfft_fast_instance_f32 S;
+
+  float O[NBUF_ACQ];
+  float W[NFFT];
+  float X[NFFT];
+  float Y[NFFT];
+  float Z[NFFT*NCH];
+  float I[3*NSAMP];
+
+  // tetraheder (*4)
+  //[[ 1  0  1 -1  0  1]
+  // [ 1  1  0  0 -1 -1]
+  // [ 0  0  1  0  0  0]]
+  //
+  float M[3][6]=
+                {{1.0f, 0.0f, 1.0f,-1.0f, 0.0f, 1.0f},
+                 {1.0f, 1.0f, 0.0f, 0.0f,-1.0f,-1.0f},
+                 {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f}};
+
+  inline void RFFT(float *Y, float *X) { arm_rfft_fast_f32( &S, X, Y,0); }
+
+  void spectrum_init(void)
+  {   arm_rfft_fast_init_f32( &S, NFFT);
+
+      for(int jj=0; jj<NBUF_ACQ; jj++) O[jj]=0.0f;
+      for(int jj=0; jj<NFFT; jj++) W[jj]=(1-cosf(2.0f*3.14159265359f*(float)jj/(float)NFFT))/2.0f;
+  }
+
+  void spectrum_apply(int32_t *buffer)
+  {
+      for(int ii=0; ii<NCH; ii++)
+      { // 50% overlap
+        for(int jj=0; jj<NSAMP; jj++) X[jj]=O[ii+NCH*jj];
+        for(int jj=0; jj<NSAMP; jj++) X[NSAMP+jj]=O[ii+NCH*jj]=buffer[ii+NCH*jj];
+        for(int jj=0; jj<NFFT; jj++) X[jj] *= W[jj];
+        RFFT(Y,X);
+        for(int jj=0; jj<NFFT; jj++) Z[ii+NCH*jj]=Y[jj];
+      }
+  }
+
+  // directional intensity sums negative imaginary part of hydrophone pair crosscorrelation
+  void intensity_init()
+  {
+  }
+
+  void intensity_apply(void)
+  { int kk,i0,i1;
+    for(int ii=0; ii<3; ii++)
+    { float *Mi=M[ii];
+      for(int jj=0;jj<NSAMP;jj++)
+      { kk=ii+3*jj;
+        I[kk]=0.0f;
+        //0-1
+        i0=2*(0+4*jj);
+        i1=2*(1+4*jj);
+        I[kk] += -Mi[0]*(Z[i0+1]*Z[i1]-Z[i0]*Z[i1+1]);
+        //0-2
+        i0=2*(0+4*jj);
+        i1=2*(2+4*jj);
+        I[kk] += -Mi[1]*(Z[i0+1]*Z[i1]-Z[i0]*Z[i1+1]);
+        //0-3
+        i0=2*(0+4*jj);
+        i1=2*(3+4*jj);
+        I[kk] += -Mi[2]*(Z[i0+1]*Z[i1]-Z[i0]*Z[i1+1]);
+        //1-2
+        i0=2*(1+4*jj);
+        i1=2*(2+4*jj);
+        I[kk] += -Mi[3]*(Z[i0+1]*Z[i1]-Z[i0]*Z[i1+1]);
+        //1-3
+        i0=2*(1+4*jj);
+        i1=2*(3+4*jj);
+        I[kk] += -Mi[4]*(Z[i0+1]*Z[i1]-Z[i0]*Z[i1+1]);
+        //2-3
+        i0=2*(2+4*jj);
+        i1=2*(3+4*jj);
+        I[kk] += -Mi[5]*(Z[i0+1]*Z[i1]-Z[i0]*Z[i1+1]);
+      }
+    }
+  }
+
+  void dsp_init(void)
+  { spectrum_init();
+    intensity_init();
+  }
+
+  void dsp_apply(int32_t *buffer)
+  { spectrum_apply(buffer);
+    intensity_apply();
+  }
+#else
+  void dsp_init(void) {}
+  void dsp_apply(int32_t *buffer) {}
+#endif

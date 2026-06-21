@@ -1,6 +1,12 @@
 #include <Arduino.h>
 #include "global.h"
-#include "acq.h"
+#if MCU==T_4_1
+  #include "Teensy.h"
+#else
+  #include "rp2x.h"
+#endif
+
+#include "adc.h"
 #include "rtc.h"
 #include "filing.h"
 
@@ -12,7 +18,7 @@ void parameterPrint0(void)
     Serial.print("t_rep  (r) "); Serial.print(t_rep);  Serial.println(" min");
     Serial.print("fsamp  (f) "); Serial.print(fsamp);  Serial.println(" Hz");
     Serial.print("again  (g) "); Serial.print(again);  Serial.println(" dB");
-    Serial.print("Processing "); Serial.println(PROC);
+    Serial.print("Processing "); Serial.println(PROC_MODE);
     Serial.print("Voltage "); Serial.println(analogRead(A1));
 }
 
@@ -128,7 +134,7 @@ status_t menu(status_t status)
       }
       else if(ch=='b')
       {
-          //SD_stop();
+          SD_stop();
           doReboot();
       }
       else if(ch=='?')  // get parameter
@@ -156,7 +162,7 @@ status_t menu(status_t status)
             Serial.print("u = "); Serial.println(uid_strng);
             break;
           case 'p':
-            Serial.print("p = "); Serial.println(PROC);
+            Serial.print("p = "); Serial.println(PROC_MODE);
             break;
           case 'w':
             //Serial.print("w = "); Serial.println(eeprom);

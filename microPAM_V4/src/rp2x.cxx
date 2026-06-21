@@ -3,7 +3,7 @@
 
 #if MCU==(RP_2040) || (MCU==RP_2350)
 #include "rp2x.h"
-#include "acq.h"
+#include "adc.h"
 #include "rtc.h"
 #include "process.h"
 
@@ -12,6 +12,8 @@
     set_sys_clock_khz(mcu_factor*12000, true);
   }
   
+    void printCrashReport(void) {}
+
   /*************************** TDM ****************************************************/
   #define I2S_DOUT  11
   #define I2S_BCLK  9

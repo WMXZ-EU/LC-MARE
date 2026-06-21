@@ -49,7 +49,7 @@ char status_text[6][16]={"DO_START\0", "CLOSED\0", "RECORDING\0", "MUST_STOP\0",
 
 // some testing modes
 #define TEST_HIBERNATE 0
-#define TEST_I2C 0
+#define TEST_I2C 1
 #define TEST_RTC 0
 #define TEST_XRTC 0
 

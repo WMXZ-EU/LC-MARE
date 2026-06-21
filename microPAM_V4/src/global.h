@@ -2,8 +2,9 @@
 #define GLOBAL_H
 
   #include "../config.h"
+
   #define Program "microPAM_V4"
-  #define Version "4.0.0" // 17-06-2026
+  #define Version "4.0.0" // 18-06-2026
 
   #define T_4_1   0
   #define RP_2040 1
@@ -20,24 +21,26 @@
   #define NBUF 1024
 
   // for acq
-  #define NBUF_I2S NBUF
 
   // for acq/adc hardware
   #if MCU==T_4_1
     #define NPORT_I2S   1
-    #define NCHAN_I2S   2
-    #define NCHAN_ACQ   2
-    #define ADC_SHDNZ   3
+    #define NCHAN_I2S   4
+    #define NCHAN_ACQ   4
+    #define NBUF_I2S    (2*NBUF)
+    //#define ADC_SHDNZ   3
+    #define ADC_SHDNZ   32
     #define ADC_EN      2      
     #define mWire       Wire
     #define USB_POWER   1
-    #define MAX_QUEUE   320
+    #define MAX_QUEUE   5
     #define USE_EXT_RTC   0
   
   #elif MCU==RP_2040
     #define NPORT_I2S   1
     #define NCHAN_I2S   1
     #define NCHAN_ACQ   1
+    #define NBUF_I2S    NBUF
     #define ADC_EN      5
     #define ADC_SHDNZ   6
     #define mWire       Wire
@@ -45,18 +48,28 @@
     #define MAX_QUEUE     5
     #define USE_EXT_RTC   1
     #define XRTC_INT_PIN  15
+    #define SD_CS         23
   
   #elif MCU==RP_2350
     #define NPORT_I2S   1
     #define NCHAN_I2S   2
     #define NCHAN_ACQ   2
+    #define NBUF_I2S    NBUF
     #define ADC_EN      5
     #define ADC_SHDNZ   6
     #define mWire       Wire
     #define USB_POWER   0
     #define MAX_QUEUE   225
     #define USE_EXT_RTC   1
-    #define XRTC_INT_PIN 29
+    #define XRTC_INT_PIN  29
+    #define SD_CS         25 
+  #endif
+
+  #if MCU==RP_2040
+    #if FSAMP>192000
+      #undef FSAMP
+      #define FSAMP 192000
+    #endif
   #endif
 
   // for adc
@@ -69,9 +82,8 @@
     #define ICH 0
   #endif
 
-  // for queue
-  #define NBLOCK (8*NBUF)
-  #define NBUF_DISK NBLOCK
+  // for filing (and queue)
+  #define NBUF_DISK (8*NBUF_I2S)
 
   // for XRTC
   #define XRTC_SDA   2
@@ -81,12 +93,25 @@
   enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED, MUST_HIBERNATE};
   extern char status_text[][16];
 
-  #define MCU_SPEED 2
+  // setting MCU clock speed according to sampling frequency
+  #if FSAMP<=96000
+    #define CLK_MULT 4  // (48 MHz)
+  #elif FSAMP<=192000
+    #define CLK_MULT 8  // (96 MHz)
+  #else
+    #define CLK_MULT 12 // (144 MHz)
+  #endif
 
   #include <cstdint>
 
-  // in rp2040.cxx
-  extern uint32_t fsamp;  // sampling frequency (kHz)
-  // in Adc.cxx
+  // in rp2040.cxx/Teensy.cxx
+  extern uint32_t fsamp;  // sampling frequency (kHz) needed inter alia for filing
 
+  #define MBIT 32
+
+  #if MCU==T_4_1
+    #define __not_in_flash_func(func) func
+  #endif
+
+  #define MONITOR 1
 #endif
