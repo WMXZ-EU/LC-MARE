@@ -12,7 +12,7 @@
     set_sys_clock_khz(mcu_factor*12000, true);
   }
   
-    void printCrashReport(void) {}
+  void printCrashReport(void) {}
 
   /*************************** TDM ****************************************************/
   #define I2S_DOUT  11
@@ -59,7 +59,7 @@
       INN(0b10,1)
     };
   
-  #elif NCHAN_I2S==2
+  #elif NCHAN_I2S>=2
     #define pio_tdm_in_wrap_target 0
     #define pio_tdm_in_wrap 11
 
@@ -78,8 +78,8 @@
         JMPY(0b01,5),
         INP(0b10,1)
     };
-
   #endif
+
   static const struct pio_program pio_tdm_in_program = {
       .instructions = pio_tdm_in_program_instructions,
       .length = (pio_tdm_in_wrap+1),
@@ -117,11 +117,7 @@
 
   void acqModifyFrequency(uint32_t fsamp)
   { 
-    #if NCH==1
-      float bitClk = fsamp * _bps * NCH /* SAI channels */ * 2.0 /* edges per clock */;
-    #else
-      float bitClk = fsamp * _bps * 2 /* SAI channels */ * 2.0 /* edges per clock */;
-    #endif
+    float bitClk = fsamp * _bps * NCH /* SAI channels */ * 2.0 /* edges per clock */;
     pio_sm_set_enabled(_pio, _sm, false);
     pio_sm_set_clkdiv(_pio, _sm, (float)clock_get_hz(clk_sys) / bitClk);
     pio_sm_set_enabled(_pio, _sm, true);

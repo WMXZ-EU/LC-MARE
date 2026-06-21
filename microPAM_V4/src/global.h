@@ -28,8 +28,7 @@
     #define NCHAN_I2S   4
     #define NCHAN_ACQ   4
     #define NBUF_I2S    (2*NBUF)
-    //#define ADC_SHDNZ   3
-    #define ADC_SHDNZ   32
+    #define ADC_SHDNZ   3
     #define ADC_EN      2      
     #define mWire       Wire
     #define USB_POWER   1
@@ -52,8 +51,8 @@
   
   #elif MCU==RP_2350
     #define NPORT_I2S   1
-    #define NCHAN_I2S   2
-    #define NCHAN_ACQ   2
+    #define NCHAN_I2S   4
+    #define NCHAN_ACQ   4
     #define NBUF_I2S    NBUF
     #define ADC_EN      5
     #define ADC_SHDNZ   6

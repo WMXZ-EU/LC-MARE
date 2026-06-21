@@ -491,7 +491,7 @@ def get_pamFileName():
         # Ask the user to select a file
         file_path = filedialog.askopenfilename(
             title="Select a file",
-            filetypes=[("uPAM files", "*.bin *.wav")]
+            filetypes=[("uPAM files", "*.bin *.wav *.dat")]
         )
 
         # Destroy the root window after selection

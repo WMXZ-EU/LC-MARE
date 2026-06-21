@@ -203,4 +203,11 @@ T4_1
  4 spectra 50% overlap
   600 us  (12.2%) 179mA
 
+comment previous % may be wrong estimates
+-------------------------------------------------------------------
+TD-1.61
+32-06-26 15:00 4-chan 192 kHz
+RP2350(150 MHz)  755 750 743 us 1.333 ms (56.1%) 36  (no dsp_apply)
+T4.1(600 MHz)    376 375 131 us 2.667 ms ( 4.9%) 27  (no dsp_apply)
+T4.1(600 MHz)    380 375 565 us 2.667 ms (21.5%) 32  (with dsp_apply)
 */

@@ -11,7 +11,7 @@
   // definitions for acquisition and filing (default to highest useful frequency)
   #define FSAMP 192000  // will be limited to 96000 if RP2040
   //
-  #define PROC_MODE      2   // 0 Wav raw file; 1 compress 
+  #define PROC_MODE      2   // 0 Wav raw file; 1 compress ; 2 dsp (only T4.1)
 
   //for filing meta data
   #define SRC_str "LC17"     //  Source

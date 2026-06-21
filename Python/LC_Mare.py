@@ -61,7 +61,9 @@ def getComPort():
         if (s[ii].vid==0x239a):
             if (s[ii].pid==0x815d) | (s[ii].pid==0x814f): # adafruit adalogger rp2040 or feather rp2350
                 return s[ii].device
-    return None
+        if (s[ii].vid == 0x16C0): # PJRC
+            return s[ii].device
+        return None
 
 def getDevPid():
     s=serial.tools.list_ports.comports(True)
@@ -71,7 +73,9 @@ def getDevPid():
                 return 'rp2040'
             if (s[ii].pid==0x814f):
                 return 'rp2350'
-    return None
+        if (s[ii].vid == 0x16C0): # PJRC
+            return 'Teensy4.1'
+        return None
 
 def openSerial():
     com = getComPort()
@@ -279,7 +283,8 @@ class ConfigFrame(ttk.Frame):
         #
 
         ser=openSerial()
-        if ser:
+        print(ser)
+        if ser is not None:
             with ser:
                 ser.reset_input_buffer()
                 ser.reset_output_buffer()
