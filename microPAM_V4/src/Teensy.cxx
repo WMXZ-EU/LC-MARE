@@ -89,29 +89,10 @@
   void setAudioFrequency(int fs)
   { if(!acq_isrunning) return; // change frequency only when i2s is running
 
-    #if 1
-      int ovr=128;
-      int n1 = 4; //SAI prescaler 4 => (n1*n2) = multiple of 4
-      int n2 = 1 + (24000000 * 27) / (fs * ovr * n1);
-      Serial.printf("fs=%d, n1=%d, n2=%d\r\n", fs, n1,n2);
-
-    #else    
-      int ovr = 2*MDIV*(NCHAN_I2S*MBIT);
-      Serial.print("ovr: "); Serial.println(ovr);
-
-      // PLL between 27*24 = 648MHz und 54*24=1296MHz
-      int n0 = 26; // targeted PLL frequency (n0*24 MHz) n0>=27 && n0<54
-      int n1, n2;
-      do
-      {   n0++;
-          n1=0;
-          do
-          {   n1++; 
-              n2 = 1 + (24'000'000 * n0) / (fs * ovr * n1);
-          } while ((n2>64) && (n1<=8));
-      } while ((n2>64 && n0<54));
-      Serial.printf("fs=%d, no=%d, n1=%d, n2=%d\r\n", fs, n0,n1,n2);
-    #endif
+    int ovr=128;  // from ADC manual
+    int n1 = 4; //SAI prescaler 4 => (n1*n2) = multiple of 4
+    int n2 = 1 + (24000000 * 27) / (fs * ovr * n1);
+    Serial.printf("fs=%d, n1=%d, n2=%d\r\n", fs, n1,n2);
 
     double C = ((double)fs * ovr * n1 * n2) / 24000000;
     Serial.print("C: "); Serial.println(C);
@@ -198,16 +179,17 @@
     dma.enable();
   }
 
+  DMAMEM int32_t acq_buffer[NBUF_I2S];
+
   #define IMXRT_CACHE_ENABLED 2 // 0=disabled, 1=WT, 2= WB
   static void acq_isr(void)
   {
     uint32_t daddr;
     int32_t *src;
-  
-    daddr = (uint32_t)(dma.TCD->DADDR);
 
+    daddr = (uint32_t)(dma.TCD->DADDR);
     dma.clearInterrupt();
-  
+
     if (daddr < (uint32_t) &i2s_buffer[NBUF_I2S]) 
     {
       // DMA is receiving to the first half of the buffer
@@ -220,12 +202,14 @@
     // need to remove data from the first half
       src = (int32_t *)&i2s_buffer[0];
     }
-
     #if IMXRT_CACHE_ENABLED >=1
         arm_dcache_delete((void*)src, sizeof(i2s_buffer) / 2);
     #endif
 
-    process(src);
+    //process(src);
+    memcpy(acq_buffer,(const void *)src,4*NBUF_I2S);
+    process(acq_buffer);
+
   }
 
   /*-------------Utilities----------------------------*/
@@ -238,8 +222,8 @@
     I2S1_RCSR |= I2S_RCSR_RE | I2S_RCSR_BCE;
   }
 
-  void i2s_start(void){   I2S1_RCSR |=  (I2S_RCSR_RE | I2S_RCSR_BCE);}
-  void  i2s_stop(void){   I2S1_RCSR &= ~(I2S_RCSR_RE | I2S_RCSR_BCE);}
+  void i2s_start(void){  I2S1_RCSR |=  (I2S_RCSR_RE | I2S_RCSR_BCE);}
+  void i2s_stop(void){   I2S1_RCSR &= ~(I2S_RCSR_RE | I2S_RCSR_BCE);}
 
   void acqInit(uint32_t fs)
   {

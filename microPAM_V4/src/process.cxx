@@ -184,21 +184,17 @@ uint32_t acq_missed=0;
 uint32_t acq_count=0;
 uint32_t proc_time=0;
 
-volatile static int32_t acq_buffer[NBUF_ACQ];
-
-void __not_in_flash_func(process)(int32_t * buffer)
+void __not_in_flash_func(process)(int32_t *acq_buffer)
 { acq_count++;
-  static int32_t val=0;
   uint32_t to=micros();
   //
-  memcpy(acq_buffer,buffer, 4*NBUF_ACQ);
   #if PROC_MODE==0
     if(!queue.push((uint32_t*)acq_buffer,NBUF_ACQ)) acq_missed++;
   #elif PROC_MODE==1
     if(!queue.push((uint32_t*)compressData(acq_buffer),acq_buffer[NBUF_ACQ-1])) acq_missed++;
   #else
-    dsp_apply(acq_buffer);
     if(!queue.push((uint32_t*)compressData(acq_buffer),acq_buffer[NBUF_ACQ-1])) acq_missed++;
+    dsp_apply(acq_buffer);
   #endif
   //
   uint32_t dt=micros()-to;

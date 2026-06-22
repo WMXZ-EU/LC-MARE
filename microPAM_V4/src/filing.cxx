@@ -238,7 +238,7 @@ extern uint32_t data_count;
 char dayDir[40];
 char hourDir[10];
 char extent[3][4]={"wav","bin","dat"};
-int32_t logBuffer[9];
+int32_t logBuffer[16];
 
 void printStatus(uint32_t num_bytes_written,int16_t vsens)
 {
@@ -335,13 +335,7 @@ status_t logger(status_t status)
 
       file.close();
       // 
-      #if PROC_MODE==0
-        memcpy(logBuffer,&buffer[0], 9*4);
-      #elif PROC_MODE==1
-        memcpy(logBuffer,&buffer[1], 9*4);
-      #else
-        memcpy(logBuffer,&buffer[0], 9*4);
-      #endif
+      memcpy(logBuffer,buffer, 9*4);
       printStatus(num_bytes_written,vsens);
       //
       // check for stopping or hibernation
