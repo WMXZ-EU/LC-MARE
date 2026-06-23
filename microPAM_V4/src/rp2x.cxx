@@ -188,8 +188,7 @@
   void process(int32_t * buffer);
 
   static void __not_in_flash_func(dma_irq)(void)
-  { static int32_t val=0;
-
+  { 
     for(int ii=0; ii<2; ii++)
     if(dma_channel_get_irq0_status(_channelDMA[ii]))
     { //
@@ -390,7 +389,7 @@
   void goDormant(void) 
   {
     // 'switch-off' all I/O pins
-    for(int p=0;p<PINS_COUNT;p++)
+    for(uint16_t p=0;p<PINS_COUNT;p++)
     //if(p != XRTC_INT_PIN)
     { pinMode(p, INPUT); // best performance!
       gpio_set_input_enabled(p, false); // disable input gate

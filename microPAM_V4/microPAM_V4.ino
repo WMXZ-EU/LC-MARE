@@ -133,14 +133,15 @@ void loop() {
     { // 
       if(status != STOPPED) // have disk and started acquisition
       { status =logger(status);
-        loop1_count++;  
         //
         #if MONITOR==1 // to monitor during writing
-        { static uint32_t to=0;
+        { loop1_count++;  
+          //
+          static uint32_t to=0;
           if(millis()>to+1000)
           { to=millis();
             for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
-            printMonitor("1 - ", cnt++, &loop1_count,logBuffer);
+            printMonitor("1 - ", cnt++, (uint32_t *)&loop1_count,logBuffer);
           }
         }
         #endif
@@ -161,7 +162,7 @@ void loop() {
         if(millis()>to+1000)
         { to=millis();
           for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
-          printMonitor("0 - ", cnt++, &loop_count,logBuffer);
+          printMonitor("0 - ", cnt++, (uint32_t *) &loop_count,logBuffer);
         }
       }
       // simulate stopping process (in case there is no disk)

@@ -197,7 +197,7 @@
   #define RV3028_ADDR						(uint8_t)0x52
 
   #define TIME_ARRAY_LENGTH 7 // Total number of writable values in device
-	static uint8_t _time[TIME_ARRAY_LENGTH];
+//	static uint8_t _time[TIME_ARRAY_LENGTH];
   enum time_order {
     TIME_SECONDS,    // 0
     TIME_MINUTES,    // 1
@@ -273,11 +273,11 @@
     return(true);
   }
 
-  static bool readMultipleRegisters(uint8_t addr, uint8_t * dest, uint8_t len)
-  {
-    i2c_read_data(address,addr,dest,len);
-    return(true);
-  }
+//  static bool readMultipleRegisters(uint8_t addr, uint8_t * dest, uint8_t len)
+//  {
+//    i2c_read_data(address,addr,dest,len);
+//    return(true);
+//  }
 
   static bool writeMultipleRegisters(uint8_t addr, uint8_t * values, uint8_t len)
   {
@@ -511,7 +511,7 @@
 
   //void eepromUpdateAlarm(uint32_t alarm);
   void XRTCsetAlarm(uint32_t secs)
-  { uint8_t min,hour,date;
+  { //uint8_t min,hour,date;
     datetime_t tm;
     time2date(secs, &tm, 2000);
     Serial.printf("%d %d %d %d %d\n",tm.year,tm.month,tm.day,tm.hour,tm.min);

@@ -5,6 +5,8 @@ The acquisition module is tuned for TDM and does not follow the I2S protocol.
 
 The V0 version test acquisition, basic processing and hibernating
 
-Ihe program still lacks an user interface and the archiving to disk
-
 Extension in processing is planned for Teensy 4.1 MCU 
+
+Note: 
+For Teensy 4.1: For the time being needs TeensyDuino u tp 1.61.0 (as of 23-06-2026)
+For RP2440/RP2350: Seems fine with 5.6.0
