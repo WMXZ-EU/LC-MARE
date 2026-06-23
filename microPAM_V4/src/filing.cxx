@@ -246,7 +246,7 @@ void printStatus(uint32_t num_bytes_written,int16_t vsens)
       if(Serial)
       { Serial.printf("\t%5d %8d %2d %4d %6d:\t", 
                         loop1_count, num_samples,  acq_missed, mdt, vsens);
-        for(int ii=0;ii<9;ii++) Serial.printf("%8x ",logBuffer[ii]);
+        for(int ii=0;ii<9;ii++) Serial.printf("%08x ",logBuffer[ii]);
         Serial.println();
       }
       loop1_count = 0;

@@ -80,6 +80,10 @@ void setup() {
 volatile uint32_t loop_count=0;
 volatile uint32_t loop1_count=0;
 volatile uint32_t loop1_timer=0;
+void printHex8(uint8_t val) { Serial.print(val>>4,HEX);  Serial.print(val & 0xF,HEX);}
+void printHex16(uint16_t val) { printHex8(val>>8);  printHex8(val & 0xFF);}
+void printHex32(uint32_t val) { printHex16(val>>16);  printHex16((val &0xFFFF));}
+
 void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count)
 { if(!Serial) return;
   Serial.print(type); Serial.print(cnt); 
@@ -97,7 +101,7 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count)
   Serial.print(" "); Serial.print(*loop_count); Serial.print(":");
 //              Serial.printf("%2d: ",loop1_count);
   *loop_count=0;
-  for(int ii=0;ii<10;ii++) { Serial.print(" "); Serial.print(diskBuffer[ii],HEX);}
+  for(int ii=0;ii<10;ii++) { Serial.print(" "); printHex32(diskBuffer[ii]);}
   Serial.println();
 }
 
