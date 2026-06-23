@@ -86,7 +86,7 @@ void printHex8(uint8_t val,int flag)   { printHex0(val>>4,flag);   flag |= (val>
 void printHex16(uint16_t val,int flag) { printHex8(val>>8,flag);   flag |= (val>>8)>0;   printHex8(val & 0xFF,flag);}
 void printHex32(uint32_t val,int flag) { printHex16(val>>16,flag); flag |= (val>>16)>0;  printHex16(val &0xFFFF,flag);}
 
-void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count)
+void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t * buffer)
 { if(!Serial) return;
 //            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
 //                    proc_time, (1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S),proc_time/(10000.0f*acq_count));
@@ -103,8 +103,8 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count)
   Serial.print(" "); Serial.print(*loop_count); Serial.print(":");
 //              Serial.printf("%2d: ",loop1_count);
   *loop_count=0;
-  for(int ii=0;ii<4;ii++) { Serial.print(" ");  printHex32(diskBuffer[ii],0);}
-  for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(diskBuffer[ii],1);}
+  for(int ii=0;ii<4;ii++) { Serial.print(" ");  printHex32(buffer[ii],0);}
+  for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
   Serial.println();
 }
 
@@ -139,7 +139,8 @@ void loop() {
         { static uint32_t to=0;
           if(millis()>to+1000)
           { to=millis();
-            printMonitor("1 - ", cnt++, &loop1_count);
+            for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
+            printMonitor("1 - ", cnt++, &loop1_count,logBuffer);
           }
         }
         #endif
@@ -159,7 +160,8 @@ void loop() {
         static uint32_t to=0;
         if(millis()>to+1000)
         { to=millis();
-          printMonitor("0 - ", cnt++, &loop_count);
+          for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
+          printMonitor("0 - ", cnt++, &loop_count,logBuffer);
         }
       }
       // simulate stopping process (in case there is no disk)

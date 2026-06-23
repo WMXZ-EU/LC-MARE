@@ -238,7 +238,7 @@ extern uint32_t data_count;
 char dayDir[40];
 char hourDir[10];
 char extent[3][4]={"wav","bin","dat"};
-int32_t logBuffer[16];
+uint32_t logBuffer[16];
 
 void printHex32(uint32_t val,int flag);
 void printStatus(uint32_t num_bytes_written,int16_t vsens)

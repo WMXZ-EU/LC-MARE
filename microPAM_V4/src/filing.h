@@ -20,6 +20,7 @@ uint16_t SD_init(void);
 void SD_stop(void); 
 
 extern uint32_t diskBuffer[];
+extern uint32_t logBuffer[];
 status_t logger(status_t status);
 void storeConfigToFile(void);
 int configShow(void);
