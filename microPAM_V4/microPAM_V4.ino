@@ -80,12 +80,16 @@ void setup() {
 volatile uint32_t loop_count=0;
 volatile uint32_t loop1_count=0;
 volatile uint32_t loop1_timer=0;
-void printHex8(uint8_t val) { Serial.print(val>>4,HEX);  Serial.print(val & 0xF,HEX);}
-void printHex16(uint16_t val) { printHex8(val>>8);  printHex8(val & 0xFF);}
-void printHex32(uint32_t val) { printHex16(val>>16);  printHex16((val &0xFFFF));}
+
+void printHex0(uint8_t val,int flag) {if(flag || (val > 0)) Serial.print(val,HEX); else Serial.print(" ");}
+void printHex8(uint8_t val,int flag)   { printHex0(val>>4,flag);   flag |= (val>>4)>0;   printHex0(val & 0xF,flag);}
+void printHex16(uint16_t val,int flag) { printHex8(val>>8,flag);   flag |= (val>>8)>0;   printHex8(val & 0xFF,flag);}
+void printHex32(uint32_t val,int flag) { printHex16(val>>16,flag); flag |= (val>>16)>0;  printHex16(val &0xFFFF,flag);}
 
 void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count)
 { if(!Serial) return;
+//            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
+//                    proc_time, (1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S),proc_time/(10000.0f*acq_count));
   Serial.print(type); Serial.print(cnt); 
   Serial.print(" "); Serial.print(acq_count);
   Serial.print(" "); Serial.print( (fsamp*NCHAN_I2S)/NBUF_I2S);
@@ -93,15 +97,14 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count)
   Serial.print(" "); Serial.print(proc_time);
   Serial.print(" "); Serial.print((1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S));
   Serial.print(" ("); Serial.print((proc_time/10000.0f)*acq_count); Serial.print("%)");
-//            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
-//                    proc_time, (1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S),proc_time/(10000.0f*acq_count));
   acq_count=0;
   acq_missed=0;
   proc_time=0;
   Serial.print(" "); Serial.print(*loop_count); Serial.print(":");
 //              Serial.printf("%2d: ",loop1_count);
   *loop_count=0;
-  for(int ii=0;ii<10;ii++) { Serial.print(" "); printHex32(diskBuffer[ii]);}
+  for(int ii=0;ii<4;ii++) { Serial.print(" ");  printHex32(diskBuffer[ii],0);}
+  for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(diskBuffer[ii],1);}
   Serial.println();
 }
 

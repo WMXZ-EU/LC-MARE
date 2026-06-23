@@ -240,13 +240,15 @@ char hourDir[10];
 char extent[3][4]={"wav","bin","dat"};
 int32_t logBuffer[16];
 
+void printHex32(uint32_t val,int flag);
 void printStatus(uint32_t num_bytes_written,int16_t vsens)
 {
       uint32_t num_samples = num_bytes_written / (4 * NCHAN_ACQ);
       if(Serial)
       { Serial.printf("\t%5d %8d %2d %4d %6d:\t", 
                         loop1_count, num_samples,  acq_missed, mdt, vsens);
-        for(int ii=0;ii<9;ii++) Serial.printf("%08x ",logBuffer[ii]);
+        for(int ii=0;ii<4;ii++) {Serial.print(" "); printHex32(logBuffer[ii],0);}
+        for(int ii=4;ii<9;ii++) {Serial.print(" "); printHex32(logBuffer[ii],1);}
         Serial.println();
       }
       loop1_count = 0;

@@ -112,5 +112,5 @@
     #define __not_in_flash_func(func) func
   #endif
 
-  #define MONITOR 0
+  #define MONITOR 1
 #endif
