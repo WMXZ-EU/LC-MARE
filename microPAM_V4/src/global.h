@@ -104,7 +104,7 @@
   #include <cstdint>
 
   // in rp2040.cxx/Teensy.cxx
-  extern uint32_t fsamp;  // sampling frequency (kHz) needed inter alia for filing
+  extern volatile uint32_t fsamp;  // sampling frequency (kHz) needed inter alia for filing
 
   #define MBIT 32
 

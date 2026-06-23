@@ -19,6 +19,7 @@ extern char startTime[]; // Start Time
 uint16_t SD_init(void);
 void SD_stop(void); 
 
+extern uint32_t diskBuffer[];
 status_t logger(status_t status);
 void storeConfigToFile(void);
 int configShow(void);

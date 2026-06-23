@@ -22,7 +22,7 @@ char status_text[7][16]=
 
 status_t status=STOPPED;
 
-uint32_t fsamp=FSAMP;
+volatile uint32_t fsamp=FSAMP;
 
 uint16_t have_disk=0;
 #if MCU == T_4_1
@@ -77,9 +77,29 @@ void setup() {
   status=CLOSED;
 }
 
-uint32_t loop_count=0;
-uint32_t loop1_count=0;
-uint32_t loop1_timer=0;
+volatile uint32_t loop_count=0;
+volatile uint32_t loop1_count=0;
+volatile uint32_t loop1_timer=0;
+void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count)
+{ if(!Serial) return;
+  Serial.print(type); Serial.print(cnt); 
+  Serial.print(" "); Serial.print(acq_count);
+  Serial.print(" "); Serial.print( (fsamp*NCHAN_I2S)/NBUF_I2S);
+  Serial.print(" "); Serial.print(acq_missed);
+  Serial.print(" "); Serial.print(proc_time);
+  Serial.print(" "); Serial.print((1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S));
+  Serial.print(" ("); Serial.print((proc_time/10000.0f)*acq_count); Serial.print("%)");
+//            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
+//                    proc_time, (1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S),proc_time/(10000.0f*acq_count));
+  acq_count=0;
+  acq_missed=0;
+  proc_time=0;
+  Serial.print(" "); Serial.print(*loop_count); Serial.print(":");
+//              Serial.printf("%2d: ",loop1_count);
+  *loop_count=0;
+  for(int ii=0;ii<10;ii++) { Serial.print(" "); Serial.print(diskBuffer[ii],HEX);}
+  Serial.println();
+}
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -112,15 +132,7 @@ void loop() {
         { static uint32_t to=0;
           if(millis()>to+1000)
           { to=millis();
-            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
-                    proc_time, 1000.0f*NBUF_I2S/(fsamp*NCHAN_I2S),proc_time/10000.0f*acq_count);
-              acq_count=0;
-              acq_missed=0;
-              proc_time=0;
-              Serial.printf("%2d: ",loop1_count);
-              loop1_count=0;
-              for(int ii=0;ii<4;ii++) Serial.printf("%8x ",diskBuffer[ii]); 
-              for(int ii=4;ii<10;ii++) Serial.printf("%08x ",diskBuffer[ii]); Serial.println();
+            printMonitor("1 - ", cnt++, &loop1_count);
           }
         }
         #endif
@@ -140,15 +152,7 @@ void loop() {
         static uint32_t to=0;
         if(millis()>to+1000)
         { to=millis();
-          Serial.printf("0- %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, acq_missed, proc_time, 1000.0/acq_count,
-                        proc_time*acq_count/10000.0f);
-          acq_count=0;
-          acq_missed=0;
-          proc_time=0;
-          Serial.printf("%d: ",loop_count);
-          loop_count=0;
-          for(int ii=0;ii<4;ii++) Serial.printf("%8x ",diskBuffer[ii]); 
-          for(int ii=4;ii<10;ii++) Serial.printf("%08x ",diskBuffer[ii]); Serial.println();
+          printMonitor("0 - ", cnt++, &loop_count);
         }
       }
       // simulate stopping process (in case there is no disk)

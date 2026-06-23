@@ -16,7 +16,6 @@ class Queue
 
 extern Queue queue;
 
-extern uint32_t diskBuffer[];
 void process(int32_t *buffer);
 
 void dsp_init(void);

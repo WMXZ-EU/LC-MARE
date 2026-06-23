@@ -10,7 +10,6 @@
 #include "rtc.h"
 #include "filing.h"
 
-
 void parameterPrint0(void)
 {
     Serial.print("t_acq  (a) "); Serial.print(t_acq);  Serial.println(" sec");
