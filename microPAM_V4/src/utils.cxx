@@ -1,3 +1,4 @@
+
 /* microPAM 
  * Copyright (c) 2026, Walter Zimmer
  *
@@ -19,36 +20,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
- 
-#ifndef PROCESS_H
-#define PROCESS_H
+#include <Arduino.h>
 
-class Queue
-{ int16_t head,tail,busy;
-  int32_t cnt;
+void printHex0(uint8_t val,int flag) {if(flag || (val > 0)) Serial.print(val,HEX); else Serial.print(" ");}
+void printHex8(uint8_t val,int flag)   { printHex0(val>>4,flag);   flag |= (val>>4)>0;   printHex0(val & 0xF,flag);}
+void printHex16(uint16_t val,int flag) { printHex8(val>>8,flag);   flag |= (val>>8)>0;   printHex8(val & 0xFF,flag);}
+void printHex32(uint32_t val,int flag) { printHex16(val>>16,flag); flag |= (val>>16)>0;  printHex16(val &0xFFFF,flag);}
 
-  public:
-  Queue() {reset();}
-
-  void reset(void);
-  int push(uint32_t *data, int ndat);
-  int pull(uint32_t *data);
-  int available(void);
-};
-
-extern Queue queue;
-
-void process(int32_t *buffer);
-
-void dsp_init(void);
-int32_t *dsp_apply(int32_t *buffer);
-
-extern uint32_t acq_missed;
-extern uint32_t acq_count;
-extern uint32_t proc_time;
-
-extern float Imax;
-extern float Dmax;
-extern float Dmean;
-extern float Dsnr;
-#endif
+void printFloat(float val,int n1)
+{ float v0=10.0f;
+  for(int ii=1; ii<n1;ii++) v0 =v0*10.0f;
+  while(1)
+  {
+    if((val<v0) && (v0>1.0f)) Serial.print(' '); else break;
+    v0 /=10.0f;
+    if(v0<0.01) break;
+  }
+  Serial.print(val);
+}

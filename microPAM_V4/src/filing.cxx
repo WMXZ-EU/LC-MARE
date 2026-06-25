@@ -28,6 +28,7 @@
 #include "rtc.h"
 #include "filing.h"
 #include "process.h"
+#include "utils.h"
 
 #ifndef BUILTIN_SDCARD
   #define BUILTIN_SDCARD 254
@@ -262,7 +263,6 @@ char hourDir[10];
 char extent[3][4]={"wav","bin","dat"};
 uint32_t logBuffer[16];
 
-void printHex32(uint32_t val,int flag);
 void printStatus(uint32_t num_bytes_written,int16_t vsens)
 {
       uint32_t num_samples = num_bytes_written / (4 * NCHAN_ACQ);

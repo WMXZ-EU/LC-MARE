@@ -34,7 +34,7 @@
 #include "src/process.h"
 #include "src/menu.h"
 #include "src/filing.h"
-
+#include "src/utils.h"
 /********************************* basics *******************************************************/
 //  enum status_t  {DO_START, CLOSED, RECORDING, MUST_STOP, JUST_STOPPED, STOPPED, MUST_HIBERNATE};
 char status_text[7][16]=
@@ -102,23 +102,6 @@ volatile uint32_t loop_count=0;
 volatile uint32_t loop1_count=0;
 volatile uint32_t loop1_timer=0;
 
-void printHex0(uint8_t val,int flag) {if(flag || (val > 0)) Serial.print(val,HEX); else Serial.print(" ");}
-void printHex8(uint8_t val,int flag)   { printHex0(val>>4,flag);   flag |= (val>>4)>0;   printHex0(val & 0xF,flag);}
-void printHex16(uint16_t val,int flag) { printHex8(val>>8,flag);   flag |= (val>>8)>0;   printHex8(val & 0xFF,flag);}
-void printHex32(uint32_t val,int flag) { printHex16(val>>16,flag); flag |= (val>>16)>0;  printHex16(val &0xFFFF,flag);}
-
-void printFloat(float val,int n1)
-{ float v0=10.0f;
-  for(int ii=1; ii<n1;ii++) v0 =v0*10.0f;
-  while(1)
-  {
-    if(val<v0) Serial.print(' '); else break;
-    v0 /=10.0f;
-    if(v0<0.01) break;
-  }
-  Serial.print(val);
-}
-
 void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t * buffer)
 { if(!Serial) return;
 //            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
@@ -138,10 +121,9 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t
   *loop_count=0;
   Serial.print(" "); printFloat(Imax,3); 
   Imax=0.0f;
-  Serial.print(" "); printFloat(Dmax,3);
-  Dmax=0.0f;
+  Serial.print(" "); printFloat(Dmean,3);
   Serial.print(": ");
-  for(int ii=0;ii<4;ii++) { Serial.print(" ");  printHex32(buffer[ii],0);}
+  for(int ii=0;ii<4;ii++)  { Serial.print(" "); printHex32(buffer[ii],0);}
   for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
   Serial.println();
 }

@@ -19,36 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
- 
-#ifndef PROCESS_H
-#define PROCESS_H
 
-class Queue
-{ int16_t head,tail,busy;
-  int32_t cnt;
+#ifndef UTILS_H
+#define UTILS_H
 
-  public:
-  Queue() {reset();}
+void printHex0(uint8_t val,int flag);
+void printHex8(uint8_t val,int flag);
+void printHex16(uint16_t val,int flag);
+void printHex32(uint32_t val,int flag);
+void printFloat(float val,int n1);
 
-  void reset(void);
-  int push(uint32_t *data, int ndat);
-  int pull(uint32_t *data);
-  int available(void);
-};
-
-extern Queue queue;
-
-void process(int32_t *buffer);
-
-void dsp_init(void);
-int32_t *dsp_apply(int32_t *buffer);
-
-extern uint32_t acq_missed;
-extern uint32_t acq_count;
-extern uint32_t proc_time;
-
-extern float Imax;
-extern float Dmax;
-extern float Dmean;
-extern float Dsnr;
 #endif

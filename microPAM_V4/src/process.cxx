@@ -316,6 +316,8 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   }
 
   float Dmax=0.0f;
+  float Dmean=0.0f;
+  float Dsnr=0.0f;
   float D[NSAMP];
   void detection_init(void)
   {
@@ -326,6 +328,10 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   {
     for(int jj=0;jj<NSAMP;jj++) D[jj]= sqrtf(I[3*jj]*I[3*jj] +I[1+3*jj]*I[1+3*jj] +I[2+3*jj]*I[2+3*jj])*scale2;
     for(int jj=0;jj<NSAMP;jj++) if(D[jj]>Dmax) Dmax=D[jj];
+    Dmean=0.0f;
+    for(int jj=0;jj<NSAMP;jj++) Dmean = Dmean+D[jj];
+    Dmean = Dmean/(float)NSAMP;
+    Dsnr = Dmax/Dmean;    
   }
 
   void dsp_init(void)
