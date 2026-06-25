@@ -34,16 +34,26 @@
     #define USB_POWER   1
     #define MAX_QUEUE   5
     #define USE_EXT_RTC   0
+    #if PROC_MODE==2
+      #define NAVG      1 // could change this
+      #define NCHAN_PROC 3
+      #define NBUF_PROC (NCHAN_PROC*NBUF_I2S/NCHAN_I2S)
+    #else
+      #define NAVG      1
+      #define NCHAN_PROC NCHAN_ACQ
+      #define NBUF_PROC  NBUF_I2S
+    #endif
   
   #elif MCU==RP_2040
     #define NPORT_I2S   1
     #define NCHAN_I2S   1
     #define NCHAN_ACQ   1
+    #define NCHAN_PROC  1
     #define NBUF_I2S    NBUF
+    #define NBUF_PROC   NBUF
     #define ADC_EN      5
     #define ADC_SHDNZ   6
     #define mWire       Wire
-    #define USB_POWER   0
     #define MAX_QUEUE     5
     #define USE_EXT_RTC   1
     #define XRTC_INT_PIN  15
@@ -53,17 +63,36 @@
     #define NPORT_I2S   1
     #define NCHAN_I2S   4
     #define NCHAN_ACQ   4
+    #define NCHAN_PROC  4
     #define NBUF_I2S    NBUF
+    #define NBUF_PROC   NBUF
     #define ADC_EN      5
     #define ADC_SHDNZ   6
     #define mWire       Wire
-    #define USB_POWER   0
     #define MAX_QUEUE   225
     #define USE_EXT_RTC   1
     #define XRTC_INT_PIN  29
     #define SD_CS         25 
   #endif
 
+  // limit processing mode for other than Teensy4.1
+  #if MCU != T_4_1
+    #if PROC_MODE==2
+      #undef PROC_MODE
+      #define PROC_MODE 1
+    #endif
+    #define NAVG        1
+    #define USB_POWER   0
+  #endif
+
+  // limit sampling frequency of ADC
+  #if NCHAN_I2S>3
+    #if FSAMP>192000
+      #undef FSAMP
+      #define FSAMP 192000
+    #endif
+  #endif
+  //
   #if MCU==RP_2040
     #if FSAMP>192000
       #undef FSAMP

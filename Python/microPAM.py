@@ -363,6 +363,41 @@ def decodeData(xx, blklen,nch, vers):
                 data[n0:n1] = itmp.copy().astype('uint32')
     return it,data[:ii*blklen].astype('int32')
 
+#
+#--------------------------------------------------------
+# uid_strng,
+# t_acq, t_on, t_rep, fsamp / 1000, again, vsens, SHIFT, PROC_MODE, NBUF_PROC, NBUF_DISK / NBUF_PROC,
+# NAVG,
+# h_rec[0], h_rec[1], h_rec[2], h_rec[3],
+# Version
+#--------------------------------------------------------
+# history:
+# original 2nd line (10 fields)
+# added 4th line (14 fields)
+# added 1st line (15 fields)
+# added last line (16 fields)
+# added 3rd line (17 fields)
+def extract_config(config):
+    config_len = len(config)
+    if config_len < 15:  #
+        kx = 0
+    else:
+        kx = 1
+
+    gain = int(config[kx + 4])
+    shift = int(config[kx + 6])
+    cmpr = int(config[kx + 7])
+    blklen = int(config[kx + 8])
+    nblk = int(config[kx + 9])
+
+    if config_len < 17:
+        navg = 1
+    else:
+        navg = int(config[kx + 10])
+
+    return gain, shift, cmpr, blklen, nblk, navg
+
+#
 #--------------------------------------------------------
 def convertData(hh,xx,fname,iprt=False):
     fs, nch, nbits, pcm = wavInfo(hh)
@@ -384,16 +419,8 @@ def convertData(hh,xx,fname,iprt=False):
 
         if 'IKEY' in info.keys():
             config = info['IKEY'][:-1].split(';')  # last character is '.'
-            if config[0] != fname[-28:-20]:
-                kx=0
-            else:
-                kx=1
-            gain = int(config[kx+4])
-            shift = int(config[kx+6])
-            cmpr = int(config[kx+7])
-            blklen = int(config[kx+8])
-            nblk = int(config[kx+9])
-            if iprt: print(cmpr, gain, shift, blklen)
+            gain, shift, cmpr, blklen, nblk, navg = extract_config(config)
+            if iprt: print('ikey',cmpr, gain, shift, blklen,nblk,navg)
             #
             # have LC-MARE (very likely)
             preamp = 20*np.log10(21)  # dB
@@ -417,9 +444,11 @@ def convertData(hh,xx,fname,iprt=False):
     #print(pcm,cmpr,nbits,xx.shape)
     it=None
     if pcm==1:
-        if (cmpr == 1) & (fname[-3:]=='bin'):
+        if (cmpr == 1) & (fname[-3:]=='bin'):       # copress of raw data
             it,data = decodeData(xx, blklen, nch, vers)
             data =data* 2 ** shift         # undo right shift
+        elif (cmpr == 2) & (fname[-3:] == 'dat'):   # compress of intensity
+                it, data = decodeData(xx, blklen, nch, vers)
         else:
             if nbits == 16:
                 data = np.frombuffer(xx, dtype='int16')
@@ -430,19 +459,19 @@ def convertData(hh,xx,fname,iprt=False):
     else:
         data = np.frombuffer(xx, dtype='float32')
     #
-    return data,fs,nch,scale,it
+    return data,fs,nch,scale,it,cmpr,blklen
 
+#
 #--------------------------------------------------------
 def load_microPAM(fname, iprt=False):
     hh, xx = loadData(fname)
-    data,fs,nch,scale,it=convertData(hh,xx,fname,iprt)
-    #print(fs,nch,scale,data.shape)
+    data,fs,nch,scale,it,cmpr,blklen=convertData(hh,xx,fname,iprt)
+    if iprt: print(fs,nch,scale,data.shape)
 
     # convert to V
     data = data * scale             # data is now  in V
     data = data.reshape(-1,nch)
-    #print(data.shape)
-    return fs, data, it
+    return fs, data, it, cmpr, blklen
 
 #
 #--------------------------------------------------------
@@ -457,6 +486,18 @@ def get_Info(fname):
     if ii < 0: return {}
     info = decodeInfo(hh[ii:ii +1 + hh[ii + 1] // 4])
     return info
+
+#
+#--------------------------------------------------------
+def get_Config(hh):
+    ii = find_chunk(hh, 'LIST')
+    info = decodeInfo(hh[ii:ii + hh[ii + 1] // 4])
+    gain=navg=nblk=1
+    shift=cmpr=blklen=0
+    if 'IKEY' in info.keys():
+        config = info['IKEY'][:-1].split(';')  # last character is '.'
+        gain, shift, cmpr, blklen, nblk, navg = extract_config(config)
+    return gain, shift, cmpr, blklen, nblk, navg
 
 #
 #--------------------------------------------------------

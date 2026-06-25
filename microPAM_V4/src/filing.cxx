@@ -155,8 +155,8 @@ char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
   char *wptr=wav_Info_ptr;
   wptr=insertChunk(wptr,"ICRD",datestring);
   //
-  sprintf(infotext,"%s; %4d; %4d; %4d; %4lu; %4lu; %6u %3d; %3d; %4d; %3d; %4d; %4d; %4d; %4d; %s.",
-                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC_MODE, NBUF, NBUF_DISK/NBUF,
+  sprintf(infotext,"%s; %4d; %4d; %4d; %4lu; %4lu; %6u; %3d; %3d; %4d; %3d; %3d; %4d; %4d; %4d; %4d; %s.",
+                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC_MODE, NBUF_PROC, NBUF_DISK/NBUF_PROC, NAVG, 
                     h_rec[0],h_rec[1],h_rec[2],h_rec[3],Version);
   wptr=insertChunk(wptr,"IKEY",infotext);
   //
@@ -195,7 +195,7 @@ uint16_t SD_init(void)
 
     // prepare wav header (const content)
     //prep_header(NCH, FSAMP, MBIT);
-    wavHeaderInit(fsamp, NCHAN_ACQ, MBIT);
+    wavHeaderInit(fsamp, NCHAN_PROC, MBIT);
     have_sd=1;
   }
   return 1;

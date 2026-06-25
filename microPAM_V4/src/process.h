@@ -19,9 +19,12 @@ extern Queue queue;
 void process(int32_t *buffer);
 
 void dsp_init(void);
-void dsp_apply(int32_t *buffer);
+int32_t *dsp_apply(int32_t *buffer);
 
 extern uint32_t acq_missed;
 extern uint32_t acq_count;
 extern uint32_t proc_time;
+
+extern float Imax;
+extern float Dmax;
 #endif

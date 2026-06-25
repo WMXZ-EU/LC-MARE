@@ -6,6 +6,7 @@ import threading
 import numpy as np
 from scipy.signal import spectrogram
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
 import tkinter as tk
@@ -57,28 +58,30 @@ def get_pamInfo():
 
 def getComPort():
     s=serial.tools.list_ports.comports(True)
-    for ii in range(len(s)):
-        if (s[ii].vid==0x239a):
-            if (s[ii].pid==0x815d) | (s[ii].pid==0x814f): # adafruit adalogger rp2040 or feather rp2350
-                return s[ii].device
-        if (s[ii].vid == 0x16C0): # PJRC
-            return s[ii].device
-        return None
+    for sx in s:
+        print(sx.device)
+        if (sx.vid==0x239a):
+            if (sx.pid==0x815d) | (sx.pid==0x814f): # adafruit adalogger rp2040 or feather rp2350
+                return sx.device
+        if (sx.vid == 0x16C0): # PJRC
+            return sx.device
+    return None
 
 def getDevPid():
     s=serial.tools.list_ports.comports(True)
-    for ii in range(len(s)):
-        if (s[ii].vid==0x239a):
-            if (s[ii].pid==0x815d):
+    for sx in s:
+        if (sx.vid==0x239a):
+            if (sx.pid==0x815d):
                 return 'rp2040'
-            if (s[ii].pid==0x814f):
+            if (sx.pid==0x814f):
                 return 'rp2350'
-        if (s[ii].vid == 0x16C0): # PJRC
+        if (sx.vid == 0x16C0): # PJRC
             return 'Teensy4.1'
-        return None
+    return None
 
 def openSerial():
     com = getComPort()
+    if com==None: return None
     try:
         ser=serial.Serial(com, timeout=0.1)
     except Exception as e:
@@ -132,10 +135,12 @@ class ViewFrame(ttk.Frame):
         self.init_view()
 
     def init_view(self):
-        self.fig, self.axs = plt.subplots(2, 1, figsize=(12, 7),
-                                        sharex=True,#sharey=True,
-                                        layout='constrained')#, tight_layout=True)
+        #self.fig, self.axs = plt.subplots(2, 1, figsize=(12, 7),
+        #                                sharex=True,#sharey=True,
+        #                                layout='constrained')#, tight_layout=True)
 
+        self.fig=plt.figure(figsize=(12, 7), layout='constrained')
+        self.axs=[]
         # containing the Matplotlib figure
         self.canvas = FigureCanvasTkAgg(self.fig)
 
@@ -150,39 +155,79 @@ class ViewFrame(ttk.Frame):
         if fname == None: return
         print(fname)
 
-        self.fs, self.data, it = load_microPAM(fname,True)
+        self.fs, self.data, it, self.proc, self.blklen = load_microPAM(fname,False)
         self.plot_view(self.fs,self.data)
 
     def plot_view(self,fs,data):
-        td = np.arange(data.shape[0])/fs
-        print(fs,data.shape[0]/fs)
+        if self.proc==2:
+            # calibrate data (LC-Mare)
+            sens=-86 # dB//1V/Pa         # assume 1 Pa generates 50 E-6 V (10**(-86/20)) (sensitivity -206 dB//1V/uPa)
+            data /= 10**(sens/10)
+            ndo=data.shape[1]
+            M=data.reshape(-1,int(self.blklen/ndo),ndo)
+            nt,nf,nd=(M.shape)
+            t = np.arange(nt)*nf/fs
+            f = np.arange(nf)/nf*fs/2
 
-        # calibrate data (LC-Mare)
-        sens=-86 # dB//1V/Pa         # assume 1 Pa generates 50 E-6 V (10**(-86/20)) (sensitivity -206 dB//1V/uPa)
-        data /= 10**(sens/20)
+            for ax in self.axs: ax.remove()
+            self.fig.clf()
+            gs=self.fig.add_gridspec(nd, 1)
 
-        # spectrogram
-        nw=512
+            axs=[self.fig.add_subplot(gs[0,0])]
+            for ii in range(1,nd):
+                ax=self.fig.add_subplot(gs[ii,0],sharex=axs[0],sharey=axs[0])
+                axs.append(ax)
 
-        f,t,q=spectrogram(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
+            ext = [t[0], t[-1], f[0] / 1000, f[-1] / 1000]
+            qmax = np.max(M)
+            for ii in range(nd):
+                Q=M[:,:,ii].T
+                Q=dB(Q+qmax/1e+6)
+                img=axs[ii].imshow(Q, aspect='auto',origin='lower',cmap='jet',extent=ext) #, extent=ext,cmap='jet',clim=clim)
+                plt.colorbar(img)
+                axs[ii].set_ylabel('Frequency [kHz]')
+            axs[-1].set_xlabel('Time [s]')
+            self.axs=axs
+        else:
+            td = np.arange(data.shape[0])/fs
+            print(fs,data.shape[0]/fs)
 
-        Q=dB(q)
+            # calibrate data (LC-Mare)
+            sens=-86 # dB//1V/Pa         # assume 1 Pa generates 50 E-6 V (10**(-86/20)) (sensitivity -206 dB//1V/uPa)
+            data /= 10**(sens/20)
 
-        #fig,axs=plt.subplots(2,1,figsize=(10,7),sharex=True, layout='constrained')
-        axs = self.axs
+            # spectrogram
+            nw=512
 
-        axs[0].plot(td,data)
-        axs[0].grid(True)
-        axs[0].set_ylabel('Pressure [Pa]')
+            f,t,q=spectrogram(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
 
-        qmax=np.max(Q)
-        clim=[qmax-60,qmax]
-        ext=[t[0],t[-1],f[0]/1000,f[-1]/1000]
-        #
-        img=axs[1].imshow(Q, aspect='auto',origin='lower', extent=ext,cmap='jet',clim=clim)
-        plt.colorbar(img)
-        axs[1].set_xlabel('Time [s]')
-        axs[1].set_ylabel('Frequency [kHz]')
+            Q=dB(q)
+
+            for ax in self.axs: ax.remove()
+            self.fig.clf()
+            gs=self.fig.add_gridspec(2, 1)
+
+            axs=[self.fig.add_subplot(gs[0,0])]
+            for ii in range(1,2):
+                ax=self.fig.add_subplot(gs[ii,0],sharex=axs[0])
+                axs.append(ax)
+
+            self.axa=axs
+            #fig,axs=plt.subplots(2,1,figsize=(10,7),sharex=True, layout='constrained')
+            #axs = self.axs
+
+            axs[0].plot(td,data)
+            axs[0].grid(True)
+            axs[0].set_ylabel('Pressure [Pa]')
+
+            qmax=np.max(Q)
+            clim=[qmax-60,qmax]
+            ext=[t[0],t[-1],f[0]/1000,f[-1]/1000]
+            #
+            img=axs[1].imshow(Q, aspect='auto',origin='lower', extent=ext,cmap='jet',clim=clim)
+            plt.colorbar(img)
+            axs[1].set_xlabel('Time [s]')
+            axs[1].set_ylabel('Frequency [kHz]')
         self.canvas.draw()
 
     def do_listen(self):

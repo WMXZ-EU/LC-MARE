@@ -77,6 +77,7 @@ void setup() {
   status=CLOSED;
 }
 
+//extern float D[];
 volatile uint32_t loop_count=0;
 volatile uint32_t loop1_count=0;
 volatile uint32_t loop1_timer=0;
@@ -86,25 +87,42 @@ void printHex8(uint8_t val,int flag)   { printHex0(val>>4,flag);   flag |= (val>
 void printHex16(uint16_t val,int flag) { printHex8(val>>8,flag);   flag |= (val>>8)>0;   printHex8(val & 0xFF,flag);}
 void printHex32(uint32_t val,int flag) { printHex16(val>>16,flag); flag |= (val>>16)>0;  printHex16(val &0xFFFF,flag);}
 
+void printFloat(float val,int n1)
+{ float v0=10.0f;
+  for(int ii=1; ii<n1;ii++) v0 =v0*10.0f;
+  while(1)
+  {
+    if(val<v0) Serial.print(' '); else break;
+    v0 /=10.0f;
+    if(v0<0.01) break;
+  }
+  Serial.print(val);
+}
 void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t * buffer)
 { if(!Serial) return;
 //            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
 //                    proc_time, (1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S),proc_time/(10000.0f*acq_count));
+//            Serial.printf("%2d: ",loop1_count);
   Serial.print(type); Serial.print(cnt); 
   Serial.print(" "); Serial.print(acq_count);
   Serial.print(" "); Serial.print( (fsamp*NCHAN_I2S)/NBUF_I2S);
   Serial.print(" "); Serial.print(acq_missed);
   Serial.print(" "); Serial.print(proc_time);
   Serial.print(" "); Serial.print((1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S));
-  Serial.print(" ("); Serial.print((proc_time/10000.0f)*acq_count); Serial.print("%)");
+  Serial.print(" ("); printFloat((proc_time/10000.0f)*acq_count,2); Serial.print("%)");
   acq_count=0;
   acq_missed=0;
   proc_time=0;
-  Serial.print(" "); Serial.print(*loop_count); Serial.print(":");
-//              Serial.printf("%2d: ",loop1_count);
+  Serial.print(" "); Serial.print(*loop_count);
   *loop_count=0;
+  Serial.print(" "); printFloat(Imax,3); 
+  Imax=0.0f;
+  Serial.print(" "); printFloat(Dmax,3);
+  Dmax=0.0f;
+   Serial.print(": ");
   for(int ii=0;ii<4;ii++) { Serial.print(" ");  printHex32(buffer[ii],0);}
   for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
+  //for(int ii=0;ii<10;ii++) { Serial.print(" "); Serial.print(D[ii]);}
   Serial.println();
 }
 
@@ -141,7 +159,7 @@ void loop() {
           if(millis()>to+1000)
           { to=millis();
             for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
-            printMonitor("1 - ", cnt++, (uint32_t *)&loop1_count,logBuffer);
+            printMonitor("1 - ", cnt++, (uint32_t *)&loop1_count, logBuffer);
           }
         }
         #endif
@@ -162,7 +180,7 @@ void loop() {
         if(millis()>to+1000)
         { to=millis();
           for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
-          printMonitor("0 - ", cnt++, (uint32_t *) &loop_count,logBuffer);
+          printMonitor("0 - ", cnt++, (uint32_t *) &loop_count, logBuffer);
         }
       }
       // simulate stopping process (in case there is no disk)

@@ -7,6 +7,9 @@
 #define NDATA NBUF_I2S
 #define NCH NCHAN_ACQ
 
+#define NBUF_ACQ NBUF_I2S 	// NOTE: if different need to extract data from I2S buffer
+#define NSAMP (NBUF_ACQ/NCH)  // number of samples per buffer
+
 int32_t tempData[NDATA];
 uint32_t *utemp = (uint32_t *) tempData;
 
@@ -77,13 +80,8 @@ int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, i
   return kk;
 }
 
-int32_t *__not_in_flash_func(compressData)(int32_t *buffer)
+int32_t *__not_in_flash_func(compressData)(int32_t *buffer, int32_t ndat=NDATA, int nch=NCH)
 {
-  int32_t ndat=NDATA;
-  int nch=NCH;
-  //
-  // shift to right to remove trailing zeros and minimize noise
-  for(int ii=0;ii<NDATA;ii++) buffer[ii]=buffer[ii]>>SHIFT;
   //
   //reuse input buffer also as output buffer;
   uint32_t *outData  = (uint32_t *) buffer;
@@ -178,8 +176,6 @@ int32_t *__not_in_flash_func(compressData)(int32_t *buffer)
 Queue queue;
 
 /******************************Processing*************************************************/
-#define NBUF_ACQ NBUF_I2S 	// NOTE: if different need to extract data from I2S buffer
-
 uint32_t acq_missed=0;
 uint32_t acq_count=0;
 uint32_t proc_time=0;
@@ -191,10 +187,12 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   #if PROC_MODE==0
     if(!queue.push((uint32_t*)acq_buffer,NBUF_ACQ)) acq_missed++;
   #elif PROC_MODE==1
-    if(!queue.push((uint32_t*)compressData(acq_buffer),acq_buffer[NBUF_ACQ-1])) acq_missed++;
+    // shift to right to remove trailing zeros and minimize noise
+    for(int ii=0;ii<NDATA;ii++) acq_buffer[ii]=acq_buffer[ii]>>SHIFT;
+    if(!queue.push((uint32_t*)compressData(acq_buffer,NDATA,NCH),acq_buffer[NBUF_ACQ-1])) acq_missed++;
   #else
-    if(!queue.push((uint32_t*)compressData(acq_buffer),acq_buffer[NBUF_ACQ-1])) acq_missed++;
-    dsp_apply(acq_buffer);
+    int32_t *dest_buffer=dsp_apply(acq_buffer);
+    if(!queue.push((uint32_t*) compressData(dest_buffer,NBUF_PROC,NCHAN_PROC), dest_buffer[NBUF_ACQ-1])) acq_missed++;
   #endif
   //
   uint32_t dt=micros()-to;
@@ -204,27 +202,20 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
 #if (MCU==T_4_1)
   #include "DSP/cmsis.h"
 
-  #define NSAMP (NBUF_ACQ/NCH)  // number of samples per buffer
+  DMAMEM int32_t procBuffer[NBUF_I2S];
+
   #define NFFT (2*NSAMP)        // will result in NSAMP complex spectral values
 
   arm_rfft_fast_instance_f32 S;
 
-  float O[NBUF_ACQ];
+  float O[NBUF_ACQ];  // NBUF_ACQ = 2048 -> NSAMP=512 ->NFFT=1024
   float W[NFFT];
   float X[NFFT];
   float Y[NFFT];
-  float Z[NFFT*NCH];
-  float I[3*NSAMP];
-
-  // tetraheder (*4)
-  //[[ 1  0  1 -1  0  1]
-  // [ 1  1  0  0 -1 -1]
-  // [ 0  0  1  0  0  0]]
-  //
-  float M[3][6]=
-                {{1.0f, 0.0f, 1.0f,-1.0f, 0.0f, 1.0f},
-                 {1.0f, 1.0f, 0.0f, 0.0f,-1.0f,-1.0f},
-                 {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f}};
+  float Z[NFFT*NCH];  // here we have for each channel NSAMP complex values
+  
+  float scale1 = 1.0f/(float)(1<<31);
+  float scale2 = (float)(1<<(31-SHIFT));
 
   inline void RFFT(float *Y, float *X) { arm_rfft_fast_f32( &S, X, Y,0); }
 
@@ -232,7 +223,7 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   {   arm_rfft_fast_init_f32( &S, NFFT);
 
       for(int jj=0; jj<NBUF_ACQ; jj++) O[jj]=0.0f;
-      for(int jj=0; jj<NFFT; jj++) W[jj]=(1-cosf(2.0f*3.14159265359f*(float)jj/(float)NFFT))/2.0f;
+      for(int jj=0; jj<NFFT; jj++) W[jj]=(1.0f-cosf(2.0f*3.14159265359f*(float)jj/(float)NFFT))/2.0f;
   }
 
   void spectrum_apply(int32_t *buffer)
@@ -240,14 +231,29 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
       for(int ii=0; ii<NCH; ii++)
       { // 50% overlap
         for(int jj=0; jj<NSAMP; jj++) X[jj]=O[ii+NCH*jj];
-        for(int jj=0; jj<NSAMP; jj++) X[NSAMP+jj]=O[ii+NCH*jj]=buffer[ii+NCH*jj];
+        for(int jj=0; jj<NSAMP; jj++) X[NSAMP+jj]=O[ii+NCH*jj]=((float)buffer[ii+NCH*jj])*scale1; // normalize input to MSB
         for(int jj=0; jj<NFFT; jj++) X[jj] *= W[jj];
+        //
         RFFT(Y,X);
-        for(int jj=0; jj<NFFT; jj++) Z[ii+NCH*jj]=Y[jj];
+        //
+        for(int jj=0; jj<NFFT; jj++) Z[ii+NCH*jj]=Y[jj]/sqrt(NFFT); 	// correct for FFT to have same energy
       }
   }
 
   // directional intensity sums negative imaginary part of hydrophone pair crosscorrelation
+  float I[3*NSAMP];   // here we have 3 values (x,y,z) intensity values
+
+  // tetraheder (*4)
+  //[[ 1  0  1 -1  0  1]
+  // [ 1  1  0  0 -1 -1]
+  // [ 0  1  1  1  1  0]]
+  //
+  float M[3][6]=
+                {{1.0f, 0.0f, 1.0f,-1.0f, 0.0f, 1.0f},
+                 {1.0f, 1.0f, 0.0f, 0.0f,-1.0f,-1.0f},
+                 {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f}};
+
+
   void intensity_init()
   {
   }
@@ -287,16 +293,40 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
     }
   }
 
+  float Dmax=0.0f;
+  float D[NSAMP];
+  void detection_init(void)
+  {
+
+  }
+
+  void detection_apply(void)
+  {
+    for(int jj=0;jj<NSAMP;jj++) D[jj]= sqrtf(I[3*jj]*I[3*jj] +I[1+3*jj]*I[1+3*jj] +I[2+3*jj]*I[2+3*jj])*scale2;
+    for(int jj=0;jj<NSAMP;jj++) if(D[jj]>Dmax) Dmax=D[jj];
+  }
+
   void dsp_init(void)
   { spectrum_init();
     intensity_init();
+    detection_init();
   }
 
-  void dsp_apply(int32_t *buffer)
-  { spectrum_apply(buffer);
+  float Imax=0.0f;
+  int32_t *dsp_apply(int32_t *buffer)
+  { for(int ii=0;ii<NBUF_ACQ; ii++) procBuffer[ii]=buffer[ii];
+    spectrum_apply(procBuffer);
     intensity_apply();
+    detection_apply();
+
+    for(int ii=0;ii<3*NSAMP; ii++) I[ii]=I[ii]*scale2;
+    for(int ii=0;ii<3*NSAMP; ii++) if(I[ii]>Imax) Imax=I[ii];
+    for(int ii=0;ii<3*NSAMP; ii++) buffer[ii]= (int32_t) I[ii];
+    return buffer;
   }
 #else
+  float Imax=0.0f;
+  float Dmax=0.0f;
   void dsp_init(void) {}
-  void dsp_apply(int32_t *buffer) {}
+  int32_t * dsp_apply(int32_t *buffer) { return buffer; }
 #endif
