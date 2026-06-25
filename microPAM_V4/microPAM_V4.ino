@@ -1,4 +1,24 @@
-
+/* microPAM 
+ * Copyright (c) 2026, Walter Zimmer
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, development funding notice, and this permission
+ * notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 //
 #include <Arduino.h>
 
@@ -98,6 +118,7 @@ void printFloat(float val,int n1)
   }
   Serial.print(val);
 }
+
 void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t * buffer)
 { if(!Serial) return;
 //            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
@@ -119,10 +140,9 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t
   Imax=0.0f;
   Serial.print(" "); printFloat(Dmax,3);
   Dmax=0.0f;
-   Serial.print(": ");
+  Serial.print(": ");
   for(int ii=0;ii<4;ii++) { Serial.print(" ");  printHex32(buffer[ii],0);}
   for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
-  //for(int ii=0;ii<10;ii++) { Serial.print(" "); Serial.print(D[ii]);}
   Serial.println();
 }
 
