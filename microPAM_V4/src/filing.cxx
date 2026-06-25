@@ -115,13 +115,14 @@ void dateTime(uint16_t* date, uint16_t* time, uint8_t* ms10)
 static HdrStruct wav_hdr;
 char *wav_Info_ptr=wav_hdr.info;
 
-char * insertChunk(char *ptr, const char *id, char *txt)
+char * insertChunk(char *ptr, const char *id, char *txt, char *end=NULL)
 {
-  memcpy(ptr,id,4); ptr+=4;
     int leno=strlen(txt);
     int len = ((leno+3)/4)*4;
+    if(end && (ptr + 8 + len > end)) return ptr; // not enough space
+    memcpy(ptr,id,4); ptr+=4;
     *(uint32_t *) ptr = len; ptr+=4;
-    memcpy(ptr,txt,leno); ptr+=leno; 
+    memcpy(ptr,txt,leno); ptr+=leno;
     for(int ii=leno; ii<len; ii++) *ptr++=0;
     return ptr;
 }
@@ -129,16 +130,17 @@ char * insertChunk(char *ptr, const char *id, char *txt)
 void wavInfoInit(void)
 {
   char *wptr=wav_hdr.info;
+  char *wend=wav_hdr.info + sizeof(wav_hdr.info);
   char txt[40];
   sprintf(txt,"%s:%s",Program,Version);
-  wptr=insertChunk(wptr,"ISFT",txt);
-  wptr=insertChunk(wptr,"IGNR",(char*)"PAM");
-  wptr=insertChunk(wptr,"ISRC",ISRC);
-  wptr=insertChunk(wptr,"ICMS",ICMS);
-  wptr=insertChunk(wptr,"IART",IART);
-  wptr=insertChunk(wptr,"IPRD",IPRD);
-  wptr=insertChunk(wptr,"ISBJ",ISBJ);
-  wptr=insertChunk(wptr,"INAM",INAM);
+  wptr=insertChunk(wptr,"ISFT",txt,wend);
+  wptr=insertChunk(wptr,"IGNR",(char*)"PAM",wend);
+  wptr=insertChunk(wptr,"ISRC",ISRC,wend);
+  wptr=insertChunk(wptr,"ICMS",ICMS,wend);
+  wptr=insertChunk(wptr,"IART",IART,wend);
+  wptr=insertChunk(wptr,"IPRD",IPRD,wend);
+  wptr=insertChunk(wptr,"ISBJ",ISBJ,wend);
+  wptr=insertChunk(wptr,"INAM",INAM,wend);
   Serial.println("info initalized");
   wav_Info_ptr=wptr;
 }
@@ -176,15 +178,16 @@ char infotext[256];
 char * wavHeaderUpdate(int32_t nbytes, int16_t vsens)
 {
   char *wptr=wav_Info_ptr;
-  wptr=insertChunk(wptr,"ICRD",datestring);
+  char *wend=wav_hdr.info + sizeof(wav_hdr.info);
+  wptr=insertChunk(wptr,"ICRD",datestring,wend);
   //
   sprintf(infotext,"%s; %4d; %4d; %4d; %4lu; %4lu; %6u; %3d; %3d; %4d; %3d; %3d; %4d; %4d; %4d; %4d; %s.",
-                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC_MODE, NBUF_PROC, NBUF_DISK/NBUF_PROC, NAVG, 
+                    uid_strng,t_acq,t_on,t_rep,fsamp/1000,again, vsens,SHIFT,PROC_MODE, NBUF_PROC, NBUF_DISK/NBUF_PROC, NAVG,
                     h_rec[0],h_rec[1],h_rec[2],h_rec[3],Version);
-  wptr=insertChunk(wptr,"IKEY",infotext);
+  wptr=insertChunk(wptr,"IKEY",infotext,wend);
   //
-  sprintf(infotext,"Version: %s; missed_acq: %lu",Version, acq_missed); 
-  wptr=insertChunk(wptr,"ICMT",infotext);
+  sprintf(infotext,"Version: %s; missed_acq: %lu",Version, acq_missed);
+  wptr=insertChunk(wptr,"ICMT",infotext,wend);
   
   wav_hdr.dLen = nbytes;
   wav_hdr.rLen = nbytes+512-2*4;
@@ -256,7 +259,6 @@ int8_t old_hour=24;
 uint32_t old_time = 0;
 
 extern uint32_t loop1_count;
-extern uint32_t data_count;
 
 char dayDir[40];
 char hourDir[10];
@@ -414,8 +416,8 @@ status_t logger(status_t status)
 /*************************Configuration file ****************************************/
 #include "Menu.h"
 #define CONFIG_FILE "/config.txt"
-static char configText[20*80]={0};  // maximal 30 lines of 80 characters each
-static int configIndex[20]={0};     // maximal 30 parameters (actual 11 entries)
+static char configText[20*80]={0};  // maximal 20 lines of 80 characters each
+static int configIndex[20]={0};     // maximal 20 parameters (actual 16 entries)
 //
 void storeConfigToFile(void)
 {
@@ -471,7 +473,7 @@ int16_t loadConfigfromFile(void)
     { 
       int i1=configIndex[ii]+1;
       int i2=i1+1;
-      while(i2<i1+80) {if((configText[i2]=='#')||(configText[i2]==';')) break; i2++;}
+      while(i2<i1+80 && i2<(int)sizeof(configText)-1) {if((configText[i2]=='#')||(configText[i2]==';')) break; i2++;}
       configText[i2]=0;
       char *txt=&configText[i1];
       char *txt2=&txt[2];
@@ -484,17 +486,17 @@ int16_t loadConfigfromFile(void)
                     fsamp *=1000; acqModifyFrequency(fsamp); break;
           case 'g': again=scan16(txt2);
                     setAGain((int8_t)again&0xff);  break;
-          case 's': sscanf(txt2,"%s",&ISRC[0]);    break; // source (AS1-200)
-          case 'c': sscanf(txt2,"%s",&ICMS[0]);    break; // commissioning organisation (WMXZ)
-          case 'n': sscanf(txt2,"%s",&IART[0]);    break; // name of operator (creator) (WMXZ)
-          case 'p': sscanf(txt2,"%s",&IPRD[0]);    break; // project (Development)
-          case 'e': sscanf(txt2,"%s",&ISBJ[0]);    break; // area (atHome)
-          case 'l': sscanf(txt2,"%s",&INAM[0]);    break; // location id (B01)
+          case 's': sscanf(txt2,"%39s",&ISRC[0]);    break; // source (AS1-200)
+          case 'c': sscanf(txt2,"%39s",&ICMS[0]);    break; // commissioning organisation (WMXZ)
+          case 'n': sscanf(txt2,"%39s",&IART[0]);    break; // name of operator (creator) (WMXZ)
+          case 'p': sscanf(txt2,"%39s",&IPRD[0]);    break; // project (Development)
+          case 'e': sscanf(txt2,"%39s",&ISBJ[0]);    break; // area (atHome)
+          case 'l': sscanf(txt2,"%39s",&INAM[0]);    break; // location id (B01)
           case '1': h_rec[0]=scan16(txt2);  break; // h_rec[0]
           case '2': h_rec[1]=scan16(txt2);  break; // h_rec[1]
           case '3': h_rec[2]=scan16(txt2);  break; // h_rec[2]
           case '4': h_rec[3]=scan16(txt2);  break; // h_rec[3]
-          case 'x': sscanf(txt2,"%s",&startTime[0]); break; // startTime
+          case 'x': sscanf(txt2,"%39s",&startTime[0]); break; // startTime
         }
     }
   return jmax;

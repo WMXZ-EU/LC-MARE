@@ -23,7 +23,7 @@
 #include "Arduino.h"
 #include "global.h"
 
-#if MCU==(RP_2040) || (MCU==RP_2350)
+#if (MCU==RP_2040) || (MCU==RP_2350)
 #include "rp2x.h"
 #include "adc.h"
 #include "rtc.h"
@@ -252,6 +252,11 @@
   }
 
   void lowPowerInit(void) {}
+
+  void systemInit(void)
+  { lowPowerInit();
+    neo_pixel_init();
+  }
   void usbPowerSetup(void) {}
   void usbPowerOff(void) {}
   void usbPowerExit(void) {}

@@ -43,6 +43,7 @@
 
   void stopSystem(void);
   void lowPowerInit(void);
+  void systemInit(void);
   void usbPowerSetup(void);
   void usbPowerOff(void);
   void usbPowerExit(void);
@@ -69,5 +70,6 @@
     uint32_t rtc_get(void) ;
     void rtc_set(uint32_t tt) ;
 
+ void neo_pixel_init(void);
  void neo_pixel_show(uint16_t r, uint16_t g, uint16_t b);
 #endif

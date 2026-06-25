@@ -24,7 +24,8 @@
 #define PROCESS_H
 
 class Queue
-{ int16_t head,tail,busy;
+{ int16_t head,tail;
+  volatile int16_t busy;
   int32_t cnt;
 
   public:
@@ -51,4 +52,5 @@ extern float Imax;
 extern float Dmax;
 extern float Dmean;
 extern float Dsnr;
+extern float Dpeak;
 #endif

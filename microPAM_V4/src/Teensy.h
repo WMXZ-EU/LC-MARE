@@ -48,8 +48,8 @@
   void getUID(void);
 
   void lowPowerInit(void);
+  void systemInit(void);
   void stopSystem(void);
-  void lowPowerInit(void);
   void usbPowerSetup(void);
   void usbPowerOff(void);
   void usbPowerExit(void);

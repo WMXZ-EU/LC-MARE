@@ -81,7 +81,7 @@ void setup() {
   getUID();
   Serial.print("uid ");Serial.println(uid_strng);
 
-  lowPowerInit();
+  systemInit();
 
   rtc_setup();
   //

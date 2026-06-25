@@ -126,6 +126,21 @@
   #define AGAIN 20
   #define DGAIN 0
 
+  // Detection parameters (PROC_MODE 2, Teensy 4.1 only)
+  // DETECT_ALPHA: exponential-averaging coefficient for the background estimate.
+  //   Each processed block updates: Dmean += DETECT_ALPHA * (block_mean - Dmean).
+  //   Smaller values → slower adaptation (longer background memory).
+  //   Typical range: 0.001 (very slow) … 0.1 (fast).
+  #ifndef DETECT_ALPHA
+    #define DETECT_ALPHA 0.01f
+  #endif
+  // DETECT_THR: detection threshold expressed as a ratio Dpeak / Dmean.
+  //   A value > DETECT_THR flags a detection (SNR threshold).
+  //   Typical range: 2 (sensitive) … 10 (conservative).
+  #ifndef DETECT_THR
+    #define DETECT_THR   3.0f
+  #endif
+
   // for processing
   #define SHIFT 12
   #if NCHAN_ADC < NCHAN_I2S

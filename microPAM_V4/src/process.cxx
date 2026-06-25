@@ -85,7 +85,7 @@ int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, i
 
   uint32_t *utmp = (uint32_t *) tempData;
   // mask input data
-  for(int ii=nch; ii<NDATA; ii++) utmp[ii] &= mask;
+  for(int ii=nch; ii<ndat; ii++) utmp[ii] &= mask;
 
   int kk=0;
   out[kk++]=0xA5A5A5A5;
@@ -318,20 +318,35 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   float Dmax=0.0f;
   float Dmean=0.0f;
   float Dsnr=0.0f;
+  float Dpeak=0.0f;
   float D[NSAMP];
-  void detection_init(void)
-  {
 
+  void detection_init(void)
+  { Dmean = 0.0f;
+    Dpeak = 0.0f;
   }
 
   void detection_apply(void)
   {
+    // compute instantaneous intensity magnitude for each frequency bin
     for(int jj=0;jj<NSAMP;jj++) D[jj]= sqrtf(I[3*jj]*I[3*jj] +I[1+3*jj]*I[1+3*jj] +I[2+3*jj]*I[2+3*jj])*scale2;
+
+    // peak of this block
+    Dmax = 0.0f;
     for(int jj=0;jj<NSAMP;jj++) if(D[jj]>Dmax) Dmax=D[jj];
-    Dmean=0.0f;
-    for(int jj=0;jj<NSAMP;jj++) Dmean = Dmean+D[jj];
-    Dmean = Dmean/(float)NSAMP;
-    Dsnr = Dmax/Dmean;    
+
+    // mean of this block
+    float Dblock = 0.0f;
+    for(int jj=0;jj<NSAMP;jj++) Dblock += D[jj];
+    Dblock /= (float)NSAMP;
+
+    // exponential average of block mean → background estimate
+    if(Dmean == 0.0f) Dmean = Dblock;   // seed on first call
+    else              Dmean += DETECT_ALPHA * (Dblock - Dmean);
+
+    // signal: peak of the block relative to background
+    Dpeak = Dmax;
+    Dsnr  = (Dmean > 0.0f) ? Dpeak / Dmean : 0.0f;
   }
 
   void dsp_init(void)
@@ -355,6 +370,9 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
 #else
   float Imax=0.0f;
   float Dmax=0.0f;
+  float Dmean=0.0f;
+  float Dsnr=0.0f;
+  float Dpeak=0.0f;
   void dsp_init(void) {}
   int32_t * dsp_apply(int32_t *buffer) { return buffer; }
 #endif

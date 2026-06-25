@@ -380,4 +380,8 @@
   void getUID(void) { sprintf(uid_strng,"%08lX",(HW_OCOTP_MAC0 & 0xFFFFFFFF)); }
 
   void neo_pixel_show(uint16_t r, uint16_t g, uint16_t b) {}
+
+  void systemInit(void)
+  { lowPowerInit();
+  }
 #endif

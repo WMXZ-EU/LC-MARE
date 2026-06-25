@@ -10,6 +10,9 @@ Note:
 For Teensy 4.1: For the time being needs TeensyDuino up to 1.61.0 (as of 23-06-2026)
 For RP2440/RP2350: Seems fine with 5.6.0
 
+open terminal in filder and type
+claude "continue working on microPAM_V4"
+
 scalings:
 proc_mode=0: raw data, no scaling: MSB = Vref 
 proc_mode=1: integer copression, scaling: MSB = Vref*(1<<shift)
