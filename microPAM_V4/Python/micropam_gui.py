@@ -125,7 +125,7 @@ class MicroPAMGui(tk.Tk):
         row("Start Time (x):","x", col=1, r=3, width=17)
 
         # h_rec hour windows
-        ttk.Label(params, text="h_rec windows:").grid(row=5, column=0, sticky="e", **pad)
+        ttk.Label(params, text="h_rec (hours):").grid(row=5, column=0, sticky="e", **pad)
         hrec_frame = ttk.Frame(params)
         hrec_frame.grid(row=5, column=1, columnspan=5, sticky="w", **pad)
         self.hrec_vars = []

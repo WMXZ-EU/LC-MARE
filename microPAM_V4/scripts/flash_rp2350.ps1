@@ -1,7 +1,7 @@
-# flash_rp2350.ps1 — compile and upload to RP2350 Adafruit Feather HSTX (8 MB PSRAM)
+# flash_rp2350.ps1 - compile and upload to RP2350 Adafruit Feather HSTX (8 MB PSRAM)
 # Two upload paths are supported:
-#   1. Board running normally on a COM port — arduino-cli resets it into bootloader.
-#   2. Board in BOOTSEL mode — appears as drive labelled "RP2350"; .uf2 is copied directly.
+#   1. Board running normally on a COM port - arduino-cli resets it into bootloader.
+#   2. Board in BOOTSEL mode - appears as drive labelled "RP2350"; .uf2 is copied directly.
 
 $Root   = Split-Path $PSScriptRoot -Parent
 $CLI    = "$env:LOCALAPPDATA\Programs\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe"
@@ -24,7 +24,7 @@ $drive = Get-PSDrive -PSProvider FileSystem |
 
 if ($drive) {
     $dest = "$($drive.Name):\microPAM_V4.ino.uf2"
-    Write-Host "BOOTSEL drive found at $($drive.Name):\ — copying UF2 ..." -ForegroundColor Cyan
+    Write-Host "BOOTSEL drive found at $($drive.Name):\ - copying UF2 ..." -ForegroundColor Cyan
     Copy-Item $UF2 $dest
     Write-Host "Upload OK" -ForegroundColor Green
 } else {
@@ -33,7 +33,7 @@ if ($drive) {
              Where-Object { $_ -match "adafruit_feather_rp2350_hstx|RP2350" } |
              Select-Object -First 1
     if (-not $board) {
-        Write-Host "RP2350 Feather HSTX not detected.`nConnect the board (or hold BOOTSEL while plugging in) and try again." -ForegroundColor Red
+        Write-Host "RP2350 Feather HSTX not detected. Connect the board (or hold BOOTSEL while plugging in) and try again." -ForegroundColor Red
         exit 1
     }
     $port = ($board -split '\s+')[0]

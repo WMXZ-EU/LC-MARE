@@ -6,7 +6,7 @@ Firmware for a Passive Acoustic Monitor (PAM). Records multi-channel audio via T
 
 | Board | FQBN | Notes |
 |-------|------|-------|
-| Teensy 4.1 | `teensy:avr:teensy41` | Dual preamps, 4-ch, DSP (PROC_MODE 0/1/2) |
+| Teensy 4.1 | `teensy:avr:teensy41` | Dual preamps, 4-ch, DSP (PROC_MODE 0/1/2/3) |
 | RP2040 Adafruit Feather Adalogger | `rp2040:rp2040:adafruit_feather_adalogger` | Single preamp, 1-ch, no DSP |
 | RP2350 Adafruit Feather HSTX | `rp2040:rp2040:adafruit_feather_rp2350_hstx:psram=8mb` | Dual preamps, 4-ch, **must pass psram=8mb** or linker fails |
 
@@ -40,12 +40,15 @@ RP scripts try two upload paths in order:
 | `config.h` | User-facing config: sample rate, proc mode, file metadata |
 | `src/global.h` | Per-MCU constants: channel counts, buffer sizes, queue depth |
 | `src/process.cxx` | Queue, compression (encodeData/encodeBlock), DSP (T4.1 only) |
+| `src/classifier.cxx` | 4 parallel online VAEs (forward, backprop, SGD); ISR pushes latents to queue in mode 3 |
+| `src/classifier.h` | VAE architecture constants (`VAE_NVAE`, `VAE_QSAMP`, `VAE_LAT`, `VAE_LAT_TOTAL`), `vae_mu[]` |
 | `src/adc.cxx` | TLV320ADC6140 I2C init, gain control |
 | `src/rp2x.cxx` | RP2040/RP2350 PIO TDM, DMA, hibernate, RTC, NeoPixel |
 | `src/Teensy.cxx` | Teensy SAI/I2S, DMA, hibernate (SNVS), uid |
-| `src/filing.cxx` | SD card logger, WAV header, config file load/save |
-| `src/rtc.cxx` | RV3028 external RTC, time conversion, alarm |
-| `src/menu.cxx` | Serial menu (start/stop/parameters) |
+| `src/filing.cxx` | SD card logger, WAV/bin/dat/vae header, config file load/save |
+| `src/rtc.cxx` | RV3028 external RTC, internal RTC, time conversion, alarm |
+| `src/menu.cxx` | Serial menu: start/stop/parameters, `?` query / `!` set protocol |
+| `Python/micropam_gui.py` | Python/tkinter configuration GUI (USB serial, pyserial) |
 
 ## Architecture
 
@@ -60,7 +63,8 @@ RP scripts try two upload paths in order:
 |-------|------|---------|
 | 0 | Raw WAV | All |
 | 1 | Integer compression (differential + bit-pack) | All |
-| 2 | DSP: directional sound intensity (tetrahedral array) | T4.1 only (forced to 1 on RP) |
+| 2 | DSP: directional sound intensity (tetrahedral array) + compressed intensity vectors | T4.1 only (forced to 1 on RP) |
+| 3 | DSP + 4-VAE classifier: 8 latent means (float as uint32_t) pushed to queue → `.vae` file | T4.1 only (forced to 1 on RP) |
 
 ## Queue / PSRAM
 
@@ -75,3 +79,13 @@ RP scripts try two upload paths in order:
 ```
 
 Config dir: `%LOCALAPPDATA%\Arduino15`
+
+## Python GUI
+
+```powershell
+Python\.venv\Scripts\python.exe Python\micropam_gui.py
+```
+
+- Requires pyserial (pre-installed in `Python\.venv`).
+- PyCharm interpreter: `Python\.venv\Scripts\python.exe`.
+- Communicates over USB serial using the `?` / `!` menu protocol from `src/menu.cxx`.
