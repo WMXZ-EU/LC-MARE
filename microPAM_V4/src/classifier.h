@@ -23,10 +23,28 @@
 #ifndef CLASSIFIER_H
 #define CLASSIFIER_H
 
+#include "global.h"
 #include <cstdint>
 
-// Called on every detection event with the per-bin intensity vector D
-// and the number of bins (nsamp). Returns an integer class label (0 = unknown).
-int classifier_apply(const float *D, int nsamp);
+#if MCU==T_4_1
+  // VAE architecture: NSAMP ─ 32 ─ 2 ─ 32 ─ NSAMP
+  // Input size matches the per-block intensity vector D passed from detection_apply.
+  #define VAE_NSAMP (NBUF_I2S / NCHAN_ACQ)
+  #define VAE_H1   32
+  #define VAE_LAT   4
 
-#endif
+  // Latent mean after the last forward pass.
+  extern float    vae_mu[VAE_LAT];
+  // Execution time of the last classifier_apply call in microseconds.
+  extern uint32_t classifier_exec_us;
+
+  void classifier_init(void);
+  void classifier_trigger(const float *D, int nsamp);  // call from dsp_apply
+  int  classifier_apply(const float *D, int nsamp);    // called by ISR internally
+#else
+  // On RP targets the classifier is not compiled; provide a zero constant so
+  // any code referencing classifier_exec_us still compiles without changes.
+  #define classifier_exec_us 0u
+#endif // MCU==T_4_1
+
+#endif // CLASSIFIER_H

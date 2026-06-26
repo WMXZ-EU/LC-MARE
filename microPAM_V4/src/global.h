@@ -108,7 +108,15 @@
   #endif
 
   // limit sampling frequency of ADC
-  #if NCHAN_I2S>3
+  #if NCHAN_I2S==2
+    // ADC limitation: 2-channel TDM tops out at 384 kHz
+    #if FSAMP>384000
+      #undef FSAMP
+      #define FSAMP 384000
+    #endif
+    #undef  NCHAN_ACQ
+    #define NCHAN_ACQ 2
+  #elif NCHAN_I2S>2
     #if FSAMP>192000
       #undef FSAMP
       #define FSAMP 192000

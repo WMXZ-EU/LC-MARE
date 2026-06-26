@@ -23,7 +23,9 @@
 #include <Arduino.h>
 #include "global.h"
 #include "process.h"
-#include "classifier.h"
+#if MCU==T_4_1
+  #include "classifier.h"
+#endif
 
 /******************************Compress************************************************************/
 // temporary storage for processing
@@ -281,6 +283,12 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   {
   }
 
+  float Dmax=0.0f;
+  float Dmean=0.0f;
+  float Dsnr=0.0f;
+  float Dpeak=0.0f;
+  float D[NSAMP];
+
   void intensity_apply(void)
   { int kk,i0,i1;
     for(int ii=0; ii<3; ii++)
@@ -314,13 +322,9 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
         I[kk] += -Mi[5]*(Z[i0+1]*Z[i1]-Z[i0]*Z[i1+1]);
       }
     }
+    // compute instantaneous intensity magnitude for each frequency bin
+    for(int jj=0;jj<NSAMP;jj++) D[jj]= sqrtf(I[3*jj]*I[3*jj] +I[1+3*jj]*I[1+3*jj] +I[2+3*jj]*I[2+3*jj])*scale2;
   }
-
-  float Dmax=0.0f;
-  float Dmean=0.0f;
-  float Dsnr=0.0f;
-  float Dpeak=0.0f;
-  float D[NSAMP];
 
   void detection_init(void)
   { Dmean = 0.0f;
@@ -329,9 +333,6 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
 
   void detection_apply(void)
   {
-    // compute instantaneous intensity magnitude for each frequency bin
-    for(int jj=0;jj<NSAMP;jj++) D[jj]= sqrtf(I[3*jj]*I[3*jj] +I[1+3*jj]*I[1+3*jj] +I[2+3*jj]*I[2+3*jj])*scale2;
-
     // peak of this block
     Dmax = 0.0f;
     for(int jj=0;jj<NSAMP;jj++) if(D[jj]>Dmax) Dmax=D[jj];
@@ -351,13 +352,13 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
     Dpeak = Dmax;
     Dsnr  = (Dmean > 0.0f) ? Dblock / Dmean : 0.0f;
 
-    if(Dsnr > DETECT_THR) classifier_apply(D, NSAMP);
   }
 
   void dsp_init(void)
   { spectrum_init();
     intensity_init();
     detection_init();
+    classifier_init();
   }
 
   float Imax=0.0f;
@@ -366,18 +367,11 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
     spectrum_apply(procBuffer);
     intensity_apply();
     detection_apply();
+    classifier_trigger(D, NSAMP);
 
-    for(int ii=0;ii<3*NSAMP; ii++) I[ii]=I[ii]*scale2;
+    for(int ii=0;ii<3*NSAMP; ii++) I[ii]=I[ii]*scale2*10000.0f;
     for(int ii=0;ii<3*NSAMP; ii++) if(I[ii]>Imax) Imax=I[ii];
     for(int ii=0;ii<3*NSAMP; ii++) buffer[ii]= (int32_t) I[ii];
     return buffer;
   }
-#else
-  float Imax=0.0f;
-  float Dmax=0.0f;
-  float Dmean=0.0f;
-  float Dsnr=0.0f;
-  float Dpeak=0.0f;
-  void dsp_init(void) {}
-  int32_t * dsp_apply(int32_t *buffer) { return buffer; }
 #endif

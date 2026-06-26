@@ -32,6 +32,7 @@
 #include "src/adc.h"
 #include "src/rtc.h"
 #include "src/process.h"
+#include "src/classifier.h"
 #include "src/menu.h"
 #include "src/filing.h"
 #include "src/utils.h"
@@ -119,12 +120,18 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t
   proc_time=0;
   Serial.print(" "); Serial.print(*loop_count);
   *loop_count=0;
-  Serial.print(" "); printFloat(Imax,3); 
-  Imax=0.0f;
-  Serial.print(" "); printFloat(Dmean,3);
+  Serial.print(" "); printFloat(Imax,3);
+  #if MCU==T_4_1
+    Imax=0.0f;
+  #endif
+  Serial.print(" "); Serial.print(classifier_exec_us);
   Serial.print(": ");
   for(int ii=0;ii<4;ii++)  { Serial.print(" "); printHex32(buffer[ii],0);}
-  for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
+  //for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
+  #if MCU==T_4_1
+    Serial.print(" mu:");
+    for(int ii=0;ii<VAE_LAT;ii++) { Serial.print(" "); Serial.print(vae_mu[ii],4); }
+  #endif
   Serial.println();
 }
 
@@ -155,15 +162,15 @@ void loop() {
       { status =logger(status);
         //
         #if MONITOR==1 // to monitor during writing
-        { loop1_count++;  
-          //
-          static uint32_t to=0;
-          if(millis()>to+1000)
-          { to=millis();
-            for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
-            printMonitor("1 - ", cnt++, (uint32_t *)&loop1_count, logBuffer);
+          { loop1_count++;
+            //
+            static uint32_t to=0;
+            if(millis()>to+1000)
+            { to=millis();
+              for(int ii=0; ii<10;ii++) logBuffer[ii]=diskBuffer[ii];
+              printMonitor("1 - ", cnt++, (uint32_t *)&loop1_count, logBuffer);
+            }
           }
-        }
         #endif
       }
       else // have disk but stopped

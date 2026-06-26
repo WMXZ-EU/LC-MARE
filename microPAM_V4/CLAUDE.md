@@ -13,10 +13,10 @@ Firmware for a Passive Acoustic Monitor (PAM). Records multi-channel audio via T
 ## Compile
 
 ```powershell
-.\build.ps1            # all three targets
-.\build.ps1 teensy     # Teensy 4.1 only
-.\build.ps1 rp2040     # RP2040 only
-.\build.ps1 rp2350     # RP2350 only
+.\scripts\build.ps1            # all three targets
+.\scripts\build.ps1 teensy     # Teensy 4.1 only
+.\scripts\build.ps1 rp2040     # RP2040 only
+.\scripts\build.ps1 rp2350     # RP2350 only
 ```
 
 Output goes to `build\<target>\`.
@@ -24,9 +24,9 @@ Output goes to `build\<target>\`.
 ## Compile and upload
 
 ```powershell
-.\flash_teensy.ps1     # Teensy 4.1  — board must be connected
-.\flash_rp2040.ps1     # RP2040      — connected normally, or hold BOOTSEL while plugging in
-.\flash_rp2350.ps1     # RP2350 HSTX — connected normally, or hold BOOTSEL while plugging in
+.\scripts\flash_teensy.ps1     # Teensy 4.1  — board must be connected
+.\scripts\flash_rp2040.ps1     # RP2040      — connected normally, or hold BOOTSEL while plugging in
+.\scripts\flash_rp2350.ps1     # RP2350 HSTX — connected normally, or hold BOOTSEL while plugging in
 ```
 
 RP scripts try two upload paths in order:

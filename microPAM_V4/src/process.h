@@ -1,4 +1,4 @@
-/* microPAM 
+/* microPAM
  * Copyright (c) 2026, Walter Zimmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
- 
+
 #ifndef PROCESS_H
 #define PROCESS_H
 
@@ -41,16 +41,29 @@ extern Queue queue;
 
 void process(int32_t *buffer);
 
-void dsp_init(void);
-int32_t *dsp_apply(int32_t *buffer);
-
 extern uint32_t acq_missed;
 extern uint32_t acq_count;
 extern uint32_t proc_time;
 
-extern float Imax;
-extern float Dmax;
-extern float Dmean;
-extern float Dsnr;
-extern float Dpeak;
+#if MCU==T_4_1
+  void dsp_init(void);
+  int32_t *dsp_apply(int32_t *buffer);
+
+  extern float Imax;
+  extern float Dmax;
+  extern float Dmean;
+  extern float Dsnr;
+  extern float Dpeak;
+#else
+  // On RP targets DSP is not compiled; provide zero constants so shared code
+  // referencing these symbols compiles without changes and emits no linker symbols.
+  static inline void dsp_init(void) {}
+  static inline int32_t *dsp_apply(int32_t *b) { return b; }
+  #define Imax  0.0f
+  #define Dmax  0.0f
+  #define Dmean 0.0f
+  #define Dsnr  0.0f
+  #define Dpeak 0.0f
 #endif
+
+#endif // PROCESS_H

@@ -93,10 +93,10 @@ Requires [arduino-cli](https://arduino.github.io/arduino-cli/) installed at:
 Config directory: `%LOCALAPPDATA%\Arduino15`
 
 ```powershell
-.\build.ps1            # all three targets
-.\build.ps1 teensy     # Teensy 4.1 only
-.\build.ps1 rp2040     # RP2040 Adalogger only
-.\build.ps1 rp2350     # RP2350 HSTX only
+.\scripts\build.ps1            # all three targets
+.\scripts\build.ps1 teensy     # Teensy 4.1 only
+.\scripts\build.ps1 rp2040     # RP2040 Adalogger only
+.\scripts\build.ps1 rp2350     # RP2350 HSTX only
 ```
 
 Output goes to `build\<target>\`.
@@ -108,9 +108,9 @@ Output goes to `build\<target>\`.
 ## Flashing
 
 ```powershell
-.\flash_teensy.ps1     # Teensy 4.1 — board must be connected
-.\flash_rp2040.ps1     # RP2040 — normal connection or BOOTSEL+plug
-.\flash_rp2350.ps1     # RP2350 HSTX — normal connection or BOOTSEL+plug
+.\scripts\flash_teensy.ps1     # Teensy 4.1 — board must be connected
+.\scripts\flash_rp2040.ps1     # RP2040 — normal connection or BOOTSEL+plug
+.\scripts\flash_rp2350.ps1     # RP2350 HSTX — normal connection or BOOTSEL+plug
 ```
 
 RP scripts try two paths in order:
