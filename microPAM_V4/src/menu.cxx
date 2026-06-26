@@ -190,7 +190,7 @@ status_t menu(status_t status)
             break;
           case 'd':
             datetime_t t;
-            XRTCgetDatetime(&t);    
+            rtcGetDatetime(&t);
             printDatetime("d =",&t);
             break;
           case 'n':
@@ -213,6 +213,9 @@ status_t menu(status_t status)
             break;
           case '4':
             Serial.print("4 = "); Serial.println(h_rec[3]);
+            break;
+          case 'x':
+            Serial.print("x = "); Serial.println(&startTime[0]);
             break;
         }
       }
@@ -260,6 +263,7 @@ status_t menu(status_t status)
             datetime_t t;
             menuGetTime(&t);
             XRTCsetDatetime(&t);
+            rtcSetDatetime(&t);
             break;
           case '1':
             menuGetInt16((uint16_t*)&h_rec[0]);

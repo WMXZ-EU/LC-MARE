@@ -215,9 +215,12 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
     // shift to right to remove trailing zeros and minimize noise
     for(int ii=0;ii<NDATA;ii++) acq_buffer[ii]=acq_buffer[ii]>>SHIFT;
     if(!queue.push((uint32_t*)compressData(acq_buffer,NDATA,NCH),acq_buffer[NBUF_ACQ-1])) acq_missed++;
-  #else
+  #elif PROC_MODE==2
     int32_t *dest_buffer=dsp_apply(acq_buffer);
     if(!queue.push((uint32_t*) compressData(dest_buffer,NBUF_PROC,NCHAN_PROC), dest_buffer[NBUF_ACQ-1])) acq_missed++;
+  #elif PROC_MODE==3
+    // DSP + classifier runs as usual; the classifier ISR owns the queue push.
+    dsp_apply(acq_buffer);
   #endif
   //
   uint32_t dt=micros()-to;

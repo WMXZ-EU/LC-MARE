@@ -1,7 +1,7 @@
-# flash_rp2040.ps1 — compile and upload to RP2040 Adafruit Feather Adalogger
+# flash_rp2040.ps1 - compile and upload to RP2040 Adafruit Feather Adalogger
 # Two upload paths are supported:
-#   1. Board running normally on a COM port — arduino-cli resets it into bootloader.
-#   2. Board in BOOTSEL mode — appears as drive labelled "RPI-RP2"; .uf2 is copied directly.
+#   1. Board running normally on a COM port - arduino-cli resets it into bootloader.
+#   2. Board in BOOTSEL mode - appears as drive labelled "RPI-RP2"; .uf2 is copied directly.
 
 $Root   = Split-Path $PSScriptRoot -Parent
 $CLI    = "$env:LOCALAPPDATA\Programs\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe"
@@ -24,7 +24,7 @@ $drive = Get-PSDrive -PSProvider FileSystem |
 
 if ($drive) {
     $dest = "$($drive.Name):\microPAM_V4.ino.uf2"
-    Write-Host "BOOTSEL drive found at $($drive.Name):\ — copying UF2 ..." -ForegroundColor Cyan
+    Write-Host "BOOTSEL drive found at $($drive.Name):\ - copying UF2 ..." -ForegroundColor Cyan
     Copy-Item $UF2 $dest
     Write-Host "Upload OK" -ForegroundColor Green
 } else {
@@ -33,7 +33,7 @@ if ($drive) {
              Where-Object { $_ -match "adafruit_feather_adalogger|RP2040" } |
              Select-Object -First 1
     if (-not $board) {
-        Write-Host "RP2040 Adalogger not detected.`nConnect the board (or hold BOOTSEL while plugging in) and try again." -ForegroundColor Red
+        Write-Host "RP2040 Adalogger not detected. Connect the board (or hold BOOTSEL while plugging in) and try again." -ForegroundColor Red
         exit 1
     }
     $port = ($board -split '\s+')[0]

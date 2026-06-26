@@ -99,7 +99,7 @@
 
   // limit processing mode for other than Teensy4.1
   #if MCU != T_4_1
-    #if PROC_MODE==2
+    #if PROC_MODE==2 || PROC_MODE==3
       #undef PROC_MODE
       #define PROC_MODE 1
     #endif
