@@ -23,6 +23,7 @@
 #include <Arduino.h>
 #include "global.h"
 #include "process.h"
+#include "classifier.h"
 
 /******************************Compress************************************************************/
 // temporary storage for processing
@@ -341,12 +342,16 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
     Dblock /= (float)NSAMP;
 
     // exponential average of block mean → background estimate
+    // slow adaptation during detections so the background is not contaminated
+    float alpha = (Dsnr > DETECT_THR) ? DETECT_ALPHA * 0.1f : DETECT_ALPHA;
     if(Dmean == 0.0f) Dmean = Dblock;   // seed on first call
-    else              Dmean += DETECT_ALPHA * (Dblock - Dmean);
+    else              Dmean += alpha * (Dblock - Dmean);
 
-    // signal: peak of the block relative to background
+    // signal: block mean relative to background
     Dpeak = Dmax;
-    Dsnr  = (Dmean > 0.0f) ? Dpeak / Dmean : 0.0f;
+    Dsnr  = (Dmean > 0.0f) ? Dblock / Dmean : 0.0f;
+
+    if(Dsnr > DETECT_THR) classifier_apply(D, NSAMP);
   }
 
   void dsp_init(void)
