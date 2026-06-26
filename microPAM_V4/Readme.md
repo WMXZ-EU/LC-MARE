@@ -157,13 +157,19 @@ Config directory: `%LOCALAPPDATA%\Arduino15`
 .\scripts\build.ps1 rp2350     # RP2350 HSTX only
 ```
 
-Output goes to `build\<target>\`.
+Output goes to `build\<target>\`:
+
+| Target | Binary | Format |
+|--------|--------|--------|
+| Teensy 4.1 | `build\teensy\microPAM_V4.ino.hex` | Intel HEX (uploaded via Teensy Loader) |
+| RP2040 | `build\rp2040\microPAM_V4.ino.uf2` | UF2 (drag-and-drop or arduino-cli) |
+| RP2350 | `build\rp2350\microPAM_V4.ino.uf2` | UF2 (drag-and-drop or arduino-cli) |
 
 > **RP2350 note:** always pass `psram=8mb` (the build script does this automatically). Without it the linker fails because the default `psram_length` is 0.
 
 ---
 
-## Flashing
+## Flashing (compile + upload)
 
 ```powershell
 .\scripts\flash_teensy.ps1     # Teensy 4.1 — board must be connected
@@ -174,6 +180,30 @@ Output goes to `build\<target>\`.
 RP scripts try two paths in order:
 1. BOOTSEL mass-storage drive (`RPI-RP2` / `RP2350`) — copies the `.uf2` directly.
 2. Serial port — arduino-cli resets the board into the bootloader.
+
+## Uploading pre-built firmware (upload only)
+
+If you have received pre-built binaries (or already compiled with `build.ps1`) and only need to flash them without recompiling, use the upload-only scripts:
+
+```powershell
+.\scripts\upload_teensy.ps1    # Teensy 4.1
+.\scripts\upload_rp2040.ps1    # RP2040 Adalogger
+.\scripts\upload_rp2350.ps1    # RP2350 HSTX
+```
+
+These scripts read the binary directly from `build\<target>\` and abort with a clear message if no pre-built file is found there. The same two-path upload logic applies to the RP boards (BOOTSEL drive first, then serial port).
+
+**Steps to flash a pre-built binary:**
+
+1. Copy the `build\` folder (or the relevant sub-folder) from the source that provided the firmware onto your machine, keeping the path structure intact.
+2. Connect the board:
+   - **Teensy 4.1**: connect via USB; press the PROGRAM MODE button if prompted during upload.
+   - **RP2040 / RP2350**: connect normally, or hold the **BOOTSEL** button while plugging in to force mass-storage mode.
+3. Open a PowerShell terminal in the `microPAM_V4` directory and run the appropriate script:
+   ```powershell
+   .\scripts\upload_teensy.ps1   # or upload_rp2040.ps1 / upload_rp2350.ps1
+   ```
+4. Wait for `Upload OK`.
 
 ---
 
