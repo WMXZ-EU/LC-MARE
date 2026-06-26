@@ -26,7 +26,7 @@
   #include "../config.h"
 
   #define Program "microPAM_V4"
-  #define Version "4.0.0" // 18-06-2026
+  #define Version "4.1.0" // 26-06-2026
 
   #define T_4_1   0
   #define RP_2040 1
@@ -133,6 +133,7 @@
   // for adc
   #define AGAIN 20
   #define DGAIN 0
+  #define PGAIN 12
 
   // Detection parameters (PROC_MODE 2, Teensy 4.1 only)
   // DETECT_ALPHA: exponential-averaging coefficient for the background estimate.

@@ -127,10 +127,11 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t
   Serial.print(" "); Serial.print(classifier_exec_us);
   Serial.print(": ");
   for(int ii=0;ii<4;ii++)  { Serial.print(" "); printHex32(buffer[ii],0);}
-  //for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
   #if MCU==T_4_1
     Serial.print(" mu:");
     for(int ii=0;ii<VAE_LAT;ii++) { Serial.print(" "); Serial.print(vae_mu[ii],4); }
+  #else
+    for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
   #endif
   Serial.println();
 }

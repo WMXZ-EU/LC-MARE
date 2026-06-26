@@ -240,7 +240,7 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   float Z[NFFT*NCH];  // here we have for each channel NSAMP complex values
   
   float scale1 = 1.0f/(float)(1<<31);
-  float scale2 = (float)(1<<(31-SHIFT));
+  float scale2 = (float)(1<<(31-SHIFT+PGAIN));
 
   inline void RFFT(float *Y, float *X) { arm_rfft_fast_f32( &S, X, Y,0); }
 
@@ -323,7 +323,7 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
       }
     }
     // compute instantaneous intensity magnitude for each frequency bin
-    for(int jj=0;jj<NSAMP;jj++) D[jj]= sqrtf(I[3*jj]*I[3*jj] +I[1+3*jj]*I[1+3*jj] +I[2+3*jj]*I[2+3*jj])*scale2;
+    for(int jj=0;jj<NSAMP;jj++) D[jj]= sqrtf(I[3*jj]*I[3*jj] +I[1+3*jj]*I[1+3*jj] +I[2+3*jj]*I[2+3*jj]);
   }
 
   void detection_init(void)
@@ -369,7 +369,7 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
     detection_apply();
     classifier_trigger(D, NSAMP);
 
-    for(int ii=0;ii<3*NSAMP; ii++) I[ii]=I[ii]*scale2*10000.0f;
+    for(int ii=0;ii<3*NSAMP; ii++) I[ii]=I[ii]*scale2;
     for(int ii=0;ii<3*NSAMP; ii++) if(I[ii]>Imax) Imax=I[ii];
     for(int ii=0;ii<3*NSAMP; ii++) buffer[ii]= (int32_t) I[ii];
     return buffer;

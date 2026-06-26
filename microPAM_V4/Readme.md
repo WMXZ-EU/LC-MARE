@@ -1,20 +1,28 @@
 # microPAM V4
 
-Firmware for a low-power **Passive Acoustic Monitor (PAM)** targeting three microcontroller boards. Records multi-channel audio via TDM (Time Division Multiplexed I2S) to SD card, with optional lossless integer compression and FFT-based directional sound intensity estimation.
+Firmware for a low-power **Passive Acoustic Monitor (PAM)** targeting three microcontroller boards. Records multi-channel audio via TDM (Time Division Multiplexed I2S) to SD card, with optional lossless integer compression, FFT-based directional sound intensity estimation, and online VAE-based acoustic classification.
 
-Version: 4.0.0 — Copyright © 2026 Walter Zimmer. Released under the MIT License.
+Version: 4.1.0 — Copyright © 2026 Walter Zimmer. Released under the MIT License.
 
 ---
 
 ## Supported hardware
 
-| Board | MCU | Channels | Max sample rate | DSP |
-|-------|-----|----------|-----------------|-----|
+| Board | MCU | Channels | Max sample rate | DSP / Classifier |
+|-------|-----|----------|-----------------|-----------------|
 | Teensy 4.1 | i.MX RT1062 | 4 | 192 kHz | Yes (PROC_MODE 2) |
 | Adafruit Feather RP2040 Adalogger | RP2040 | 1 | 192 kHz | No |
 | Adafruit Feather RP2350 HSTX | RP2350 | 4 | 192 kHz | No |
 
 All boards use a **TLV320ADC6140** analog front end (I2C configuration, programmable gain). The RP2350 board stores its deep DMA queue in 8 MB of on-board PSRAM.
+
+ADC channel-count limits (hardware):
+
+| `NCHAN_I2S` | Max `FSAMP` |
+|-------------|-------------|
+| 1 | 192 kHz |
+| 2 | 384 kHz |
+| > 2 | 192 kHz |
 
 ---
 
@@ -25,8 +33,8 @@ Set `PROC_MODE` in [`config.h`](config.h):
 | Value | Mode | Scaling | Targets |
 |-------|------|---------|---------|
 | 0 | Raw WAV | MSB = Vref | All |
-| 1 | Integer compression (differential + bit-pack) | MSB = Vref × (1 << shift) | All |
-| 2 | Directional sound intensity (tetrahedral array) | — | Teensy 4.1 only |
+| 1 | Integer compression (differential + bit-pack) | MSB = Vref × (1 << SHIFT) | All |
+| 2 | Directional sound intensity (tetrahedral array) + VAE classifier | — | Teensy 4.1 only |
 
 PROC_MODE 2 is silently downgraded to 1 on RP2040/RP2350 targets.
 
@@ -41,8 +49,8 @@ Edit [`config.h`](config.h) before building:
 #define T_ON     1    // on-time per duty cycle (minutes)
 #define T_REP    0    // repeat interval; set < T_ACQ for continuous recording
 
-#define FSAMP  192000 // sample rate (Hz); capped at 96 kHz on RP2040 if needed
-#define PROC_MODE  2  // 0 = raw, 1 = compressed, 2 = DSP (T4.1 only)
+#define FSAMP  192000 // sample rate (Hz)
+#define PROC_MODE  2  // 0 = raw, 1 = compressed, 2 = DSP + classifier (T4.1 only)
 
 // WAV file metadata
 #define SRC_str "LC17"      // source/instrument ID
@@ -53,12 +61,58 @@ Edit [`config.h`](config.h) before building:
 #define NAM_str "Test"      // location ID
 ```
 
+Key DSP/gain constants in [`src/global.h`](src/global.h):
+
+```c
+#define SHIFT  12    // bit-shift for integer compression
+#define PGAIN  12    // additional power gain exponent applied to intensity output
+                     // scale2 = 1 << (31 - SHIFT + PGAIN)
+#define AGAIN  20    // ADC analogue gain (dB)
+#define DGAIN   0    // ADC digital gain
+```
+
 Detection parameters (PROC_MODE 2, Teensy 4.1):
 
 ```c
 #define DETECT_ALPHA  0.01f  // background averaging rate (0.001 slow … 0.1 fast)
-#define DETECT_THR    3.0f   // SNR threshold (Dpeak / Dmean)
+#define DETECT_THR    3.0f   // SNR threshold (Dblock / Dmean)
 ```
+
+---
+
+## DSP pipeline (Teensy 4.1, PROC_MODE 2)
+
+```
+spectrum_apply()   — 50 %-overlap RFFT per channel, window × FFT → Z[]
+    │
+intensity_apply()  — cross-correlation sums → directional intensity I[3×NSAMP]
+                   — magnitude per bin → D[NSAMP]
+    │
+detection_apply()  — peak / mean of D, exponential background tracking, SNR
+    │
+classifier_trigger() — snapshot D[], pend classifier ISR (IRQ_QTIMER4, priority 128)
+    │
+(ISR fires asynchronously)
+classifier_isr()   — VAE forward + backward pass on D_buf[], updates weights online
+                   — exposes vae_mu[VAE_LAT] and classifier_exec_us
+```
+
+### VAE classifier (Teensy 4.1 only)
+
+Online Variational Autoencoder trained incrementally on each processed block.
+
+| Parameter | Value |
+|-----------|-------|
+| Architecture | `NSAMP – VAE_H1 – VAE_LAT – VAE_H1 – NSAMP` |
+| `NSAMP` | `NBUF_I2S / NCHAN_ACQ` (= 512 at 192 kHz, 4 ch) |
+| `VAE_H1` | 32 |
+| `VAE_LAT` | 4 |
+| Learning rate | 1 × 10⁻⁴ (SGD) |
+| KL weight β | 1 × 10⁻³ |
+| Large weight storage | DMAMEM (RAM2) — W1 and W4, ~128 KB each |
+| IRQ | `IRQ_QTIMER4`, priority 128 |
+
+The 4 latent means are available via `vae_mu[VAE_LAT]` and the last ISR execution time via `classifier_exec_us` (µs).
 
 ---
 
@@ -69,7 +123,7 @@ Acquisition (DMA IRQ / core 1)
     └─► process()  ──────────────────────────────────────────────┐
             │  PROC_MODE 0: passthrough                           │
             │  PROC_MODE 1: differential encoding + bit-pack      │
-            │  PROC_MODE 2: FFT-based directional intensity (T4.1)│
+            │  PROC_MODE 2: DSP pipeline (T4.1, see above)        │
             └─► queue.push()                                      │
                                                                   │
 loop() / core 0  ◄────────────────────────────────────────────────┘
@@ -124,8 +178,10 @@ RP scripts try two paths in order:
 | File | Role |
 |------|------|
 | [`config.h`](config.h) | User-facing settings: sample rate, proc mode, metadata |
-| [`src/global.h`](src/global.h) | Per-MCU constants: channel counts, buffer sizes, queue depth |
-| [`src/process.cxx`](src/process.cxx) | Queue, compression (`encodeData`/`encodeBlock`), DSP (T4.1) |
+| [`src/global.h`](src/global.h) | Per-MCU constants: channel counts, buffer sizes, queue depth, gain |
+| [`src/process.cxx`](src/process.cxx) | Queue, compression, DSP pipeline, detection, classifier trigger |
+| [`src/classifier.cxx`](src/classifier.cxx) | Online VAE: forward pass, backprop, SGD weight update, ISR |
+| [`src/classifier.h`](src/classifier.h) | VAE architecture constants, public API, `vae_mu`, `classifier_exec_us` |
 | [`src/adc.cxx`](src/adc.cxx) | TLV320ADC6140 I2C init, gain control |
 | [`src/rp2x.cxx`](src/rp2x.cxx) | RP2040/RP2350 PIO TDM, DMA, hibernate, RTC, NeoPixel |
 | [`src/Teensy.cxx`](src/Teensy.cxx) | Teensy SAI/I2S, DMA, hibernate (SNVS), UID |
