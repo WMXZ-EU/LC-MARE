@@ -2,7 +2,7 @@
 
 Firmware for a low-power **Passive Acoustic Monitor (PAM)** targeting three microcontroller boards. Records multi-channel audio via TDM (Time Division Multiplexed I2S) to SD card, with optional lossless integer compression, FFT-based directional sound intensity estimation, and online VAE-based acoustic classification.
 
-Version: 4.1.0 — Copyright © 2026 Walter Zimmer. Released under the MIT License.
+Version: 4.2.0 — Copyright © 2026 Walter Zimmer. Released under the MIT License.
 
 ---
 
