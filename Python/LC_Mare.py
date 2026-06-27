@@ -164,8 +164,10 @@ class ViewFrame(ttk.Frame):
             sens=-86 # dB//1V/Pa         # assume 1 Pa generates 50 E-6 V (10**(-86/20)) (sensitivity -206 dB//1V/uPa)
             data /= 10**(sens/10)
             ndo=data.shape[1]
-            M=data.reshape(-1,int(self.blklen/ndo),ndo)
+            M=data.reshape(-1,self.blklen//ndo,ndo)
+#            M=data.reshape(-1,int(self.blklen/ndo),ndo)
             nt,nf,nd=(M.shape)
+            print(nt,nf,nd,ndo)
             t = np.arange(nt)*nf/fs
             f = np.arange(nf)/nf*fs/2
 
@@ -182,12 +184,52 @@ class ViewFrame(ttk.Frame):
             qmax = np.max(M)
             for ii in range(nd):
                 Q=M[:,:,ii].T
-                Q=dB(Q+qmax/1e+6)
-                img=axs[ii].imshow(Q, aspect='auto',origin='lower',cmap='jet',extent=ext) #, extent=ext,cmap='jet',clim=clim)
+                Q=dB(Q)
+                img=axs[ii].imshow(Q, aspect='auto',origin='lower')#,cmap='jet',extent=ext) #, extent=ext,cmap='jet',clim=clim)
                 plt.colorbar(img)
                 axs[ii].set_ylabel('Frequency [kHz]')
+            #
             axs[-1].set_xlabel('Time [s]')
             self.axs=axs
+
+        elif self.proc == 3:
+                # calibrate data (LC-Mare)
+                sens = -86  # dB//1V/Pa         # assume 1 Pa generates 50 E-6 V (10**(-86/20)) (sensitivity -206 dB//1V/uPa)
+                data /= 10 ** (sens / 10)
+                ndo = data.shape[1]
+                M = data.reshape(-1, int(self.blklen / ndo), ndo)
+                nt, nf, nd = (M.shape)
+                t = np.arange(nt) * nf / fs
+                f = np.arange(nf) / nf * fs / 2
+
+                for ax in self.axs: ax.remove()
+                self.fig.clf()
+                gs = self.fig.add_gridspec(nd + 1, 1)
+
+                axs = [self.fig.add_subplot(gs[0, 0])]
+                for ii in range(1, nd + 1):
+                    ax = self.fig.add_subplot(gs[ii, 0], sharex=axs[0], sharey=axs[0])
+                    axs.append(ax)
+
+                ext = [t[0], t[-1], f[0] / 1000, f[-1] / 1000]
+                qmax = np.max(M)
+                for ii in range(nd):
+                    Q = M[:, :, ii].T
+                    Q = dB(Q + qmax / 1e+6)
+                    img = axs[ii].imshow(Q, aspect='auto', origin='lower', cmap='jet',
+                                         extent=ext)  # , extent=ext,cmap='jet',clim=clim)
+                    plt.colorbar(img)
+                    axs[ii].set_ylabel('Frequency [kHz]')
+                #
+                Q = np.sqrt(M[:, :, 0] ** 2 + M[:, :, 1] ** 2 + M[:, :, 2] ** 2)
+                qmax = np.max(Q)
+                Q = dB(Q.T + qmax / 1e+6)
+                img = axs[-1].imshow(Q, aspect='auto', origin='lower', cmap='jet',
+                                     extent=ext)  # , extent=ext,cmap='jet',clim=clim)
+                plt.colorbar(img)
+                axs[-1].set_ylabel('Frequency [kHz]')
+                axs[-1].set_xlabel('Time [s]')
+                self.axs = axs
         else:
             td = np.arange(data.shape[0])/fs
             print(fs,data.shape[0]/fs)
@@ -197,9 +239,10 @@ class ViewFrame(ttk.Frame):
             data /= 10**(sens/20)
 
             # spectrogram
-            nw=512
-
-            f,t,q=spectrogram(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
+#            nw=512
+#            f,t,q=spectrogram(data[:,0],fs=fs,window='hann',nperseg=nw,noverlap=nw//2,nfft=nw*2,scaling='density')
+            nw=32
+            f,t,q=spectrogram(data[:fs//4,0],fs=fs,window='hann',nperseg=nw,noverlap=nw-1,nfft=nw*2,scaling='density')
 
             Q=dB(q)
 

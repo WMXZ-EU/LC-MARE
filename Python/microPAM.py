@@ -447,7 +447,9 @@ def convertData(hh,xx,fname,iprt=False):
         if (cmpr == 1) & (fname[-3:]=='bin'):       # copress of raw data
             it,data = decodeData(xx, blklen, nch, vers)
             data =data* 2 ** shift         # undo right shift
-        elif (cmpr == 2) & (fname[-3:] == 'dat'):   # compress of intensity
+        elif (cmpr == 2) & (fname[-3:] == 'spc'):   # compress of spectrum
+                it, data = decodeData(xx, blklen, nch, vers)
+        elif (cmpr == 3) & (fname[-3:] == 'int'):  # compress of intensity
                 it, data = decodeData(xx, blklen, nch, vers)
         else:
             if nbits == 16:
@@ -532,7 +534,7 @@ def get_pamFileName():
         # Ask the user to select a file
         file_path = filedialog.askopenfilename(
             title="Select a file",
-            filetypes=[("uPAM files", "*.bin *.wav *.dat")]
+            filetypes=[("uPAM files", "*.wav *.bin *.spc *.int *.vae, *.dat")]
         )
 
         # Destroy the root window after selection
