@@ -262,7 +262,7 @@ extern uint32_t loop1_count;
 
 char dayDir[40];
 char hourDir[10];
-char extent[4][4]={"wav","bin","dat","vae"};
+char extent[5][4]={"wav","bin","spc","int","vae"};
 uint32_t logBuffer[16];
 
 void printStatus(uint32_t num_bytes_written,int16_t vsens)

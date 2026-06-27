@@ -39,7 +39,12 @@ class Queue
 
 extern Queue queue;
 
+void process_init(void);
 void process(int32_t *buffer);
+
+#if defined(USE_SYNTH_SIGNAL) && defined(__IMXRT1062__)
+  void synth_signal_fill(float fsamp);
+#endif
 
 extern uint32_t acq_missed;
 extern uint32_t acq_count;
@@ -47,6 +52,8 @@ extern uint32_t proc_time;
 
 #if MCU==T_4_1
   void dsp_init(void);
+  void dsp_trigger(int32_t *acq_buffer);
+  int32_t *spectrum_power(int32_t *buffer);
   int32_t *dsp_apply(int32_t *buffer);
 
   extern float Imax;
@@ -58,6 +65,8 @@ extern uint32_t proc_time;
   // On RP targets DSP is not compiled; provide zero constants so shared code
   // referencing these symbols compiles without changes and emits no linker symbols.
   static inline void dsp_init(void) {}
+  static inline void dsp_trigger(int32_t *) {}
+  static inline int32_t *spectrum_power(int32_t *b) { return b; }
   static inline int32_t *dsp_apply(int32_t *b) { return b; }
   #define Imax  0.0f
   #define Dmax  0.0f

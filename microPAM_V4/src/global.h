@@ -56,7 +56,7 @@
     #define USB_POWER   1
     #define MAX_QUEUE   5
     #define USE_EXT_RTC   0
-    #if PROC_MODE==2
+    #if PROC_MODE==3 || PROC_MODE==4
       #define NAVG      1 // could change this
       #define NCHAN_PROC 3
       #define NBUF_PROC (NCHAN_PROC*NBUF_I2S/NCHAN_I2S)
@@ -99,7 +99,7 @@
 
   // limit processing mode for other than Teensy4.1
   #if MCU != T_4_1
-    #if PROC_MODE==2 || PROC_MODE==3
+    #if PROC_MODE==2 || PROC_MODE==3 || PROC_MODE==4
       #undef PROC_MODE
       #define PROC_MODE 1
     #endif
@@ -133,7 +133,7 @@
   // for adc
   #define AGAIN 20
   #define DGAIN 0
-  #define PGAIN 12
+  #define PGAIN 0
 
   // Detection parameters (PROC_MODE 2, Teensy 4.1 only)
   // DETECT_ALPHA: exponential-averaging coefficient for the background estimate.

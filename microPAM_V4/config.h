@@ -33,7 +33,8 @@
   // definitions for acquisition and filing (default to highest useful frequency)
   #define FSAMP 192000  // will be limited to 96000 if RP2040
   //
-  #define PROC_MODE      3   // 0 Wav raw file; 1 compress ; 2 dsp (only T4.1); 3 vae latents (only T4.1)
+  #define PROC_MODE      4   // 0 raw WAV; 1 compressed raw; 2 compressed spectrum (T4.1); 3 compressed intensity (T4.1); 4 intensity+VAE (T4.1)
+  #define USE_SYNTH_SIGNAL   // uncomment to inject synthetic test signal every SYNTH_PERIOD calls
 
   //for filing meta data
   #define SRC_str "LC17"     //  Source

@@ -10,7 +10,7 @@ Version: 4.1.0 — Copyright © 2026 Walter Zimmer. Released under the MIT Licen
 
 | Board | MCU | Channels | Max sample rate | DSP / Classifier |
 |-------|-----|----------|-----------------|-----------------|
-| Teensy 4.1 | i.MX RT1062 | 4 | 192 kHz | Yes (PROC_MODE 2 / 3) |
+| Teensy 4.1 | i.MX RT1062 | 4 | 192 kHz | Yes (PROC_MODE 2 / 3 / 4) |
 | Adafruit Feather RP2040 Adalogger | RP2040 | 1 | 192 kHz | No |
 | Adafruit Feather RP2350 HSTX | RP2350 | 4 | 192 kHz | No |
 
@@ -34,10 +34,13 @@ Set `PROC_MODE` in [`config.h`](config.h):
 |-------|------|-------------|---------|
 | 0 | Raw WAV | `.wav` | All |
 | 1 | Integer compression (differential + bit-pack) | `.bin` | All |
-| 2 | Directional sound intensity (tetrahedral array) + compressed intensity vectors | `.dat` | Teensy 4.1 only |
-| 3 | DSP pipeline + 4-VAE classifier — latent means pushed to queue | `.vae` | Teensy 4.1 only |
+| 2 | Compressed per-bin FFT magnitude spectrum | `.spc` | Teensy 4.1 only |
+| 3 | Directional sound intensity (tetrahedral array) + compressed intensity vectors | `.int` | Teensy 4.1 only |
+| 4 | DSP pipeline + 4-VAE classifier — latent means pushed to queue | `.vae` | Teensy 4.1 only |
 
-PROC_MODE 2 and 3 are silently downgraded to 1 on RP2040/RP2350 targets.
+PROC_MODE 2, 3, and 4 are silently downgraded to 1 on RP2040/RP2350 targets.
+
+DSP modes (2 / 3 / 4) use asynchronous dispatch: `process()` snapshots the acquisition buffer and pends `IRQ_QTIMER3` (`DSP_IRQ_PRIORITY = 7×16`, below DMA) so the DMA ISR returns immediately. The DSP ISR performs the heavy computation and pushes results to the queue.
 
 ---
 
@@ -51,7 +54,9 @@ Edit [`config.h`](config.h) before building:
 #define T_REP    0    // repeat interval; set < T_ACQ for continuous recording
 
 #define FSAMP  192000 // sample rate (Hz)
-#define PROC_MODE  3  // 0 = raw, 1 = compressed, 2 = DSP+intensity, 3 = DSP+VAE latents (T4.1 only)
+#define PROC_MODE  4  // 0=raw WAV, 1=compressed, 2=spectrum, 3=intensity, 4=intensity+VAE (2/3/4: T4.1 only)
+
+// #define USE_SYNTH_SIGNAL  // inject synthetic chirp every 100 calls (testing only)
 
 // WAV file metadata
 #define SRC_str "LC17"      // source/instrument ID
@@ -66,12 +71,18 @@ Key DSP/gain constants in [`src/global.h`](src/global.h):
 
 ```c
 #define SHIFT  12    // bit-shift for integer compression
-#define PGAIN  12    // additional power gain exponent applied to intensity output
 #define AGAIN  20    // ADC analogue gain (dB)
 #define DGAIN   0    // ADC digital gain
 ```
 
-Detection parameters (PROC_MODE 2/3, Teensy 4.1):
+Output scaling (in `src/process.cxx`):
+
+| Mode | Scale factor | Formula |
+|------|-------------|---------|
+| 2 (spectrum) | `scale2` | `1 << (31 − SHIFT)` |
+| 3 / 4 (intensity) | `scale3` | `1 << (32 − SHIFT)` |
+
+Detection parameters (PROC_MODE 3/4, Teensy 4.1):
 
 ```c
 #define DETECT_ALPHA  0.01f  // background averaging rate (0.001 slow … 0.1 fast)
@@ -80,23 +91,28 @@ Detection parameters (PROC_MODE 2/3, Teensy 4.1):
 
 ---
 
-## DSP pipeline (Teensy 4.1, PROC_MODE 2 / 3)
+## DSP pipeline (Teensy 4.1, PROC_MODE 2 / 3 / 4)
 
 ```
-spectrum_apply()     — 50 %-overlap RFFT per channel, Hann window → Z[]
+process()            — snapshots acq_buffer → dsp_buffer, pends IRQ_QTIMER3 (async DSP ISR)
     │
-intensity_apply()    — cross-correlation sums → directional intensity I[3×NSAMP]
-                     — magnitude per bin → D[NSAMP]
-    │
-detection_apply()    — peak / mean of D, exponential background tracking, SNR
-    │
-classifier_trigger() — snapshot D[], pend classifier ISR (IRQ_QTIMER4, priority 128)
-    │
-(ISR fires asynchronously)
-classifier_isr()     — 4 parallel VAE forward + backward passes on D_buf[] quarters
-                     — updates weights online (SGD)
-                     — exposes vae_mu[VAE_LAT_TOTAL] and classifier_exec_us
-                     — PROC_MODE 3: pushes vae_mu as uint32_t onto the queue
+    └─► dsp_isr()    — fires below DMA priority; does the heavy work per mode:
+            │
+            ├─ PROC_MODE 2 ─► spectrum_power()
+            │                  spectrum_apply() — 50 %-overlap RFFT per channel → Z[]
+            │                  per-bin magnitude sqrt(re²+im²) → scale2 → compress → queue (.spc)
+            │
+            └─ PROC_MODE 3/4 ─► dsp_apply()
+                                 spectrum_apply()    — RFFT per channel → Z[]
+                                 intensity_apply()   — cross-correlation → I[3×NSAMP], D[NSAMP]
+                                 detection_apply()   — SNR, exponential background tracking
+                                 classifier_trigger()— snapshot D[], pend IRQ_QTIMER4 (priority 128)
+                                     │
+                                     (ISR fires asynchronously)
+                                 classifier_isr()    — 4 parallel VAE fwd+bwd+SGD on D_buf[] quarters
+                                                     — exposes vae_mu[VAE_LAT_TOTAL], classifier_exec_us
+                                 PROC_MODE 3: I[] → scale3 → compress → queue (.int)
+                                 PROC_MODE 4: classifier ISR owns queue push of vae_mu → (.vae)
 ```
 
 ### VAE classifier (Teensy 4.1 only)
@@ -115,7 +131,7 @@ Four parallel online Variational Autoencoders, each trained incrementally on one
 | Large weight storage | DMAMEM (RAM2) — W1[4][H][Q] and W4[4][Q][H] |
 | IRQ | `IRQ_QTIMER4`, priority 128 |
 
-All 8 latent means are available via `vae_mu[VAE_LAT_TOTAL]` (layout: `[vae0_μ0, vae0_μ1, vae1_μ0, …]`) and printed by the serial monitor each second. In PROC_MODE 3 they are also written to the `.vae` file via the queue.
+All 8 latent means are available via `vae_mu[VAE_LAT_TOTAL]` (layout: `[vae0_μ0, vae0_μ1, vae1_μ0, …]`) and printed by the serial monitor each second. In PROC_MODE 4 they are also written to the `.vae` file via the queue.
 
 ---
 
@@ -123,14 +139,18 @@ All 8 latent means are available via `vae_mu[VAE_LAT_TOTAL]` (layout: `[vae0_μ0
 
 ```
 Acquisition (DMA IRQ / core 1)
-    └─► process()  ──────────────────────────────────────────────────┐
-            │  PROC_MODE 0: passthrough → queue                      │
-            │  PROC_MODE 1: differential encode + bit-pack → queue   │
-            │  PROC_MODE 2: DSP pipeline → compress → queue          │
-            │  PROC_MODE 3: DSP pipeline → classifier ISR → queue    │
-            └──────────────────────────────────────────────────────► │
-                                                                      │
-loop() / core 0  ◄────────────────────────────────────────────────────┘
+    └─► process()
+            │  PROC_MODE 0: passthrough → queue
+            │  PROC_MODE 1: differential encode + bit-pack → queue
+            │  PROC_MODE 2/3/4: snapshot → pend IRQ_QTIMER3 (returns immediately)
+            │
+            └─► dsp_isr() [IRQ_QTIMER3, async]
+                    │  PROC_MODE 2: spectrum magnitude → compress → queue
+                    │  PROC_MODE 3: intensity → compress → queue
+                    │  PROC_MODE 4: intensity → pend classifier ISR → queue (vae_mu)
+                    └──────────────────────────────────────────────► queue
+
+loop() / core 0
     └─► queue.pull() ──► logger() ──► SD card
 ```
 
@@ -257,8 +277,10 @@ Python\.venv\Scripts\python.exe Python\micropam_gui.py
 |------|------|
 | [`config.h`](config.h) | User-facing settings: sample rate, proc mode, metadata |
 | [`src/global.h`](src/global.h) | Per-MCU constants: channel counts, buffer sizes, queue depth, gain |
-| [`src/process.cxx`](src/process.cxx) | Queue, compression, DSP pipeline, detection, classifier trigger |
-| [`src/classifier.cxx`](src/classifier.cxx) | 4 parallel online VAEs: forward pass, backprop, SGD, ISR, queue push (mode 3) |
+| [`src/process.cxx`](src/process.cxx) | Queue, compression, async DSP dispatch (IRQ_QTIMER3), spectrum/intensity/detection, classifier trigger |
+| [`src/classifier.cxx`](src/classifier.cxx) | 4 parallel online VAEs: forward pass, backprop, SGD, ISR, queue push (mode 4) |
+| [`src/utils.cxx`](src/utils.cxx) | Print helpers, `synth_chirp_generate()` for synthetic test signal injection |
+| [`src/utils.h`](src/utils.h) | Declarations for print helpers and synth chirp generator |
 | [`src/classifier.h`](src/classifier.h) | VAE architecture constants, public API, `vae_mu`, `classifier_exec_us` |
 | [`src/adc.cxx`](src/adc.cxx) | TLV320ADC6140 I2C init, gain control |
 | [`src/rp2x.cxx`](src/rp2x.cxx) | RP2040/RP2350 PIO TDM, DMA, hibernate, RTC, NeoPixel |

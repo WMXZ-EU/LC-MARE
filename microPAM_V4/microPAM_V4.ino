@@ -91,6 +91,7 @@ void setup() {
   configShow();
 
   queue.reset();
+  process_init();
   //
   acqSetup();
 
@@ -127,7 +128,7 @@ void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t
   Serial.print(" "); Serial.print(classifier_exec_us);
   Serial.print(": ");
   for(int ii=0;ii<4;ii++)  { Serial.print(" "); printHex32(buffer[ii],0);}
-  #if MCU==T_4_1
+  #if (MCU==T_4_1) && (PROC_MODE==4)
     Serial.print(" mu:");
     for(int ii=0;ii<VAE_LAT_TOTAL;ii++) { Serial.print(" "); Serial.print(vae_mu[ii],4); }
   #else

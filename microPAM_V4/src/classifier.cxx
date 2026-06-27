@@ -215,7 +215,7 @@
       vae_backward(v, D_q);
     }
     classifier_exec_us = micros() - t0;
-    #if PROC_MODE==3
+    #if PROC_MODE==4
       // Push the 8 latent means (float bits reinterpreted as uint32_t) onto the queue.
       if (!queue.push((uint32_t *)vae_mu, VAE_LAT_TOTAL)) acq_missed++;
     #endif

@@ -29,4 +29,11 @@ void printHex16(uint16_t val,int flag);
 void printHex32(uint32_t val,int flag);
 void printFloat(float val,int n1);
 
+void synth_chirp_generate(int32_t *buf, int nsamp, int frame_offset,
+                           int nchan, const int *delay,
+                           float fsamp,
+                           float aa, float bb, float cc,
+                           float f0, float fm, float dd,
+                           float ampl);
+
 #endif
