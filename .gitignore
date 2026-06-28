@@ -61,3 +61,5 @@ microPAM_V4/Python/synth_spectrogram.py
 microPAM_V4/Python/test_1.py
 microPAM_V4/Python/viewer.py
 /microPAM_V4/Python/__pycache__
+/microPAM_V4/Python/build/micropam_browser
+/microPAM_V4/Python/build/micropam_control
