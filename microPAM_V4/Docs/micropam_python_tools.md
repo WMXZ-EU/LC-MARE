@@ -115,6 +115,30 @@ The full-width pane at the bottom shows all bytes received from the device.  Lin
 
 ---
 
+### How to configure duty cycling
+
+Duty cycling makes the PAM record for a fixed on-time window and then hibernate until the next cycle repeats.  The timing is controlled by two parameters:
+
+| Parameter | Meaning |
+|-----------|---------|
+| **t_on** | How long the device records each cycle (minutes) |
+| **t_rep** | Cycle length — recording starts every `t_rep` minutes.  The device hibernates for `t_rep − t_on` minutes between files.  Set `t_rep = 0` (or `t_rep < t_acq / 60`) to disable duty cycling and record continuously. |
+
+**Steps using micropam_control:**
+
+1. Connect to the device (select port → **Connect**).
+2. Click **Read all** to populate the current settings.
+3. Enter the desired value in the **t_on** field (e.g. `2` for 2 minutes of recording per cycle).
+4. Enter the desired value in the **t_rep** field (e.g. `5` for a 5-minute cycle, giving 3 minutes of sleep).
+5. Press **Return** or click the adjacent set button next to each field to send `!o <value>` and `!r <value>` to the device.
+6. Click **Reboot** (sends `b`) — the device restarts and immediately applies the new duty-cycle settings read from its config file on the SD card.
+
+The settings are automatically saved to `config.txt` on the SD card when the device reboots or when recording stops, so they persist across power cycles.
+
+To disable duty cycling, set **t_rep** back to `0` and reboot.
+
+---
+
 ## micropam_browser
 
 ### Overview
