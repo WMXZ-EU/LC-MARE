@@ -53,3 +53,11 @@ microPAM_V4/build/teensy.avr.teensy41/microPAM_V4.ino.sym.1
 microPAM_V4/build/teensy.avr.teensy41/microPAM_V4.ino.sym.1.61
 /microPAM_V4/misc
 /microPAM_V4/Python/.idea
+/microPAM_V4/data
+/microPAM_V4/Figures
+microPAM_V4/Python/sim_log.npz
+microPAM_V4/Python/simulator.py
+microPAM_V4/Python/synth_spectrogram.py
+microPAM_V4/Python/test_1.py
+microPAM_V4/Python/viewer.py
+/microPAM_V4/Python/__pycache__
