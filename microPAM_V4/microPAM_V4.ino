@@ -107,30 +107,42 @@ volatile uint32_t loop1_timer=0;
 void printMonitor(const char *type, uint32_t cnt, uint32_t *loop_count, uint32_t * buffer)
 { if(!Serial) return;
 //            Serial.printf("1- %d %d %3d %3d %4d us %.3f ms (%4.1f%%) ",cnt++, acq_count, fsamp*NCHAN_I2S/NBUF_I2S, acq_missed, 
-//                    proc_time, (1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S),proc_time/(10000.0f*acq_count));
+//                    process_max_us, (1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S),process_max_us/(10000.0f*acq_count));
 //            Serial.printf("%2d: ",loop1_count);
   Serial.print(type); Serial.print(cnt); 
   Serial.print(" "); Serial.print(acq_count);
   Serial.print(" "); Serial.print( (fsamp*NCHAN_I2S)/NBUF_I2S);
   Serial.print(" "); Serial.print(acq_missed);
-  Serial.print(" "); Serial.print(proc_time);
   Serial.print(" "); Serial.print((1000.0f*NBUF_I2S)/(fsamp*NCHAN_I2S));
-  Serial.print(" ("); printFloat((proc_time/10000.0f)*acq_count,2); Serial.print("%)");
+  Serial.print(" "); Serial.print(process_max_us);
+  #if MCU==T_4_1
+  Serial.print(" "); Serial.print(dsp_isr_max_us);
+  Serial.print(" "); Serial.print(classifier_exec_us);
+  #endif
   acq_count=0;
   acq_missed=0;
-  proc_time=0;
+  process_max_us=0;
+  #if MCU==T_4_1
+  dsp_isr_max_us=0;
+  #endif
   Serial.print(" "); Serial.print(*loop_count);
   *loop_count=0;
-  Serial.print(" "); printFloat(Imax,3);
   #if MCU==T_4_1
-    Imax=0.0f;
+  Serial.print(" "); printFloat(Imax,3);
+  Imax=0.0f;
   #endif
-  Serial.print(" "); Serial.print(classifier_exec_us);
   Serial.print(": ");
   for(int ii=0;ii<4;ii++)  { Serial.print(" "); printHex32(buffer[ii],0);}
   #if (MCU==T_4_1) && (PROC_MODE==4)
     Serial.print(" mu:");
     for(int ii=0;ii<VAE_LAT_TOTAL;ii++) { Serial.print(" "); Serial.print(vae_mu[ii],4); }
+    Serial.print(" sig:"); Serial.print(vae_mu_signal_count);
+    if(vae_mu_signal_count > 0)
+    { Serial.print(" mu_sig:");
+      for(int ii=0;ii<VAE_LAT_TOTAL;ii++) { Serial.print(" "); Serial.print(vae_mu_signal[ii]/vae_mu_signal_count,4); }
+      for(int ii=0;ii<VAE_LAT_TOTAL;ii++) vae_mu_signal[ii]=0.0f;
+      vae_mu_signal_count=0;
+    }
   #else
     for(int ii=4;ii<10;ii++) { Serial.print(" "); printHex32(buffer[ii],1);}
   #endif

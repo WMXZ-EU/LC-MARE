@@ -2,7 +2,7 @@
 
 Firmware for a low-power **Passive Acoustic Monitor (PAM)** targeting three microcontroller boards. Records multi-channel audio via TDM (Time Division Multiplexed I2S) to SD card, with optional lossless integer compression, FFT-based directional sound intensity estimation, and online VAE-based acoustic classification.
 
-Version: 4.2.0 — Copyright © 2026 Walter Zimmer. Released under the MIT License.
+Version: 4.3.0 — Copyright © 2026 Walter Zimmer. Released under the MIT License.
 
 ---
 
@@ -227,26 +227,27 @@ These scripts read the binary directly from `build\<target>\` and abort with a c
 
 ---
 
-## Configuration GUI
+## Python tools
 
-A Python/tkinter GUI is provided in [`Python/micropam_gui.py`](Python/micropam_gui.py) for configuring the device over USB serial without a terminal.
+Three companion tools are provided in the `Python/` folder.  All require Python 3.10+ and the packages listed in `Python/requirements.txt`.
 
-### Requirements
-
-```
-Python 3.x
-pyserial
-```
-
-A ready-to-use virtual environment is included at `Python/.venv` (Python 3.14, pyserial 3.5). To run from PyCharm, point the interpreter at `Python\.venv\Scripts\python.exe`.
-
-### Running
+A ready-to-use virtual environment is included at `Python/.venv` (Python 3.14).  Install dependencies once with:
 
 ```powershell
-Python\.venv\Scripts\python.exe Python\micropam_gui.py
+Python\.venv\Scripts\pip.exe install -r Python\requirements.txt
 ```
 
-### Features
+To run from PyCharm, set the interpreter to `Python\.venv\Scripts\python.exe`.
+
+See [`Docs/micropam_python_tools.md`](Docs/micropam_python_tools.md) for a full user guide.
+
+### micropam_control — device configuration GUI
+
+Configures and controls the PAM over USB serial without a terminal.
+
+```powershell
+Python\.venv\Scripts\python.exe Python\micropam_control.py
+```
 
 | GUI element | Serial command | Description |
 |---|---|---|
@@ -269,6 +270,35 @@ Python\.venv\Scripts\python.exe Python\micropam_gui.py
 | Raw send box | passthrough | Send any command directly |
 | Serial monitor | — | Full-width scrolling output, auto-parses `key = value` responses |
 
+### micropam_browser — data file browser and viewer
+
+Browse, inspect, and visualise recorded data files without any additional software.
+
+```powershell
+Python\.venv\Scripts\python.exe Python\micropam_browser.py [folder]
+```
+
+Features:
+
+- Sortable file list with mode, sample rate, channel count, and file size
+- Right-click (or double-click) any file → **Show header info** — full WAV/IKEY parameter popup
+- Right-click → **View data** (or press `v`) — mode-specific matplotlib plot:
+  - **Mode 0/1**: time series per channel + spectrogram of channel 0
+  - **Mode 2**: per-channel compressed spectrum waterfall
+  - **Mode 3**: directional intensity — magnitude + Ix / Iy / Iz log-scaled waterfalls
+  - **Mode 4**: detection excess + 4 VAE anomaly score time series
+
+### micropam_reader — Python API
+
+Programmatic access to all file formats:
+
+```python
+from micropam_reader import MicroPAMFile
+
+result = MicroPAMFile("recording.int").read_all()
+data   = result["data"]   # numpy array, shape depends on PROC_MODE
+```
+
 ---
 
 ## Key source files
@@ -288,7 +318,9 @@ Python\.venv\Scripts\python.exe Python\micropam_gui.py
 | [`src/filing.cxx`](src/filing.cxx) | SD logger, WAV/bin/dat/vae header writer, config file load/save |
 | [`src/rtc.cxx`](src/rtc.cxx) | RV3028 external RTC, internal RTC, time conversion, alarm |
 | [`src/menu.cxx`](src/menu.cxx) | Serial menu: start/stop/parameters, `?` query / `!` set protocol |
-| [`Python/micropam_gui.py`](Python/micropam_gui.py) | Python/tkinter configuration GUI |
+| [`Python/micropam_control.py`](Python/micropam_control.py) | Python/tkinter device configuration and control GUI |
+| [`Python/micropam_browser.py`](Python/micropam_browser.py) | Python/tkinter data file browser and visualiser |
+| [`Python/micropam_reader.py`](Python/micropam_reader.py) | Python API for reading all microPAM file formats |
 
 ---
 

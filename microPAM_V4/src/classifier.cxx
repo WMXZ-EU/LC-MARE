@@ -58,6 +58,9 @@
 
   // Input snapshot (full N samples); each VAE reads its Q-sample slice.
   static float D_buf[N];
+  static float Dsnr_buf = 0.0f;   // Dsnr captured at trigger time
+  // Full intensity matrix snapshot (3*NSAMP floats) before scale3 is applied.
+  static float I_buf[3 * N];
 
   // ── per-VAE weights ─────────────────────────────────────────────────────────
   // Large encoder/decoder matrices in DMAMEM: 4 * H * Q = H * N total (same as before).
@@ -82,9 +85,18 @@
   static float dh3[H];
   static float drecon[Q];
 
-  // ── exported latent means and timing ────────────────────────────────────────
-  float    vae_mu[VAE_LAT_TOTAL];    // [vae0_mu0, vae0_mu1, vae1_mu0, ...]
+  // ── per-VAE background EMA (noise frames only) ──────────────────────────────
+  static float mu_bg[4][L];      // background latent mean per VAE
+  static float recon_bg[4];      // background reconstruction error per VAE
+  static bool  bg_seeded[4];     // whether the EMA has been seeded
+
+  // ── exported globals ─────────────────────────────────────────────────────────
+  float    vae_mu[VAE_LAT_TOTAL];           // current frame latent means
+  float    vae_detect[VAE_NVAE];            // per-VAE detection score
+  float    vae_mu_signal[VAE_LAT_TOTAL];    // accumulated means on signal frames
+  uint32_t vae_mu_signal_count = 0;
   uint32_t classifier_exec_us = 0;
+  uint32_t classifier_isr_max_us = 0;
 
   // ── LCG / Box-Muller ────────────────────────────────────────────────────────
   static uint32_t lcg = 2463534242u;
@@ -209,28 +221,109 @@
   {
     NVIC_CLEAR_PENDING(CLASSIFIER_IRQ);
     uint32_t t0 = micros();
+    bool signal_frame = (Dsnr_buf >= DETECT_THR);
+
     for (int v = 0; v < 4; v++) {
       const float *D_q = D_buf + v * Q;
       vae_forward(v, D_q);
-      vae_backward(v, D_q);
+
+      // per-VAE reconstruction error (MSE)
+      float err_v = 0.0f;
+      for (int j = 0; j < Q; j++) { float e = recon[j] - D_q[j]; err_v += e * e; }
+      err_v /= (float)Q;
+
+      if (!signal_frame) vae_backward(v, D_q);
+
+      // background EMA — updated on noise frames only
+      if (!signal_frame) {
+        if (!bg_seeded[v]) {
+          for (int k = 0; k < L; k++) mu_bg[v][k] = vae_mu[v * L + k];
+          recon_bg[v] = err_v;
+          bg_seeded[v] = true;
+        } else {
+          for (int k = 0; k < L; k++)
+            mu_bg[v][k] += DETECT_ALPHA * (vae_mu[v * L + k] - mu_bg[v][k]);
+          recon_bg[v] += DETECT_ALPHA * (err_v - recon_bg[v]);
+        }
+      }
+
+      // per-VAE detection score: ||mu - mu_bg|| * (err / err_bg)
+      if (bg_seeded[v]) {
+        float mu_dev = 0.0f;
+        for (int k = 0; k < L; k++) {
+          float d = vae_mu[v * L + k] - mu_bg[v][k];
+          mu_dev += d * d;
+        }
+        mu_dev = sqrtf(mu_dev);
+        float bg = (recon_bg[v] > 1e-12f) ? recon_bg[v] : 1e-12f;
+        vae_detect[v] = mu_dev * (err_v / bg);
+      } else {
+        vae_detect[v] = 0.0f;
+      }
     }
+
+    if (signal_frame) {
+      for (int k = 0; k < VAE_LAT_TOTAL; k++) vae_mu_signal[k] += vae_mu[k];
+      vae_mu_signal_count++;
+    }
+
     classifier_exec_us = micros() - t0;
+    if (classifier_exec_us > classifier_isr_max_us) classifier_isr_max_us = classifier_exec_us;
+
     #if PROC_MODE==4
-      // Push the 8 latent means (float bits reinterpreted as uint32_t) onto the queue.
-      if (!queue.push((uint32_t *)vae_mu, VAE_LAT_TOTAL)) acq_missed++;
+    {
+      // Result vector layout:
+      //  Header (24 x uint32 = 96 bytes) — pushed every frame:
+      //    [0]     magic 0x55555555
+      //    [1]     millis()
+      //    [2]     signal_flag (0 or 1)
+      //    [3]     detection_excess = Dsnr - DETECT_THR  (float bits)
+      //    [4..7]  vae_detect[4]                         (float bits)
+      //    [8..23] vae_mu[16]                            (float bits)
+      //  Signal tail (3*NSAMP x uint32 = 6144 bytes) — pushed only when signal_flag==1:
+      //    I[3*NSAMP] interleaved as I[comp + 3*bin], comp={x,y,z} (float bits)
+      uint32_t result[27];
+      float detection_excess = Dsnr_buf - DETECT_THR;
+      result[0] = 0x55555555u;
+      result[1] = millis();
+      result[2] = signal_frame ? 1u : 0u;
+      memcpy(&result[3], &detection_excess, 4);
+      memcpy(&result[4], vae_detect, VAE_NVAE * 4);
+      memcpy(&result[8], vae_mu,     VAE_LAT_TOTAL * 4);
+      if (signal_frame) {
+        // Atomic pair-push: header + I matrix land in the same queue block.
+        if (!queue.push_pair(result, 24, (uint32_t *)I_buf, 3 * N)) acq_missed++;
+      } else {
+        if (!queue.push(result, 24)) acq_missed++;
+      }
+    }
     #endif
   }
 
-  void classifier_trigger(const float *D, int nsamp)
+  void classifier_trigger(const float *D, int nsamp, float dsnr,
+                           const float *I, int ni)
   {
     (void)nsamp;
     memcpy(D_buf, D, N * sizeof(float));
+    Dsnr_buf = dsnr;
+
+    // Snapshot full intensity matrix before scale3 is applied.
+    // Layout: I[comp + 3*bin], ni = 3*NSAMP, comp ∈ {0=x, 1=y, 2=z}
+    memcpy(I_buf, I, (size_t)ni * sizeof(float));
+
     NVIC_SET_PENDING(CLASSIFIER_IRQ);
   }
 
   // ── initialisation ──────────────────────────────────────────────────────────
   void classifier_init(void)
   {
+    // zero background EMA and detection state
+    memset(mu_bg,    0, sizeof(mu_bg));
+    memset(recon_bg, 0, sizeof(recon_bg));
+    memset(bg_seeded,0, sizeof(bg_seeded));
+    memset(vae_detect, 0, sizeof(vae_detect));
+    memset(I_buf,      0, sizeof(I_buf));
+
     float s1 = sqrtf(6.0f / (float)(Q + H));
     float sh = sqrtf(6.0f / (float)(H + L));
     float sl = sqrtf(6.0f / (float)(L + H));
@@ -258,13 +351,17 @@
   }
 
   // ── public entry point (called directly when not using ISR path) ─────────────
-  int classifier_apply(const float *D, int nsamp)
+  int classifier_apply(const float *D, int nsamp, bool do_train)
   {
     (void)nsamp;
     for (int v = 0; v < 4; v++) {
       const float *D_q = D + v * Q;
       vae_forward(v, D_q);
-      vae_backward(v, D_q);
+      if (do_train) vae_backward(v, D_q);
+    }
+    if (!do_train) {
+      for (int k = 0; k < VAE_LAT_TOTAL; k++) vae_mu_signal[k] += vae_mu[k];
+      vae_mu_signal_count++;
     }
     return 0;
   }

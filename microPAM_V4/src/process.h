@@ -33,6 +33,12 @@ class Queue
 
   void reset(void);
   int push(uint32_t *data, int ndat);
+  // push_pair: writes data1+data2 contiguously only if both fit in the same
+  // queue block.  If the current block has insufficient remaining space the
+  // block is finalised and the pair is written at the start of the next one.
+  // Returns 1 on success, 0 if the queue is full or the combined size exceeds
+  // NBLOCK (i.e. can never fit in a single block).
+  int push_pair(uint32_t *data1, int n1, uint32_t *data2, int n2);
   int pull(uint32_t *data);
   int available(void);
 };
@@ -48,9 +54,10 @@ void process(int32_t *buffer);
 
 extern uint32_t acq_missed;
 extern uint32_t acq_count;
-extern uint32_t proc_time;
+extern uint32_t process_max_us;
 
 #if MCU==T_4_1
+  extern uint32_t dsp_isr_max_us;
   void dsp_init(void);
   void dsp_trigger(int32_t *acq_buffer);
   int32_t *spectrum_power(int32_t *buffer);

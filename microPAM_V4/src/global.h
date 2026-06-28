@@ -26,7 +26,7 @@
   #include "../config.h"
 
   #define Program "microPAM_V4"
-  #define Version "4.2.0" // 27-06-2026
+  #define Version "4.3.0" // 28-06-2026
 
   #define T_4_1   0
   #define RP_2040 1

@@ -210,7 +210,7 @@
   void process(int32_t * buffer);
 
   static void __not_in_flash_func(dma_irq)(void)
-  { 
+  {
     for(int ii=0; ii<2; ii++)
     if(dma_channel_get_irq0_status(_channelDMA[ii]))
     { //

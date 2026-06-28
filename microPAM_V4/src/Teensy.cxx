@@ -231,7 +231,6 @@
     //process(src);
     memcpy(acq_buffer,(const void *)src,4*NBUF_I2S);
     process(acq_buffer);
-
   }
 
   /*-------------Utilities----------------------------*/

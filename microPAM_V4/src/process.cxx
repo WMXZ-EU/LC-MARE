@@ -181,6 +181,34 @@ int32_t *__not_in_flash_func(compressData)(int32_t *buffer, int32_t ndat=NDATA, 
     }
   }
 
+  int __not_in_flash_func(Queue::push_pair)(uint32_t *data1, int n1, uint32_t *data2, int n2)
+  { while(busy);
+    busy=1;
+    int needed = n1 + n2;
+    if(needed > NBLOCK)       // can never fit in any single block
+    { busy=0; return 0; }
+    if((cnt + needed) <= NBLOCK)
+    { // both chunks fit in the current block — append directly
+      for(int ii=0;ii<n1;ii++,cnt++) queue_buffer[head][cnt]=data1[ii];
+      for(int ii=0;ii<n2;ii++,cnt++) queue_buffer[head][cnt]=data2[ii];
+      busy=0; return 1;
+    }
+    // Not enough space — finalise current block, advance to next
+    int nbuf=cnt;
+    if(nbuf<NBLOCK-1)
+    { for(;cnt<NBLOCK;cnt++) queue_buffer[head][cnt]=0;
+      queue_buffer[head][NBLOCK-1]=nbuf;
+    }
+    cnt=0;
+    head=INC(head);
+    if(head==tail)
+    { busy=0; return 0; }     // queue full
+    // Write both chunks at the start of the fresh block
+    for(int ii=0;ii<n1;ii++,cnt++) queue_buffer[head][cnt]=data1[ii];
+    for(int ii=0;ii<n2;ii++,cnt++) queue_buffer[head][cnt]=data2[ii];
+    busy=0; return 1;
+  }
+
   int __not_in_flash_func(Queue::pull)(uint32_t *data)
   { while(busy);
     busy=1;
@@ -204,7 +232,7 @@ Queue queue;
 /******************************Processing*************************************************/
 uint32_t acq_missed=0;
 uint32_t acq_count=0;
-uint32_t proc_time=0;
+uint32_t process_max_us=0;
 
 // ── Synthetic signal injection ────────────────────────────────────────────────
 // synth_signal[5][NBUF_ACQ]: 5 consecutive time steps of a test waveform.
@@ -295,7 +323,7 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
   #endif
   //
   uint32_t dt=micros()-to;
-  if (dt>proc_time) proc_time=dt;
+  if (dt>process_max_us) process_max_us=dt;
 }
 
 #if (MCU==T_4_1)
@@ -455,7 +483,9 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
     spectrum_apply(procBuffer);
     intensity_apply();
     detection_apply();
-    classifier_trigger(D, NSAMP);
+    // Pass I[] before scale3 is applied so the classifier can snapshot the
+    // raw direction without the storage scaling baked in.
+    classifier_trigger(D, NSAMP, Dsnr, I, 3 * NSAMP);
 
     for(int ii=0;ii<3*NSAMP; ii++) I[ii]=I[ii]*scale3;
     for(int ii=0;ii<3*NSAMP; ii++) if(I[ii]>Imax) Imax=I[ii];
@@ -469,9 +499,11 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
 
   volatile bool dsp_busy = false;
   DMAMEM static int32_t dsp_buffer[NBUF_I2S]; // snapshot of acq_buffer for DSP ISR
+  uint32_t dsp_isr_max_us = 0;
 
   void dsp_isr(void)
   {
+    uint32_t t0 = micros();
     NVIC_CLEAR_PENDING(DSP_IRQ);
     #if PROC_MODE==2
     { int32_t *dest = spectrum_power(dsp_buffer);
@@ -485,6 +517,8 @@ void __not_in_flash_func(process)(int32_t *acq_buffer)
       dsp_apply(dsp_buffer);   // classifier ISR owns queue push
     #endif
     dsp_busy = false;
+    uint32_t dt = micros() - t0;
+    if (dt > dsp_isr_max_us) dsp_isr_max_us = dt;
   }
 
   void dsp_trigger(int32_t *acq_buffer)

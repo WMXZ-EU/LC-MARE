@@ -48,7 +48,7 @@ RP scripts try two upload paths in order:
 | `src/filing.cxx` | SD card logger, WAV/bin/dat/vae header, config file load/save |
 | `src/rtc.cxx` | RV3028 external RTC, internal RTC, time conversion, alarm |
 | `src/menu.cxx` | Serial menu: start/stop/parameters, `?` query / `!` set protocol |
-| `Python/micropam_gui.py` | Python/tkinter configuration GUI (USB serial, pyserial) |
+| `Python/micropam_control.py` | Python/tkinter configuration GUI (USB serial, pyserial) |
 
 ## Architecture
 
@@ -83,7 +83,7 @@ Config dir: `%LOCALAPPDATA%\Arduino15`
 ## Python GUI
 
 ```powershell
-Python\.venv\Scripts\python.exe Python\micropam_gui.py
+Python\.venv\Scripts\python.exe Python\micropam_control.py
 ```
 
 - Requires pyserial (pre-installed in `Python\.venv`).
