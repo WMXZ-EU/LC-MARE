@@ -123,15 +123,15 @@ Four parallel online Variational Autoencoders, each trained incrementally on one
 |-----------|-------|
 | Number of VAEs | 4 |
 | Input per VAE (`VAE_QSAMP`) | `VAE_NSAMP / 4` (= 128 at 192 kHz, 4 ch) |
-| Architecture per VAE | `QSAMP – 32 – 2 – 32 – QSAMP` |
-| Latent dims per VAE (`VAE_LAT`) | 2 |
-| Total exported latent means (`VAE_LAT_TOTAL`) | 8 |
+| Architecture per VAE | `QSAMP – 32 – 4 – 32 – QSAMP` |
+| Latent dims per VAE (`VAE_LAT`) | 4 |
+| Total exported latent means (`VAE_LAT_TOTAL`) | 16 |
 | Learning rate | 1 × 10⁻⁴ (SGD) |
 | KL weight β | 1 × 10⁻³ |
 | Large weight storage | DMAMEM (RAM2) — W1[4][H][Q] and W4[4][Q][H] |
 | IRQ | `IRQ_QTIMER4`, priority 128 |
 
-All 8 latent means are available via `vae_mu[VAE_LAT_TOTAL]` (layout: `[vae0_μ0, vae0_μ1, vae1_μ0, …]`) and printed by the serial monitor each second. In PROC_MODE 4 they are also written to the `.vae` file via the queue.
+All 16 latent means are available via `vae_mu[VAE_LAT_TOTAL]` (layout: `[vae0_μ0, …, vae0_μ3, vae1_μ0, …]`) and printed by the serial monitor each second. In PROC_MODE 4 they are also written to the `.vae` file via the queue.
 
 ---
 
