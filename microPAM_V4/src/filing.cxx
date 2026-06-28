@@ -49,7 +49,7 @@ char IART[40]={ART_str}; // 'Artist' (creator)
 char IPRD[40]={PRD_str}; // 'Product' (Activity)
 char ISBJ[40]={SBJ_str}; // 'subject' (Area)
 char INAM[40]={NAM_str}; // 'Name' (location id)
-char startTime[40]={"2000-01-01 00:00:00"}; // Start Time
+char startTime[40]={"2000-01-01_00:00:00"}; // Start Time
 
 // definitions
 static uint16_t have_sd =0;
