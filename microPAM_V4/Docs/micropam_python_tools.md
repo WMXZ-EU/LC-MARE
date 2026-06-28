@@ -137,6 +137,8 @@ The settings are automatically saved to `config.txt` on the SD card when the dev
 
 To disable duty cycling, set **t_rep** back to `0` and reboot.
 
+> **Important:** USB serial communication is only possible while the device is awake and recording.  During the hibernate interval the device is powered down and cannot be reached.  If you need to change or disable duty cycling you must either wait for the device to wake up at the start of its next on-window, or power-cycle it while holding **BOOTSEL** to force it into bootloader mode and then reflash the firmware with `T_REP = 0` compiled in.
+
 ---
 
 ## micropam_browser
