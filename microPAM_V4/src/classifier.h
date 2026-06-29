@@ -48,6 +48,14 @@
   extern uint32_t classifier_isr_max_us;
 
   void classifier_init(void);
+  // Load VAE model from /VAE_model.dat on the SD card.
+  // Falls back to random initialisation if the file is absent or corrupt.
+  // Called by classifier_init(); may also be called after SD_init().
+  void classifier_load(void);
+  // Save the current VAE model to /VAE_model.dat.
+  // If the file already exists it is renamed to /VAE_model_<YYYYMMDD_HHMM>.dat first.
+  // datestring must be at least 13 chars: "YYYYMMDD_HHMM..."
+  void classifier_save(const char *datestring);
   // D    – intensity magnitude spectrum (NSAMP floats)
   // I    – raw intensity components before scale3 is applied (3*NSAMP floats)
   // ni   – length of I array (= 3*NSAMP)

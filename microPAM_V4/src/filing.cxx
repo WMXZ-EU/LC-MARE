@@ -28,6 +28,7 @@
 #include "rtc.h"
 #include "filing.h"
 #include "process.h"
+#include "classifier.h"
 #include "utils.h"
 
 #ifndef BUILTIN_SDCARD
@@ -310,7 +311,11 @@ status_t logger(status_t status)
     }
     //
     if(t.hour != old_hour)
-    { // go into top folder
+    { // save VAE model once per hour before moving into the new hourly folder
+      #if (MCU==T_4_1) && (PROC_MODE==4)
+        classifier_save(datestring);
+      #endif
+      // go into top folder
       sd.chdir(dayDir);
       // create hourly file folder
       sprintf(hourDir,"%02d",t.hour);
@@ -318,7 +323,7 @@ status_t logger(status_t status)
       { sd.mkdir(hourDir);
       }
       // go into hourly file folder
-      sd.chdir(hourDir);        
+      sd.chdir(hourDir);
       old_hour = t.hour;
     }
     // create file name and open file
@@ -377,19 +382,27 @@ status_t logger(status_t status)
         uint32_t tto = tt / (24*3600);  // seconds to beginning of day
         uint32_t ttx = tt % (24*3600);  // seconds within day
         uint16_t hhx = ttx / 3600;
+        #if (MCU==T_4_1) && (PROC_MODE==4)
+          #define _VAE_SAVE() classifier_save(datestring)
+        #else
+          #define _VAE_SAVE() (void)0
+        #endif
         if(hhx < h_rec[0])
         { // sleep until h_rec[0]
             uint32_t alarm=tto+h_rec[0]*3600;
+            _VAE_SAVE();
             hibernate_until(alarm);
         }
         if((hhx > h_rec[1]) && (hhx < h_rec[2]))
-        { // sleep untl h_rec[2]
+        { // sleep until h_rec[2]
             uint32_t alarm=tto+h_rec[2]*3600;
+            _VAE_SAVE();
             hibernate_until(alarm);
         }
         if((hhx > h_rec[3]))
         { // sleep until h_rec[0]+24
             uint32_t alarm=tto+(24+h_rec[0])*3600;
+            _VAE_SAVE();
             hibernate_until(alarm);
         }
         //
@@ -398,11 +411,12 @@ status_t logger(status_t status)
           Serial.printf("%d %d %d %d %d\n",t_acq,t_rep,ttm,(ttm % t_rep),t_on);
 
           uint16_t dt2 = (ttm % t_rep);
-          if(dt2>=t_on) 
+          if(dt2>=t_on)
           {
             adc_exit();
             uint32_t alarm=((ttm/t_rep)+1)*t_rep*60;
             Serial.printf("alarm %d %d %d %d\n",dt2,ttm,tt,alarm);
+            _VAE_SAVE();
             hibernate_until(alarm);
           }
         }

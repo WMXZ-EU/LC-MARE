@@ -43,7 +43,13 @@
   #include <Arduino.h>
   #include <math.h>
   #include <string.h>
+  #include <SdFat.h>
   #include "process.h"   // queue, acq_missed
+
+  extern SdFs sd;   // defined in filing.cxx
+
+  #define VAE_MODEL_FILE  "/VAE_model.dat"
+  #define VAE_MODEL_MAGIC 0x56414531u  // "VAE1"
 
   #define N   VAE_NSAMP
   #define Q   VAE_QSAMP
@@ -314,24 +320,22 @@
     NVIC_SET_PENDING(CLASSIFIER_IRQ);
   }
 
-  // ── initialisation ──────────────────────────────────────────────────────────
-  void classifier_init(void)
+  // ── model persistence ────────────────────────────────────────────────────────
+  void classifier_load(void)
   {
-    // zero background EMA and detection state
+    // Always start with a clean random initialisation.
     memset(mu_bg,    0, sizeof(mu_bg));
     memset(recon_bg, 0, sizeof(recon_bg));
     memset(bg_seeded,0, sizeof(bg_seeded));
-    memset(vae_detect, 0, sizeof(vae_detect));
-    memset(I_buf,      0, sizeof(I_buf));
+    memset(vae_detect,0, sizeof(vae_detect));
 
     float s1 = sqrtf(6.0f / (float)(Q + H));
     float sh = sqrtf(6.0f / (float)(H + L));
     float sl = sqrtf(6.0f / (float)(L + H));
     float so = sqrtf(6.0f / (float)(H + Q));
-
     for (int v = 0; v < 4; v++) {
       for (int i = 0; i < H; i++) {
-        for (int j = 0; j < Q; j++) W1[v][i][j]  = lcg_uniform() * s1;
+        for (int j = 0; j < Q; j++) W1[v][i][j] = lcg_uniform() * s1;
         b1[v][i] = 0.0f;
         for (int k = 0; k < L; k++) {
           Wmu[v][k][i] = lcg_uniform() * sh;
@@ -339,11 +343,77 @@
           W3[v][i][k]  = lcg_uniform() * sl;
         }
         b3[v][i] = 0.0f;
-        for (int j = 0; j < Q; j++) W4[v][j][i]  = lcg_uniform() * so;
+        for (int j = 0; j < Q; j++) W4[v][j][i] = lcg_uniform() * so;
       }
       for (int k = 0; k < L; k++) { bmu[v][k] = 0.0f; blv[v][k] = 0.0f; }
       for (int j = 0; j < Q; j++) b4[v][j] = 0.0f;
     }
+
+    // Try to load saved weights from SD card.
+    FsFile f = sd.open(VAE_MODEL_FILE, FILE_READ);
+    if (!f) { Serial.println("VAE: no model file, random init"); return; }
+
+    uint32_t hdr[2];
+    if (f.read(hdr, sizeof(hdr)) != (int)sizeof(hdr) || hdr[0] != VAE_MODEL_MAGIC) {
+      f.close();
+      Serial.println("VAE: bad model file, random init");
+      return;
+    }
+    f.read(W1,       sizeof(W1));
+    f.read(W4,       sizeof(W4));
+    f.read(b1,       sizeof(b1));
+    f.read(Wmu,      sizeof(Wmu));
+    f.read(bmu,      sizeof(bmu));
+    f.read(Wlv,      sizeof(Wlv));
+    f.read(blv,      sizeof(blv));
+    f.read(W3,       sizeof(W3));
+    f.read(b3,       sizeof(b3));
+    f.read(b4,       sizeof(b4));
+    f.read(mu_bg,    sizeof(mu_bg));
+    f.read(recon_bg, sizeof(recon_bg));
+    f.read(bg_seeded,sizeof(bg_seeded));
+    f.close();
+    Serial.println("VAE: model loaded from SD");
+  }
+
+  void classifier_save(const char *datestring)
+  {
+    // Rename existing file to /VAE_model_YYYYMMDD_HHMM.dat before overwriting.
+    if (sd.exists(VAE_MODEL_FILE)) {
+      char backup[32];
+      char ts[14];
+      strncpy(ts, datestring, 13); ts[13] = '\0';
+      snprintf(backup, sizeof(backup), "/VAE_model_%s.dat", ts);
+      sd.rename(VAE_MODEL_FILE, backup);
+    }
+
+    FsFile f = sd.open(VAE_MODEL_FILE, FILE_WRITE);
+    if (!f) { Serial.println("VAE: cannot save model"); return; }
+
+    uint32_t hdr[2] = {VAE_MODEL_MAGIC, 1u};
+    f.write(hdr,      sizeof(hdr));
+    f.write(W1,       sizeof(W1));
+    f.write(W4,       sizeof(W4));
+    f.write(b1,       sizeof(b1));
+    f.write(Wmu,      sizeof(Wmu));
+    f.write(bmu,      sizeof(bmu));
+    f.write(Wlv,      sizeof(Wlv));
+    f.write(blv,      sizeof(blv));
+    f.write(W3,       sizeof(W3));
+    f.write(b3,       sizeof(b3));
+    f.write(b4,       sizeof(b4));
+    f.write(mu_bg,    sizeof(mu_bg));
+    f.write(recon_bg, sizeof(recon_bg));
+    f.write(bg_seeded,sizeof(bg_seeded));
+    f.close();
+    Serial.println("VAE: model saved");
+  }
+
+  // ── initialisation ──────────────────────────────────────────────────────────
+  void classifier_init(void)
+  {
+    memset(I_buf,     0, sizeof(I_buf));
+    classifier_load();   // random init + load from SD if available
 
     attachInterruptVector(CLASSIFIER_IRQ, classifier_isr);
     NVIC_SET_PRIORITY(CLASSIFIER_IRQ, CLASSIFIER_IRQ_PRIORITY);
