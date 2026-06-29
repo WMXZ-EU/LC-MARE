@@ -53,7 +53,7 @@ char INAM[40]={NAM_str}; // 'Name' (location id)
 char startTime[40]={"2000-01-01_00:00:00"}; // Start Time
 
 // definitions
-static uint16_t have_sd =0;
+uint16_t have_disk = 0;
 
 //#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_ADALOGGER)
 #if defined (ARDUINO_ARCH_RP2040)
@@ -223,14 +223,14 @@ uint16_t SD_init(void)
     // prepare wav header (const content)
     //prep_header(NCH, FSAMP, MBIT);
     wavHeaderInit(fsamp, NCHAN_PROC, MBIT);
-    have_sd=1;
+    have_disk=1;
   }
   return 1;
 }
 
 void storeConfigFile(void);
 void SD_stop(void)
-{ if(have_sd)
+{ if(have_disk)
   {
     storeConfigToFile();
     //https://github.com/greiman/SdFat/issues/401

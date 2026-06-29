@@ -45,7 +45,6 @@ status_t status=STOPPED;
 
 volatile uint32_t fsamp=FSAMP;
 
-uint16_t have_disk=0;
 #if MCU == T_4_1
   void acqSetup(void)
   { if(fsamp>FSAMP) fsamp=FSAMP; 

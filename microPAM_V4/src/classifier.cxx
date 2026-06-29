@@ -46,7 +46,8 @@
   #include <SdFat.h>
   #include "process.h"   // queue, acq_missed
 
-  extern SdFs sd;   // defined in filing.cxx
+  extern SdFs      sd;         // defined in filing.cxx
+  extern uint16_t  have_disk;  // defined in filing.cxx
 
   #define VAE_MODEL_FILE  "/VAE_model.dat"
   #define VAE_MODEL_MAGIC 0x56414531u  // "VAE1"
@@ -350,6 +351,7 @@
     }
 
     // Try to load saved weights from SD card.
+    if (!have_disk) { Serial.println("VAE: no SD, random init"); return; }
     FsFile f = sd.open(VAE_MODEL_FILE, FILE_READ);
     if (!f) { Serial.println("VAE: no model file, random init"); return; }
 
@@ -378,6 +380,7 @@
 
   void classifier_save(const char *datestring)
   {
+    if (!have_disk) { Serial.println("VAE: no SD, model not saved"); return; }
     // Rename existing file to /VAE_model_YYYYMMDD_HHMM.dat before overwriting.
     if (sd.exists(VAE_MODEL_FILE)) {
       char backup[32];

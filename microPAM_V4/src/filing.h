@@ -38,8 +38,10 @@ extern char INAM[]; // 'Name' (location id)
 
 extern char startTime[]; // Start Time
 
+extern uint16_t have_disk;
+
 uint16_t SD_init(void);
-void SD_stop(void); 
+void SD_stop(void);
 
 extern uint32_t diskBuffer[];
 extern uint32_t logBuffer[];
