@@ -381,12 +381,13 @@
   void classifier_save(const char *datestring)
   {
     if (!have_disk) { Serial.println("VAE: no SD, model not saved"); return; }
-    // Rename existing file to /VAE_model_YYYYMMDD_HHMM.dat before overwriting.
+    // Rename existing file into /VAE_backup/ before overwriting.
     if (sd.exists(VAE_MODEL_FILE)) {
-      char backup[32];
+      if (!sd.exists("/VAE_backup")) sd.mkdir("/VAE_backup");
+      char backup[48];
       char ts[14];
       strncpy(ts, datestring, 13); ts[13] = '\0';
-      snprintf(backup, sizeof(backup), "/VAE_model_%s.dat", ts);
+      snprintf(backup, sizeof(backup), "/VAE_backup/VAE_model_%s.dat", ts);
       sd.rename(VAE_MODEL_FILE, backup);
     }
 
