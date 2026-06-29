@@ -7,6 +7,7 @@ This document describes the three Python companion tools supplied with microPAM 
 | **micropam_control** | `Python/micropam_control.py` | Configure and control a connected PAM over USB serial |
 | **micropam_browser** | `Python/micropam_browser.py` | Browse, inspect, and visualise recorded data files |
 | **micropam_reader** | `Python/micropam_reader.py` | Python API / command-line decoder for all file formats |
+| **vae_model_analysis** | `Python/vae_model_analysis.py` | Analyse VAE model snapshots from SD card; generates PDF report |
 
 ---
 
@@ -234,6 +235,52 @@ Five time-series panels stacked vertically, all sharing the x-axis (time in seco
 
 1. **Detection excess** — `Dsnr − DETECT_THR`.  Positive values (shaded) indicate frames where the background-normalised intensity exceeded the detection threshold (default 3.0).  A dashed red line marks zero.
 2–5. **VAE 0–3** — per-VAE anomaly score `‖μ − μ_bg‖ × (err / err_bg)`.  All four panels share the same y-axis, scaled to 110 % of the overall maximum score.  A grey dashed line on each panel marks the noise-frame `mean + 3σ` threshold for that VAE, computed from frames where `signal_flag == 0`.
+
+---
+
+## vae_model_analysis — VAE model snapshot report
+
+### Overview
+
+`vae_model_analysis.py` reads a folder of timestamped VAE model backups written by the firmware (`/VAE_backup/VAE_model_YYYYMMDD_HHMM.dat` on the SD card) and produces a multi-page PDF report showing how the background model evolved over a deployment session.
+
+### Running
+
+```powershell
+Python\.venv\Scripts\python.exe Python\vae_model_analysis.py <folder>
+```
+
+If `folder` is omitted, the current directory is used.  The output file `vae_model_report.pdf` is written to the same folder.
+
+### Additional requirements
+
+```powershell
+Python\.venv\Scripts\pip.exe install matplotlib
+```
+
+(numpy and matplotlib are required; both are available in the default `.venv`.)
+
+### Output
+
+A 5-page PDF:
+
+| Page | Content |
+|------|---------|
+| 1 | Summary: file list with per-file statistics, key findings paragraph |
+| 2 | `recon_bg` on a log scale per VAE — rapid convergence is visible in the first hour |
+| 3 | Frobenius norms of W4 (solid) vs W1 (dotted) — W1 is frozen; W4 adapts slowly |
+| 4 | Mean `mu_bg` per VAE — reveals slow diel drift of the ambient background |
+| 5 | `mu_bg` by latent dimension for VAE 0 — shows spectral feature encoding |
+
+### Workflow
+
+1. Remove the SD card from the PAM after a deployment session.
+2. Copy the `/VAE_backup/` folder from the SD card to your PC (e.g. into `data/VAE_backup`).
+3. Run the script:
+   ```powershell
+   Python\.venv\Scripts\python.exe Python\vae_model_analysis.py data\VAE_backup
+   ```
+4. Open `data\VAE_backup\vae_model_report.pdf`.
 
 ---
 

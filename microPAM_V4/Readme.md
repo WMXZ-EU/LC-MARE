@@ -130,6 +130,8 @@ Four parallel online Variational Autoencoders, each trained incrementally on one
 | KL weight β | 1 × 10⁻³ |
 | Large weight storage | DMAMEM (RAM2) — W1[4][H][Q] and W4[4][Q][H] |
 | IRQ | `IRQ_QTIMER4`, priority 128 |
+| Model file | `/VAE_model.dat` on SD card root (loaded on boot, saved hourly and before hibernate) |
+| Model backups | `/VAE_backup/VAE_model_YYYYMMDD_HHMM.dat` — timestamped snapshots |
 
 All 16 latent means are available via `vae_mu[VAE_LAT_TOTAL]` (layout: `[vae0_μ0, …, vae0_μ3, vae1_μ0, …]`) and printed by the serial monitor each second. In PROC_MODE 4 they are also written to the `.vae` file via the queue.
 
@@ -299,6 +301,14 @@ result = MicroPAMFile("recording.int").read_all()
 data   = result["data"]   # numpy array, shape depends on PROC_MODE
 ```
 
+### vae_model_analysis — VAE model report
+
+Reads all `VAE_model_*.dat` snapshots from the SD card's `/VAE_backup/` folder and generates a 5-page PDF report showing background model convergence, weight norm evolution, and latent space drift.
+
+```powershell
+Python\.venv\Scripts\python.exe Python\vae_model_analysis.py <path-to-VAE_backup>
+```
+
 ---
 
 ## Key source files
@@ -321,6 +331,8 @@ data   = result["data"]   # numpy array, shape depends on PROC_MODE
 | [`Python/micropam_control.py`](Python/micropam_control.py) | Python/tkinter device configuration and control GUI |
 | [`Python/micropam_browser.py`](Python/micropam_browser.py) | Python/tkinter data file browser and visualiser |
 | [`Python/micropam_reader.py`](Python/micropam_reader.py) | Python API for reading all microPAM file formats |
+| [`Python/simulator.py`](Python/simulator.py) | Pure-Python simulator mirroring full firmware chain; Wenz ocean noise model + synthetic chirp injection |
+| [`Python/vae_model_analysis.py`](Python/vae_model_analysis.py) | Analyses `/VAE_backup/` snapshots from SD card; generates 5-page PDF report |
 
 ---
 
