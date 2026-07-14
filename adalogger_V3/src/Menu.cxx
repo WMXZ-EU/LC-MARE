@@ -67,7 +67,7 @@ static char * menuGetLine(void)
   while(!Serial.available()) continue;
   Serial.setTimeout(5000);
   int count;
-  count = Serial.readBytesUntil('\n',buffer,40);
+  count = Serial.readBytesUntil('\n',buffer,39);
   buffer[count]=0;
   Serial.print("> "); Serial.println(buffer);
   return buffer;
