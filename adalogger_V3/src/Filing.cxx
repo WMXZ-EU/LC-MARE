@@ -491,7 +491,8 @@ int16_t loadConfigfromFile(void)
     { 
       int i1=configIndex[ii]+1;
       int i2=i1+1;
-      while(i2<i1+80) {if((configText[i2]=='#')||(configText[i2]==';')) break; i2++;}
+      int i2max=(i1+80<nmax-1)?i1+80:nmax-1;
+      while(i2<i2max) {if((configText[i2]=='#')||(configText[i2]==';')) break; i2++;}
       configText[i2]=0;
       char *txt=&configText[i1];
       char *txt2=&txt[2];
@@ -504,17 +505,17 @@ int16_t loadConfigfromFile(void)
                     fsamp *=1000; acqModifyFrequency(fsamp); break;
           case 'g': again=scan16(txt2);
                     setAGain((int8_t)again&0xff);  break;
-          case 's': sscanf(txt2,"%s",&ISRC[0]);    break; // source (AS1-200)
-          case 'c': sscanf(txt2,"%s",&ICMS[0]);    break; // commissioning organisation (WMXZ)
-          case 'n': sscanf(txt2,"%s",&IART[0]);    break; // name of operator (creator) (WMXZ)
-          case 'p': sscanf(txt2,"%s",&IPRD[0]);    break; // project (Development)
-          case 'e': sscanf(txt2,"%s",&ISBJ[0]);    break; // area (atHome)
-          case 'l': sscanf(txt2,"%s",&INAM[0]);    break; // location id (B01)
+          case 's': sscanf(txt2,"%39s",&ISRC[0]);    break; // source (AS1-200)
+          case 'c': sscanf(txt2,"%39s",&ICMS[0]);    break; // commissioning organisation (WMXZ)
+          case 'n': sscanf(txt2,"%39s",&IART[0]);    break; // name of operator (creator) (WMXZ)
+          case 'p': sscanf(txt2,"%39s",&IPRD[0]);    break; // project (Development)
+          case 'e': sscanf(txt2,"%39s",&ISBJ[0]);    break; // area (atHome)
+          case 'l': sscanf(txt2,"%39s",&INAM[0]);    break; // location id (B01)
           case '1': h_rec[0]=scan16(txt2);  break; // h_rec[0]
           case '2': h_rec[1]=scan16(txt2);  break; // h_rec[1]
           case '3': h_rec[2]=scan16(txt2);  break; // h_rec[2]
           case '4': h_rec[3]=scan16(txt2);  break; // h_rec[3]
-          case 'x': sscanf(txt2,"%s",&startTime[0]); break; // startTime
+          case 'x': sscanf(txt2,"%39s",&startTime[0]); break; // startTime
         }
     }
   return jmax;

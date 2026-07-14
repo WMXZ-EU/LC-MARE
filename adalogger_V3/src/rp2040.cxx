@@ -347,7 +347,8 @@
 
   void i2s_setup(void)
   {
-    _i2s = new PIOProgram( &pio_tdm_in_program);
+    static PIOProgram i2s_program(&pio_tdm_in_program);
+    _i2s = &i2s_program;
     //
     _i2s->prepare(&_pio, &_sm, &off);
 
