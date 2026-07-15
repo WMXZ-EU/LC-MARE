@@ -24,7 +24,7 @@
 
 #include "../config.h"
   #define Program "Adalogger_V3a"
-  #define Version "3.0.2" // 10-05-2026
+  #define Version "3.1.0" // 15-07-2026
   #define PreAmp  0       // 0: CMOS; 1: FET; 2 Mark
 
   // hardware (so far descriptive only)
@@ -48,9 +48,9 @@
   #if MCU==RP_2040
     #define NCHAN_I2S   1   // controls the I2S interface
     #define NCH         1   // for wav header (Mono or stereo)
-    #if FSAMP>96000         // limit sampling frequency
+    #if FSAMP>192000        // limit sampling frequency
       #undef FSAMP
-      #define FSAMP 96000
+      #define FSAMP 192000
     #endif
     //
   #elif MCU==RP_2350

@@ -32,7 +32,7 @@
   #define T_REP     0   // minutes (for continuous recording set t_rep < t_acq)
 
   // definitions for acquisition and filing (default to highest useful frequency)
-  #define FSAMP 96000  // will be limited to 96000 if RP2040
+  #define FSAMP 192000  // will be limited to 96000 if RP2040
   //
   #define PROC      1   // 0 Wav raw file; 1 compress 
 
