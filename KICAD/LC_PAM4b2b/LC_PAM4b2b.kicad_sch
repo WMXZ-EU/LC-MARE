@@ -3114,6 +3114,16 @@
 		)
 		(uuid "08f90615-e4f8-40e8-bf69-ad4dedc23857")
 	)
+	(label "VIN_ADC"
+		(at 179.07 137.16 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0eace28b-ee9a-4485-93c6-1246eb366799")
+	)
 	(label "SDOUT"
 		(at 154.94 68.58 0)
 		(effects
@@ -3123,6 +3133,16 @@
 			(justify left bottom)
 		)
 		(uuid "1af85f20-9ca9-45f4-8750-bbeb8514b561")
+	)
+	(label "VUSB"
+		(at 179.07 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1b28033a-8b79-4a59-bdd8-a7f1f1fe7f4b")
 	)
 	(label "MISO"
 		(at 59.69 156.21 180)
@@ -3173,6 +3193,16 @@
 			(justify right bottom)
 		)
 		(uuid "24fa4aa6-4ba1-46eb-aef9-b07c86a31c40")
+	)
+	(label "VBAT"
+		(at 179.07 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "255aee9e-be22-41f4-adf4-ada3035cf597")
 	)
 	(label "H1+"
 		(at 33.02 60.96 0)
@@ -3554,7 +3584,7 @@
 		)
 		(uuid "b073d2f9-340e-435a-bdd0-43a5f3c407a8")
 	)
-	(label "VIN_ADC"
+	(label "VBAT"
 		(at 213.36 36.83 90)
 		(effects
 			(font
@@ -4188,6 +4218,88 @@
 			(project "LC_PAM4b2b"
 				(path "/ad1bba0a-8655-44fc-a26e-d096bf7f388a"
 					(reference "J10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Pin")
+		(at 173.99 137.16 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4fb39815-63fe-4666-9ede-0efc2d0ffe21")
+		(property "Reference" "J8"
+			(at 173.99 129.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x03_Pin"
+			(at 173.99 131.572 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 173.99 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 173.99 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated"
+			(at 173.99 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9a57c141-6b2b-4d69-b093-429e8467f326")
+		)
+		(pin "3"
+			(uuid "3c78c9bd-4557-4649-a681-9f011261d6db")
+		)
+		(pin "2"
+			(uuid "0a31f595-8ec2-4e5e-a3d9-2ca367d3fe81")
+		)
+		(instances
+			(project "LC_PAM4b2b"
+				(path "/ad1bba0a-8655-44fc-a26e-d096bf7f388a"
+					(reference "J8")
 					(unit 1)
 				)
 			)
