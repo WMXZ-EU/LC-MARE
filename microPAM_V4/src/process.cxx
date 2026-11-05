@@ -84,7 +84,7 @@ int32_t __not_in_flash_func(encodeData)(uint32_t *out, int32_t *inp, int ndat, i
   uint32_t nb=0;
   for(nb=2; nb<=24; nb++) if(amax < (unsigned)(1<<nb)) break;
   nb++;
-
+  nb=20;
   uint32_t mask = (1<<nb) -1;
 
   uint32_t *utmp = (uint32_t *) tempData;

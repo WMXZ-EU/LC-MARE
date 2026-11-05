@@ -124,9 +124,9 @@
   #endif
   //
   #if MCU==RP_2040
-    #if FSAMP>192000
+    #if FSAMP>384000
       #undef FSAMP
-      #define FSAMP 192000
+      #define FSAMP 384000
     #endif
   #endif
 
