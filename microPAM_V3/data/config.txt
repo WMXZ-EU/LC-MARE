@@ -1,0 +1,20 @@
+# configuration file
+# should end with '#' or ';' comment may follow
+#
+!a 60  # file size (sec)
+!o 1  # on time (min)
+!r 0  # repetition interval (min)
+!f 192	# sampling frequency (kHz)
+!g 0	# analog gain (dB)
+!m 1	# project mode (0: raw; 1:compressed)
+!s AS1-208	# (ISRC) source with sensitivity
+!c WMXZ	# (ICMS) commissioning organization
+!n wmxz	# (IART) name of operator (creator)
+!p Development	# (IPRD) project
+!e Home	# (ISBJ) area
+!l B01	# (INAM) location id
+!1 0	# h_rec[0]
+!2 12	# h_rec[1]
+!3 12	# h_rec[2]
+!4 24	# h_rec[3]
+!x 2000-01-01_00:00:00  # start time yyyy-mm-dd_hh:mm:ss
