@@ -13,6 +13,9 @@ first LC-Mare firmware uses only adalogger RP2040. Suitable for single hydrophon
 improved LC-Mare firmware 
 - for adalogger RP2040 (single hydrophone up to 96 kHz sampling frequency)
 - for rp2350 based adafruit feather (stereo and up to 384 kHz sampling frequency)
+### microPAM_V3
+improved version of adalogger_V3 for three MCU types (RP2040, RP2350, Teensy4.1)
+all for sampling frequency up to 384 kHz
 ### microPAM_V4
 development version for three MCU types (RP2040, RP2350, Teensy4.1)
 Work in Progress
