@@ -1,6 +1,6 @@
 microPAM_V3 3.5.13 - user package
 =================================
-Package of 2026-11-07, built from commit db42d2a.
+Package of 2026-11-08, built from commit 2949eb6.
 
 This package contains the firmware of the LC-MARE passive acoustic recorder (microPAM_V3)
 for the Adafruit Feather RP2040 Adalogger and the Adafruit Feather RP2350 HSTX, ready-built
