@@ -1,6 +1,6 @@
 microPAM_V3 3.5.13 - user package
 =================================
-Package of 2026-11-08, built from commit 2949eb6.
+Package of 2026-11-12, built from commit e5a5046.
 
 This package contains the firmware of the LC-MARE passive acoustic recorder (microPAM_V3)
 for the Adafruit Feather RP2040 Adalogger and the Adafruit Feather RP2350 HSTX, ready-built
@@ -11,7 +11,11 @@ configuration and its file format in full. SETUP.md, or SETUP.pdf, is the detail
 guide for Windows and macOS, with troubleshooting. WORKBENCH.md, or WORKBENCH.pdf, is the
 user guide to the workbench: configuration modes, recording schedules and the four tabs.
 LC-Mare-Operations.pdf summarizes the operation of the recorder hardware:
-batteries, power jumper and deployment.
+batteries, power jumper and deployment. documents\lcmare_cal.pdf describes the calibration
+workflow for LC-Mare: sensitivity and phase of the recording chain from a hydrophone model,
+a water-filled tube (low frequencies) and a free-field reciprocity frame (high frequencies).
+documents\characterization_1B843C2E.pdf reports the endurance on one battery and the gain,
+input noise and self-noise of one recorder, measured with resistors in place of the hydrophone.
 
 Requirements
 ------------
